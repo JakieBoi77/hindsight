@@ -31,18 +31,41 @@ concurrency:
 
 jobs:
   publish:
-    # A build that failed or was cancelled has nothing worth publishing, and a run
-    # triggered by anything other than a pull request has no pull request to
-    # comment on.
-    if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'pull_request'
+    # Deliberately no job-level `if`. Gating the job on the build's conclusion
+    # meant that whenever the build failed - or was cancelled, which
+    # cancel-in-progress makes routine - this run appeared with its only job
+    # skipped and no output at all, which is indistinguishable from the trigger
+    # never firing. The job now always starts and says why it stopped.
     runs-on: ubuntu-latest
     env:
       RUN_ID: ${{ github.event.workflow_run.id }}
     steps:
+      - name: Report what triggered this run
+        id: gate
+        run: |
+          echo "Triggering workflow : ${{ github.event.workflow_run.name }}"
+          echo "Run id              : $RUN_ID"
+          echo "Run number          : ${{ github.event.workflow_run.run_number }}"
+          echo "Event               : ${{ github.event.workflow_run.event }}"
+          echo "Conclusion          : ${{ github.event.workflow_run.conclusion }}"
+          echo "Head branch         : ${{ github.event.workflow_run.head_branch }}"
+          echo "Head repository     : ${{ github.event.workflow_run.head_repository.full_name }}"
+          echo "Run URL             : ${{ github.event.workflow_run.html_url }}"
+
+          proceed=true
+          if [ "${{ github.event.workflow_run.event }}" != "pull_request" ]; then
+            echo "::notice::Triggered by '${{ github.event.workflow_run.event }}', not a pull request; there is nothing to comment on."
+            proceed=false
+          fi
+          if [ "${{ github.event.workflow_run.conclusion }}" != "success" ]; then
+            echo "::notice::The build concluded '${{ github.event.workflow_run.conclusion }}', so there is nothing to publish. Fix the build first - see the Run URL above."
+            proceed=false
+          fi
+          echo "proceed=$proceed" >> $GITHUB_OUTPUT
+
       - name: Look for a preview artifact
         id: find
+        if: steps.gate.outputs.proceed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -53,7 +76,7 @@ jobs:
                --jq '.artifacts[].name' | grep -qx 'pdf-preview'; then
             echo "found=true" >> $GITHUB_OUTPUT
           else
-            echo "No pdf-preview artifact on run $RUN_ID; nothing to publish."
+            echo "::notice::No pdf-preview artifact on run $RUN_ID, so this pull request changed no documents."
             echo "found=false" >> $GITHUB_OUTPUT
           fi
 

@@ -50,58 +50,61 @@ jobs:
           # base revision as a worktree, so a shallow clone will not do.
           fetch-depth: 0
 
-      # Same pinned action and package set as latex-pages.yml, plus
-      # texlive-extra-utils, which is where latexdiff lives. The longer package
-      # list gives this job its own cache entry, which is expected.
+      # Byte-for-byte the install step from latex-pages.yml: same pinned action,
+      # same package list, same version input. That is deliberate. Matching the key
+      # means this workflow restores the cache entry latex-pages.yml has been using
+      # successfully for months, instead of creating a second entry of its own -
+      # which is what came back missing mktexlsr and broke this step twice.
       #
-      # Four packages are listed explicitly that would otherwise arrive as
-      # transitive dependencies, because this action caches a *fileset* and only
-      # restores files it recorded when the cache was created. A dependency that
-      # happened to be present on the runner image at that moment is not recorded,
-      # and then goes missing on a later restore:
-      #
-      #   texlive-binaries      mktexlsr, kpsewhich  - its absence produced
-      #                         "sudo: mktexlsr: command not found"
-      #   texlive-base          updmap-sys
-      #   libalgorithm-diff-perl  latexdiff is a Perl script that dies at startup
-      #                         without Algorithm::Diff
-      #   texlive-extra-utils   latexdiff itself
-      #
-      # Bump `version` to discard a cached fileset that turns out to be incomplete.
-      - name: Install TeX Live, pandoc and latexdiff
+      # latexdiff is installed separately below, NOT added here. Adding packages to
+      # this action is what produced the incomplete fileset.
+      - name: Install TeX Live and pandoc
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
-          packages: texlive-latex-extra texlive-science texlive-fonts-extra texlive-fonts-recommended texlive-latex-recommended texlive-base texlive-binaries texlive-extra-utils libalgorithm-diff-perl lmodern pandoc
-          version: 2
+          packages: texlive-latex-extra texlive-science texlive-fonts-extra texlive-fonts-recommended texlive-latex-recommended lmodern pandoc
+          version: 1.1
 
-      - name: Verify the TeX toolchain is usable
+      - name: Rebuild the TeX file databases
         run: |
-          # Restoring cached package files skips texlive's postinst, which is what
-          # builds the ls-R filename database and the font map files. Without these
-          # two commands kpsewhich cannot see the restored packages and pdflatex
-          # fails on missing fonts - the failure that bit latex-pages.yml on its
-          # first cache hit. Fail here, loudly, rather than part way through.
+          # Exactly what latex-pages.yml does, for the reason it documents:
+          # restoring cached package files skips texlive's postinst, and that
+          # postinst is what builds the ls-R filename database and the font maps.
+          # Without these, kpsewhich cannot see the restored packages and pdflatex
+          # fails on missing fonts.
           #
-          # Check they exist first: bare `sudo mktexlsr` reports only "command not
-          # found", which says nothing about the cause being an incomplete cached
-          # fileset rather than a broken TeX install.
-          for tool in mktexlsr updmap-sys kpsewhich; do
-            command -v "$tool" >/dev/null && continue
-            echo "::error::$tool is not installed, so the restored apt cache is incomplete. Bump the 'version' input on the install step above to discard it and install fresh."
-            exit 1
-          done
+          # The guard is the one addition. If the tools are absent the restored
+          # fileset was incomplete, so install them properly and carry on: that
+          # costs a minute, where failing costs the reviewer their preview.
+          if ! command -v mktexlsr >/dev/null || ! command -v updmap-sys >/dev/null; then
+            echo "TeX binaries are missing from the restored cache; installing with apt"
+            sudo apt-get update -qq
+            sudo apt-get install -y texlive-base texlive-binaries
+          fi
 
           sudo mktexlsr
           sudo updmap-sys >/dev/null
 
-          pdflatex --version | head -1
-          kpsewhich article.cls
+      - name: Install latexdiff
+        run: |
+          # Plain apt rather than the caching action above, so the postinst scripts
+          # run normally and nothing has to be repaired by hand. latexdiff lives in
+          # texlive-extra-utils and is a Perl script that dies at startup without
+          # Algorithm::Diff, which is libalgorithm-diff-perl.
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            texlive-extra-utils libalgorithm-diff-perl
 
-          # latexdiff is a Perl script, and the way it usually fails is at startup
-          # on a missing module - Algorithm::Diff - rather than on a document, so
-          # `latexdiff --version` is not much of a check. Diff two trivial files
-          # and look for the markup instead, the same way latex-pages.yml smoke
-          # tests the pandoc path rather than guessing at its package list.
+      - name: Verify the toolchain is usable
+        run: |
+          pdflatex --version | head -1
+          pandoc --version | head -1
+          kpsewhich article.cls
+          kpsewhich amsmath.sty
+
+          # Smoke test the real latexdiff path rather than trusting --version: the
+          # way it fails is at startup on a missing Perl module, which --version
+          # would also survive on some builds. Mirrors how latex-pages.yml smoke
+          # tests pandoc instead of guessing at its package list.
           smoke=$(mktemp -d)
           printf '%s\n' '\documentclass{article}' '\begin{document}' \
             'One two three.' '\end{document}' > "$smoke/a.tex"

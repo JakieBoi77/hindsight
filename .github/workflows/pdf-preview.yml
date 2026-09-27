@@ -50,63 +50,45 @@ jobs:
           # base revision as a worktree, so a shallow clone will not do.
           fetch-depth: 0
 
-      # Byte-for-byte the install step from latex-pages.yml: same pinned action,
-      # same package list, same version input. That is deliberate. Matching the key
-      # means this workflow restores the cache entry latex-pages.yml has been using
-      # successfully for months, instead of creating a second entry of its own -
-      # which is what came back missing mktexlsr and broke this step twice.
+      # Plain apt, deliberately NOT the awalsh128/cache-apt-pkgs-action that
+      # latex-pages.yml uses. That action failed here three different ways: a
+      # restored fileset with no mktexlsr, a fileset that left dpkg unaware of
+      # packages whose files it had restored, and finally a cache entry of 4690
+      # bytes - an empty one - that reported "Cache hit" and delivered no TeX at
+      # all. Every plain apt install in those same logs worked first time.
       #
-      # latexdiff is installed separately below, NOT added here. Adding packages to
-      # this action is what produced the incomplete fileset.
-      - name: Install TeX Live and pandoc
-        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
-        with:
-          packages: texlive-latex-extra texlive-science texlive-fonts-extra texlive-fonts-recommended texlive-latex-recommended lmodern pandoc
-          version: 1.1
-
-      - name: Rebuild the TeX file databases
+      # The cost is roughly two minutes per run. What it buys is that the postinst
+      # scripts run, and those are what build the ls-R filename database and the
+      # font maps, so there is nothing to repair by hand afterwards and no cached
+      # fileset that can come back incomplete. latex-pages.yml keeps its cache and
+      # is unaffected by this.
+      #
+      # latexdiff is its own package. texlive-extra-utils ships git-latexdiff, the
+      # git wrapper, not latexdiff itself - asking for it pulled 165 MB and still
+      # left no latexdiff binary. libalgorithm-diff-perl supplies the
+      # Algorithm::Diff module latexdiff needs at startup and is only a Recommends
+      # of it, so it is named explicitly.
+      - name: Install TeX Live, pandoc and latexdiff
         run: |
-          # Exactly what latex-pages.yml does, for the reason it documents:
-          # restoring cached package files skips texlive's postinst, and that
-          # postinst is what builds the ls-R filename database and the font maps.
-          # Without these, kpsewhich cannot see the restored packages and pdflatex
-          # fails on missing fonts.
-          #
-          # The guard is the one addition. If the tools are absent the restored
-          # fileset was incomplete, so install them properly and carry on: that
-          # costs a minute, where failing costs the reviewer their preview.
-          if ! command -v mktexlsr >/dev/null || ! command -v updmap-sys >/dev/null; then
-            echo "TeX binaries are missing from the restored cache; installing with apt"
-            sudo apt-get update -qq
-            sudo apt-get install -y texlive-base texlive-binaries
-          fi
-
-          sudo mktexlsr
-          sudo updmap-sys >/dev/null
-
-      - name: Install latexdiff
-        run: |
-          # latexdiff is its own package on Debian and Ubuntu. It is NOT part of
-          # texlive-extra-utils - that ships git-latexdiff, the git wrapper, which
-          # is why asking for it pulled 165 MB and still left no latexdiff binary.
-          #
-          # The package itself is a handful of Perl scripts. libalgorithm-diff-perl
-          # supplies the Algorithm::Diff module the script needs at startup, and is
-          # only a Recommends, so it is named explicitly.
-          #
-          # --no-install-recommends matters: latexdiff recommends texlive-latex-base,
-          # and letting apt install that re-installs the whole TeX stack the cache
-          # step already provided, which is what made this step take 1m20s.
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends \
-            latexdiff libalgorithm-diff-perl
+          sudo apt-get install -y \
+            texlive-latex-extra \
+            texlive-latex-recommended \
+            texlive-science \
+            texlive-fonts-extra \
+            texlive-fonts-recommended \
+            lmodern \
+            pandoc \
+            latexdiff \
+            libalgorithm-diff-perl
 
-          # Fail here rather than three steps later, where the error is just
-          # "latexdiff: command not found" with no hint about the package.
-          command -v latexdiff >/dev/null || {
-            echo "::error::latexdiff did not install"
+          # Fail here, naming the tool, rather than several steps later with a bare
+          # "command not found" that says nothing about the cause.
+          for tool in pdflatex bibtex pandoc latexdiff kpsewhich; do
+            command -v "$tool" >/dev/null && continue
+            echo "::error::$tool is not on PATH after installation"
             exit 1
-          }
+          done
 
       - name: Verify the toolchain is usable
         run: |

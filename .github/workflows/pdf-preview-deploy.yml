@@ -1,0 +1,210 @@
+name: Publish PDF preview
+
+# The trusted half of the pair. pdf-preview.yml compiles a pull request's
+# documents with no secrets - which is what makes it work for the personal forks
+# the team develops on - and uploads them as an artifact. workflow_run then starts
+# this workflow in *this* repository's context, where the Cloudflare secrets and a
+# token that can comment on the pull request are available.
+#
+# The security property that makes this safe, and which must not be weakened:
+# nothing here executes code from the pull request. The only things that cross the
+# boundary are PDFs, a generated index page and three short metadata values, and
+# the metadata is validated below before it reaches a command line. In particular
+# this workflow never checks out the pull request's head - the checkout below is of
+# this repository's default branch, for wrangler.jsonc alone.
+on:
+  workflow_run:
+    workflows: ["PDF previews for pull requests"]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read          # to download the artifact from the triggering run
+  pull-requests: write   # the sticky comment
+
+# Serialise per source branch so two quick pushes cannot race to publish the same
+# preview. The pull request number is not known until the artifact is read, and the
+# branch plus its fork identifies the pull request just as well.
+concurrency:
+  group: pdf-preview-deploy-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    # A build that failed or was cancelled has nothing worth publishing, and a run
+    # triggered by anything other than a pull request has no pull request to
+    # comment on.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    env:
+      RUN_ID: ${{ github.event.workflow_run.id }}
+    steps:
+      - name: Look for a preview artifact
+        id: find
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # pdf-preview.yml only uploads when it actually produced previews, so a
+          # missing artifact is the ordinary "this pull request changed no
+          # documents" case rather than a failure.
+          if gh api "repos/${{ github.repository }}/actions/runs/$RUN_ID/artifacts" \
+               --jq '.artifacts[].name' | grep -qx 'pdf-preview'; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "No pdf-preview artifact on run $RUN_ID; nothing to publish."
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Deliberately the default ref - this repository's default branch - and not
+      # the pull request. All this provides is .github/preview/wrangler.jsonc.
+      - name: Checkout this repository
+        if: steps.find.outputs.found == 'true'
+        uses: actions/checkout@v5
+
+      - name: Download the preview artifact
+        if: steps.find.outputs.found == 'true'
+        uses: actions/download-artifact@v6
+        with:
+          name: pdf-preview
+          path: incoming
+          # run-id plus github-token is what makes download-artifact read from a
+          # *different* workflow run through the REST API. Omitting either is the
+          # classic cause of "artifact not found" under workflow_run, and it needs
+          # the actions: read permission declared above.
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Read and validate the build metadata
+        if: steps.find.outputs.found == 'true'
+        run: |
+          PR=$(tr -d '[:space:]' < incoming/meta/pr.txt)
+          SHA=$(tr -d '[:space:]' < incoming/meta/sha.txt)
+
+          # This artifact was produced by a pull request, so treat its contents as
+          # input rather than fact. Both values are about to be interpolated into a
+          # preview name and a command line.
+          case "$PR" in
+            ''|*[!0-9]*) echo "::error::artifact carried a bad pull request number"; exit 1 ;;
+          esac
+          case "$SHA" in
+            ''|*[!0-9a-fA-F]*) echo "::error::artifact carried a bad commit sha"; exit 1 ;;
+          esac
+
+          echo "PR=$PR"   >> $GITHUB_ENV
+          echo "SHA=$SHA" >> $GITHUB_ENV
+          echo "Publishing preview for PR #$PR at ${SHA:0:7}"
+
+      - name: Stage the site for wrangler
+        if: steps.find.outputs.found == 'true'
+        run: |
+          # Replaces the committed placeholder index.html for this run only.
+          rm -rf .github/preview/public
+          mkdir -p .github/preview/public
+          cp -r incoming/site/. .github/preview/public/
+          find .github/preview/public -name '*.pdf' | sort
+
+      - name: Publish the preview
+        id: preview
+        if: steps.find.outputs.found == 'true'
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Workers Previews need at least this version of wrangler.
+          wranglerVersion: "4.136.3"
+          workingDirectory: .github/preview
+          # --name is explicit because wrangler otherwise derives the preview name
+          # from the current git branch, which here is this repository's default
+          # branch rather than anything to do with the pull request.
+          #
+          # gitHubToken is deliberately NOT passed. It would make the action open a
+          # GitHub Deployment against the ref this workflow runs on - the default
+          # branch - which would read as though main had been deployed. The sticky
+          # comment below carries the link instead.
+          command: preview --name pr-${{ env.PR }}
+
+      - name: Comment the preview links on the pull request
+        if: steps.find.outputs.found == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREVIEW_URL: ${{ steps.preview.outputs.preview-url }}
+          DEPLOYMENT_URL: ${{ steps.preview.outputs.deployment-url }}
+        run: |
+          # preview-url is what wrangler-action exposes for a Workers Preview;
+          # deployment-url is the older, more general output. Fall back rather than
+          # post a comment full of links to "/SRS/SRS.pdf".
+          base="${PREVIEW_URL:-$DEPLOYMENT_URL}"
+          base="${base%/}"
+          if [ -z "$base" ]; then
+            echo "::warning::wrangler returned no preview URL; skipping the comment"
+            exit 0
+          fi
+
+          # A change to a shared include fans out - docs/Common.text alone reaches
+          # 14 documents - so past a handful of rows the table is folded away to
+          # keep the pull request readable.
+          collapse=8
+          count=0
+          : > /tmp/rows.md
+
+          while IFS=$'\t' read -r src full diff; do
+            # previews.tsv came from the pull request, and these values go straight
+            # into markdown. Anything outside a plain repository path is dropped
+            # rather than rendered, so a hostile filename cannot inject markup into
+            # a comment this workflow posts with a write token.
+            case "$src$full$diff" in
+              *[!A-Za-z0-9._/-]*) echo "::warning::skipping row with unexpected characters: $src"; continue ;;
+            esac
+
+            count=$((count + 1))
+            printf '| `%s` | [full](%s) | ' "${src#docs/}" "$base/$full" >> /tmp/rows.md
+            if [ -n "$diff" ]; then
+              printf '[diff vs base](%s) |\n' "$base/$diff" >> /tmp/rows.md
+            else
+              printf '_no diff_ |\n' >> /tmp/rows.md
+            fi
+          done < incoming/meta/previews.tsv
+
+          if [ "$count" -eq 0 ]; then
+            echo "::warning::no usable rows in the manifest; skipping the comment"
+            exit 0
+          fi
+
+          {
+            echo "## 📄 Document previews"
+            echo
+            if [ "$count" -eq 1 ]; then
+              echo "1 document, built from \`${SHA:0:7}\`."
+            else
+              echo "$count documents, built from \`${SHA:0:7}\`."
+            fi
+            echo
+
+            if [ "$count" -gt "$collapse" ]; then
+              echo "<details>"
+              echo "<summary>Show all $count documents</summary>"
+              # A markdown table inside <details> only renders with a blank line
+              # between the summary and the table.
+              echo
+            fi
+
+            echo "| Document | | |"
+            echo "| --- | --- | --- |"
+            cat /tmp/rows.md
+
+            if [ "$count" -gt "$collapse" ]; then
+              echo
+              echo "</details>"
+            fi
+
+            echo
+            echo "[Browse all →]($base/)"
+          } > /tmp/comment.md
+
+          # --edit-last keeps one comment per pull request rather than adding another
+          # on every push, and --create-if-none writes the first one. This job is the
+          # only thing commenting as github-actions[bot] here, so there is nothing
+          # for --edit-last to clobber.
+          gh pr comment "$PR" --body-file /tmp/comment.md --edit-last --create-if-none

@@ -1,8 +1,16 @@
 name: PDF previews for pull requests
 
-# Compiles the documents a pull request affects, builds a latexdiff of each one
-# against the base branch, and publishes both to a per-pull-request Cloudflare
-# Workers preview so a reviewer can read them in the browser.
+# Compiles the documents a pull request affects and builds a latexdiff of each one
+# against the base branch, then hands the result to pdf-preview-deploy.yml as an
+# artifact.
+#
+# This half runs with NO secrets and a read-only token, which is what lets it work
+# for pull requests from forks - the team works through personal forks, and GitHub
+# withholds secrets from fork-originated pull_request runs. Publishing happens in
+# pdf-preview-deploy.yml, which workflow_run starts in this repository's own
+# context afterwards. Keep it that way: the moment this workflow can see the
+# Cloudflare token, a pull request that edits the Makefile can steal it, because
+# the compile step below runs `make` from the pull request.
 #
 # Deliberately independent of latex-pages.yml: that workflow owns main and the
 # published site, this one owns pull requests, and neither reads the other's
@@ -17,22 +25,18 @@ on:
   pull_request:
     paths: [docs/**, refs/**, .github/workflows/pdf-preview.yml]
 
+# Nothing here needs more than read access. A fork's pull_request run gets a
+# read-only token regardless; stating it keeps that explicit rather than accidental.
 permissions:
   contents: read
-  pull-requests: write   # the sticky comment
-  deployments: write     # the GitHub Deployment wrangler-action creates
 
-# A new push should supersede the preview still building for the previous one.
+# A new push should supersede the build still running for the previous one.
 concurrency:
   group: pdf-preview-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
   preview:
-    # A pull request from a fork gets a read-only token and no access to secrets,
-    # so there is nothing it could publish. Skip quietly rather than fail on
-    # every such pull request.
-    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     env:
       BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -251,88 +255,34 @@ jobs:
             --output "$PREVIEW_DIR/index.html" \
             --tracked-dir pdfs
 
-      - name: Publish the preview
-        id: preview
+      - name: Package the preview for the deploy workflow
         if: env.PREVIEW_COUNT != '' && env.PREVIEW_COUNT != '0'
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # Workers Previews need at least this version of wrangler.
-          wranglerVersion: "4.136.3"
-          workingDirectory: .github/preview
-          # --name is explicit because wrangler otherwise derives the preview name
-          # from the current git branch, and CI runs on a detached HEAD. It also
-          # avoids a wrangler bug that rejects branch names containing a slash.
-          command: preview --name pr-${{ github.event.pull_request.number }}
-          # Makes the action open a GitHub Deployment and write a job summary, so
-          # the preview is reachable from the pull request timeline as well as from
-          # the comment below.
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Comment the preview links on the pull request
-        if: env.PREVIEW_COUNT != '' && env.PREVIEW_COUNT != '0'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PREVIEW_URL: ${{ steps.preview.outputs.preview-url }}
-          DEPLOYMENT_URL: ${{ steps.preview.outputs.deployment-url }}
-          PR: ${{ github.event.pull_request.number }}
         run: |
-          # preview-url is what wrangler-action exposes for a Workers Preview;
-          # deployment-url is the older, more general output. Fall back rather
-          # than post a comment full of links to "/SRS/SRS.pdf".
-          base="${PREVIEW_URL:-$DEPLOYMENT_URL}"
-          base="${base%/}"
-          if [ -z "$base" ]; then
-            echo "::warning::wrangler returned no preview URL; skipping the comment"
-            exit 0
-          fi
+          # Everything the deploy half needs, and nothing it has to trust as code.
+          # The site is static files; the metadata is three short text values that
+          # pdf-preview-deploy.yml validates before it uses them.
+          #
+          # The pull request number has to travel in the artifact because
+          # github.event.workflow_run.pull_requests is empty for a fork's pull
+          # request, which is exactly the case this split exists to serve.
+          stage="$RUNNER_TEMP/artifact"
+          mkdir -p "$stage/site" "$stage/meta"
 
-          # A change to a shared include fans out - docs/Common.text alone reaches
-          # 14 documents - so past a handful of rows the table is folded away to
-          # keep the pull request readable.
-          collapse=8
+          cp -r "$PREVIEW_DIR/." "$stage/site/"
+          echo "${{ github.event.pull_request.number }}" > "$stage/meta/pr.txt"
+          echo "$HEAD_SHA"                              > "$stage/meta/sha.txt"
+          cp /tmp/previews.tsv "$stage/meta/previews.tsv"
 
-          {
-            echo "## 📄 Document previews"
-            echo
-            if [ "$PREVIEW_COUNT" -eq 1 ]; then
-              echo "1 document, built from \`${HEAD_SHA:0:7}\`."
-            else
-              echo "$PREVIEW_COUNT documents, built from \`${HEAD_SHA:0:7}\`."
-            fi
-            echo
+          echo "Packaged $PREVIEW_COUNT document(s):"
+          find "$stage/site" -name '*.pdf' -printf '  %P\n'
 
-            if [ "$PREVIEW_COUNT" -gt "$collapse" ]; then
-              echo "<details>"
-              echo "<summary>Show all $PREVIEW_COUNT documents</summary>"
-              # A markdown table inside <details> only renders with a blank line
-              # between the summary and the table.
-              echo
-            fi
-
-            echo "| Document | | |"
-            echo "| --- | --- | --- |"
-            while IFS=$'\t' read -r src full diff; do
-              printf '| `%s` | [full](%s) | ' "${src#docs/}" "$base/$full"
-              if [ -n "$diff" ]; then
-                printf '[diff vs base](%s) |\n' "$base/$diff"
-              else
-                printf '_no diff_ |\n'
-              fi
-            done < /tmp/previews.tsv
-
-            if [ "$PREVIEW_COUNT" -gt "$collapse" ]; then
-              echo
-              echo "</details>"
-            fi
-
-            echo
-            echo "[Browse all →]($base/)"
-          } > /tmp/comment.md
-
-          # --edit-last keeps one comment per pull request rather than adding
-          # another on every push, and --create-if-none writes the first one. This
-          # job is the only thing commenting as github-actions[bot] here, so there
-          # is nothing for --edit-last to clobber.
-          gh pr comment "$PR" --body-file /tmp/comment.md --edit-last --create-if-none
+      - name: Upload the preview artifact
+        if: env.PREVIEW_COUNT != '' && env.PREVIEW_COUNT != '0'
+        uses: actions/upload-artifact@v5
+        with:
+          # pdf-preview-deploy.yml looks the artifact up by this exact name, and
+          # treats its absence as "this pull request changed no documents".
+          name: pdf-preview
+          path: ${{ runner.temp }}/artifact
+          retention-days: 7
+          if-no-files-found: error

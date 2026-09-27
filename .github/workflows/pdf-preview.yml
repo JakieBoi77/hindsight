@@ -86,13 +86,27 @@ jobs:
 
       - name: Install latexdiff
         run: |
-          # Plain apt rather than the caching action above, so the postinst scripts
-          # run normally and nothing has to be repaired by hand. latexdiff lives in
-          # texlive-extra-utils and is a Perl script that dies at startup without
-          # Algorithm::Diff, which is libalgorithm-diff-perl.
+          # latexdiff is its own package on Debian and Ubuntu. It is NOT part of
+          # texlive-extra-utils - that ships git-latexdiff, the git wrapper, which
+          # is why asking for it pulled 165 MB and still left no latexdiff binary.
+          #
+          # The package itself is a handful of Perl scripts. libalgorithm-diff-perl
+          # supplies the Algorithm::Diff module the script needs at startup, and is
+          # only a Recommends, so it is named explicitly.
+          #
+          # --no-install-recommends matters: latexdiff recommends texlive-latex-base,
+          # and letting apt install that re-installs the whole TeX stack the cache
+          # step already provided, which is what made this step take 1m20s.
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends \
-            texlive-extra-utils libalgorithm-diff-perl
+            latexdiff libalgorithm-diff-perl
+
+          # Fail here rather than three steps later, where the error is just
+          # "latexdiff: command not found" with no hint about the package.
+          command -v latexdiff >/dev/null || {
+            echo "::error::latexdiff did not install"
+            exit 1
+          }
 
       - name: Verify the toolchain is usable
         run: |

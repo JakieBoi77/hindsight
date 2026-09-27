@@ -1,0 +1,42 @@
+name: Delete PDF preview
+
+# Workers Previews are capped - 100 per Worker on the free plan - and nothing
+# expires them on its own, so remove a pull request's preview once it closes.
+# Without this the cap fills up slowly across terms.
+on:
+  pull_request_target:
+    types: [closed]
+
+permissions: {}
+
+jobs:
+  delete:
+    # Same reasoning as pdf-preview.yml: a fork's pull request never published a
+    # preview, because it never had the secrets to do so.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    # A preview that was never created, or was already removed by hand, must not
+    # turn a merged pull request red.
+    continue-on-error: true
+    steps:
+      # pull_request_target rather than pull_request: the closed event fires after
+      # the head branch may already be deleted, and this variant reads the workflow
+      # from the base branch and can see secrets. The usual security caveat does
+      # not apply, because this job never checks out or runs pull request code -
+      # the checkout below is of the base branch, for wrangler.jsonc alone.
+      - name: Checkout repo
+        uses: actions/checkout@v5
+
+      - name: Delete the preview
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.136.3"
+          workingDirectory: .github/preview
+          # --skip-confirmation because the command prompts interactively by
+          # default, and there is nobody here to answer it.
+          command: >-
+            preview delete
+            --name pr-${{ github.event.pull_request.number }}
+            --skip-confirmation

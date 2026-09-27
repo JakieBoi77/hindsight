@@ -1,0 +1,18 @@
+{
+  // The Worker that hosts per-pull-request PDF previews. One Worker serves every
+  // pull request: `wrangler preview --name pr-<N>` creates a named preview
+  // *inside* this Worker, so nothing here is ever per-PR.
+  //
+  // Assets only - there is no `main`, because nothing needs to run on a request.
+  // Cloudflare serves the files in ./public straight from the edge.
+  //
+  // ./public holds a committed placeholder index.html, which is what the
+  // production URL serves. The pull request workflow fills the rest of the
+  // directory with the affected PDFs before creating a preview; see
+  // .github/workflows/pdf-preview.yml.
+  "name": "hindsight-pdf-previews",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./public"
+  }
+}

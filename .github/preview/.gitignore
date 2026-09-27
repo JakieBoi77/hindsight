@@ -1,0 +1,13 @@
+# .github/workflows/pdf-preview.yml fills public/ with the PDFs a pull request
+# affects, a copy of site/style.css and a generated index, then hands the
+# directory to wrangler. None of that belongs in the repository.
+#
+# index.html is the exception: the committed placeholder is what the Worker's
+# production URL serves. A preview run overwrites it in the runner's working
+# tree, which is harmless because nothing commits from that workflow.
+public/*
+!public/index.html
+
+# Local wrangler state, written by `wrangler deploy` and friends. Holds the
+# resolved Cloudflare account id, which has no business in a public repository.
+.wrangler/

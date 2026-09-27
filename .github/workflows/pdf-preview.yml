@@ -1,0 +1,338 @@
+name: PDF previews for pull requests
+
+# Compiles the documents a pull request affects, builds a latexdiff of each one
+# against the base branch, and publishes both to a per-pull-request Cloudflare
+# Workers preview so a reviewer can read them in the browser.
+#
+# Deliberately independent of latex-pages.yml: that workflow owns main and the
+# published site, this one owns pull requests, and neither reads the other's
+# state. The cost is that a pull request compiles the affected documents twice.
+#
+# The trigger is narrower than latex-pages.yml's on purpose. A preview exists to
+# review changed content, so Makefile and .github/scripts changes are out of
+# scope: select_docs.py rightly treats those as a reason to rebuild all 29
+# documents, which here would mean 58 PDFs nobody is going to page through. Those
+# changes are still verified by latex-pages.yml on the same pull request.
+on:
+  pull_request:
+    paths: [docs/**, refs/**, .github/workflows/pdf-preview.yml]
+
+permissions:
+  contents: read
+  pull-requests: write   # the sticky comment
+  deployments: write     # the GitHub Deployment wrangler-action creates
+
+# A new push should supersede the preview still building for the previous one.
+concurrency:
+  group: pdf-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    # A pull request from a fork gets a read-only token and no access to secrets,
+    # so there is nothing it could publish. Skip quietly rather than fail on
+    # every such pull request.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      PREVIEW_DIR: ${{ github.workspace }}/.github/preview/public
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+        with:
+          # select_docs.py diffs against the base branch, and latexdiff needs the
+          # base revision as a worktree, so a shallow clone will not do.
+          fetch-depth: 0
+
+      # Same pinned action and package set as latex-pages.yml, plus
+      # texlive-extra-utils, which is where latexdiff lives. The longer package
+      # list gives this job its own cache entry, which is expected.
+      #
+      # libalgorithm-diff-perl is listed explicitly on purpose. latexdiff is a
+      # Perl script that dies at startup without Algorithm::Diff, and whether it
+      # arrives as a dependency of texlive-extra-utils is not something to leave
+      # to apt's recommends resolution inside a caching action.
+      - name: Install TeX Live, pandoc and latexdiff
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
+        with:
+          packages: texlive-latex-extra texlive-science texlive-fonts-extra texlive-fonts-recommended texlive-latex-recommended texlive-extra-utils libalgorithm-diff-perl lmodern pandoc
+          version: 1.1
+
+      - name: Verify the TeX toolchain is usable
+        run: |
+          # Restoring cached package files skips texlive's postinst, which is what
+          # builds the ls-R filename database and the font map files. Without these
+          # two commands kpsewhich cannot see the restored packages and pdflatex
+          # fails on missing fonts - the failure that bit latex-pages.yml on its
+          # first cache hit. Fail here, loudly, rather than part way through.
+          sudo mktexlsr
+          sudo updmap-sys >/dev/null
+
+          pdflatex --version | head -1
+          kpsewhich article.cls
+
+          # latexdiff is a Perl script, and the way it usually fails is at startup
+          # on a missing module - Algorithm::Diff - rather than on a document, so
+          # `latexdiff --version` is not much of a check. Diff two trivial files
+          # and look for the markup instead, the same way latex-pages.yml smoke
+          # tests the pandoc path rather than guessing at its package list.
+          smoke=$(mktemp -d)
+          printf '%s\n' '\documentclass{article}' '\begin{document}' \
+            'One two three.' '\end{document}' > "$smoke/a.tex"
+          printf '%s\n' '\documentclass{article}' '\begin{document}' \
+            'One two four.' '\end{document}' > "$smoke/b.tex"
+          latexdiff "$smoke/a.tex" "$smoke/b.tex" > "$smoke/d.tex"
+          grep -q DIFadd "$smoke/d.tex" && echo "latexdiff smoke test OK"
+          rm -rf "$smoke"
+
+      - name: Select the documents this pull request affects
+        run: |
+          # Every file under docs/ and refs/ is a candidate, not just .tex and .md:
+          # a change to a shared \input, a figure or the bibliography changes the
+          # content of the documents that read it, and those deserve a preview.
+          # select_docs.py works that out from the recorded dependency graph, so
+          # nothing is filtered by extension here.
+          #
+          # Unlike latex-pages.yml, the toolchain paths are deliberately NOT in
+          # scope - see the note on the trigger above.
+          SCOPE=(':(glob)docs/**' ':(glob)refs/**')
+
+          CHANGED_FILES=$(git diff --name-only --diff-filter=d "$BASE_SHA" "$HEAD_SHA" -- "${SCOPE[@]}" | xargs)
+          DELETED_FILES=$(git diff --name-only --diff-filter=D "$BASE_SHA" "$HEAD_SHA" -- "${SCOPE[@]}" | xargs)
+
+          echo "Changed files: $CHANGED_FILES"
+          echo "Deleted files: $DELETED_FILES"
+
+          if [ -z "$CHANGED_FILES$DELETED_FILES" ]; then
+            # Reachable when the pull request only touches this workflow, or only
+            # files select_docs.py ignores anyway.
+            echo "No document content changed; nothing to preview."
+            echo "BUILD_DOCS=" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          # select_docs.py is deliberately fail-safe: a changed file it cannot
+          # attribute to any document - a brand new figure, which nothing has
+          # recorded as a dependency yet - makes it ask for a full rebuild of all
+          # 29. That is the right call for the published site and the wrong one
+          # here, and left alone it would cancel the preview for an ordinary pull
+          # request that adds a figure and edits one document. So hand it only the
+          # paths it can reason about: documents, and files the manifest already
+          # knows are read by one.
+          #
+          # is_document is imported from select_docs.py rather than reimplemented,
+          # so the two cannot drift on which files count as documents.
+          ATTRIBUTABLE=$(python3 - $CHANGED_FILES $DELETED_FILES <<'PY'
+          import importlib.util, json, sys
+          spec = importlib.util.spec_from_file_location("sd", ".github/scripts/select_docs.py")
+          sd = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(sd)
+
+          manifest = json.load(open(".pdf-deps.json"))
+          known = set(manifest) | {dep for deps in manifest.values() for dep in deps}
+
+          keep, drop = [], []
+          for path in sys.argv[1:]:
+              (keep if (path in known or sd.is_document(path)) else drop).append(path)
+          if drop:
+              print("preview: ignoring unattributable %s" % " ".join(drop), file=sys.stderr)
+          print(" ".join(keep))
+          PY
+          )
+          echo "Attributable changes: $ATTRIBUTABLE"
+
+          if [ -z "$ATTRIBUTABLE" ]; then
+            echo "Nothing that maps to a document changed; nothing to preview."
+            echo "BUILD_DOCS=" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          BUILD_DOCS=$(python3 .github/scripts/select_docs.py \
+                         --changed $ATTRIBUTABLE \
+                         --manifest .pdf-deps.json --root . 2>/tmp/select.log | xargs)
+          cat /tmp/select.log
+
+          # Belt and braces. With the toolchain paths out of scope and the input
+          # filtered above there should be no way left to reach the full-rebuild
+          # fallback, but previewing 58 PDFs is bad enough to be worth a guard.
+          if grep -q 'full rebuild' /tmp/select.log; then
+            echo "::warning::select_docs.py asked for a full rebuild, so this pull request affects every document; skipping the preview. Download the artifact from the Build LaTeX workflow instead."
+            BUILD_DOCS=""
+          fi
+
+          echo "Documents to build: $BUILD_DOCS"
+          echo "BUILD_DOCS=$BUILD_DOCS" >> $GITHUB_ENV
+
+      - name: Materialise the base branch for latexdiff
+        if: env.BUILD_DOCS != ''
+        run: |
+          # A worktree rather than `git show`, so that latexdiff --flatten can
+          # resolve each document's relative \input paths - docs/Reflection.text is
+          # pulled into the body of four documents - against a real tree.
+          git worktree add /tmp/base "$BASE_SHA"
+
+      - name: Compile the affected documents and their diffs
+        if: env.BUILD_DOCS != ''
+        run: |
+          mkdir -p "$PREVIEW_DIR"
+          : > /tmp/previews.tsv
+
+          for src in $BUILD_DOCS; do
+            pdf="${src%.*}.pdf"
+
+            # A document that will not compile is already failing latex-pages.yml
+            # on this same pull request, so warn and carry on rather than denying
+            # the reviewer previews of everything else.
+            if ! make -B "$pdf"; then
+              echo "::warning file=$src::failed to compile; omitted from the preview"
+              continue
+            fi
+
+            # Preserve the structure below docs/, as latex-pages.yml does when it
+            # builds the published site.
+            rel=$(dirname "$pdf"); rel="${rel#docs}"; rel="${rel#/}"
+            mkdir -p "$PREVIEW_DIR/$rel"
+            cp "$pdf" "$PREVIEW_DIR/$rel/"
+
+            full_href="${rel:+$rel/}$(basename "$pdf")"
+            diff_href=""
+
+            # latexdiff reads LaTeX only, so a Markdown document (the Makefile has
+            # a pandoc rule) gets a full PDF and no diff. So does a document that
+            # is new in this pull request and has no base revision to compare to.
+            case "$src" in
+              *.tex)
+                if [ -f "/tmp/base/$src" ]; then
+                  diff_pdf="${src%.tex}.diff.pdf"
+
+                  # --flatten inlines \input files so the diff covers shared
+                  # content. --append-safecmd lists the comment macros from
+                  # docs/Comments.text, so latexdiff marks up the text inside
+                  # \wss{...} instead of treating the whole call as one token.
+                  if latexdiff --flatten \
+                       --append-safecmd="wss,plt,an,authornote" \
+                       "/tmp/base/$src" "$src" > "${src%.tex}.diff.tex" \
+                     && make -B "$diff_pdf"; then
+                    cp "$diff_pdf" "$PREVIEW_DIR/$rel/"
+                    diff_href="${rel:+$rel/}$(basename "$diff_pdf")"
+                  else
+                    # latexdiff output does not always compile; complex tables and
+                    # floats are the usual culprits. Losing the diff is acceptable,
+                    # failing the run over it is not.
+                    echo "::warning file=$src::latexdiff failed; linking the full PDF only"
+                  fi
+                fi
+                ;;
+            esac
+
+            printf '%s\t%s\t%s\n' "$src" "$full_href" "$diff_href" >> /tmp/previews.tsv
+          done
+
+          # Gates the publish and comment steps. Distinct from BUILD_DOCS: every
+          # selected document can still fail to compile, and publishing an empty
+          # preview with a comment pointing at nothing is worse than staying quiet.
+          # tr strips any padding wc adds, because the step gates below compare
+          # this as a string and " 0" would slip past a test for "0".
+          echo "PREVIEW_COUNT=$(wc -l < /tmp/previews.tsv | tr -d '[:space:]')" >> $GITHUB_ENV
+
+      - name: Build the preview index page
+        if: env.PREVIEW_COUNT != '' && env.PREVIEW_COUNT != '0'
+        run: |
+          # Reuses the template and index builder that latex-pages.yml uses for the
+          # published site. build_index.py already handles PDFs that are not
+          # committed: git knows nothing about them, so it falls back to file
+          # mtime, a case its docstring calls out for pull request runs.
+          cp site/style.css "$PREVIEW_DIR/"
+          python3 .github/scripts/build_index.py \
+            --public "$PREVIEW_DIR" \
+            --template site/index.html \
+            --output "$PREVIEW_DIR/index.html" \
+            --tracked-dir pdfs
+
+      - name: Publish the preview
+        id: preview
+        if: env.PREVIEW_COUNT != '' && env.PREVIEW_COUNT != '0'
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Workers Previews need at least this version of wrangler.
+          wranglerVersion: "4.136.3"
+          workingDirectory: .github/preview
+          # --name is explicit because wrangler otherwise derives the preview name
+          # from the current git branch, and CI runs on a detached HEAD. It also
+          # avoids a wrangler bug that rejects branch names containing a slash.
+          command: preview --name pr-${{ github.event.pull_request.number }}
+          # Makes the action open a GitHub Deployment and write a job summary, so
+          # the preview is reachable from the pull request timeline as well as from
+          # the comment below.
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment the preview links on the pull request
+        if: env.PREVIEW_COUNT != '' && env.PREVIEW_COUNT != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREVIEW_URL: ${{ steps.preview.outputs.preview-url }}
+          DEPLOYMENT_URL: ${{ steps.preview.outputs.deployment-url }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          # preview-url is what wrangler-action exposes for a Workers Preview;
+          # deployment-url is the older, more general output. Fall back rather
+          # than post a comment full of links to "/SRS/SRS.pdf".
+          base="${PREVIEW_URL:-$DEPLOYMENT_URL}"
+          base="${base%/}"
+          if [ -z "$base" ]; then
+            echo "::warning::wrangler returned no preview URL; skipping the comment"
+            exit 0
+          fi
+
+          # A change to a shared include fans out - docs/Common.text alone reaches
+          # 14 documents - so past a handful of rows the table is folded away to
+          # keep the pull request readable.
+          collapse=8
+
+          {
+            echo "## 📄 Document previews"
+            echo
+            if [ "$PREVIEW_COUNT" -eq 1 ]; then
+              echo "1 document, built from \`${HEAD_SHA:0:7}\`."
+            else
+              echo "$PREVIEW_COUNT documents, built from \`${HEAD_SHA:0:7}\`."
+            fi
+            echo
+
+            if [ "$PREVIEW_COUNT" -gt "$collapse" ]; then
+              echo "<details>"
+              echo "<summary>Show all $PREVIEW_COUNT documents</summary>"
+              # A markdown table inside <details> only renders with a blank line
+              # between the summary and the table.
+              echo
+            fi
+
+            echo "| Document | | |"
+            echo "| --- | --- | --- |"
+            while IFS=$'\t' read -r src full diff; do
+              printf '| `%s` | [full](%s) | ' "${src#docs/}" "$base/$full"
+              if [ -n "$diff" ]; then
+                printf '[diff vs base](%s) |\n' "$base/$diff"
+              else
+                printf '_no diff_ |\n'
+              fi
+            done < /tmp/previews.tsv
+
+            if [ "$PREVIEW_COUNT" -gt "$collapse" ]; then
+              echo
+              echo "</details>"
+            fi
+
+            echo
+            echo "[Browse all →]($base/)"
+          } > /tmp/comment.md
+
+          # --edit-last keeps one comment per pull request rather than adding
+          # another on every push, and --create-if-none writes the first one. This
+          # job is the only thing commenting as github-actions[bot] here, so there
+          # is nothing for --edit-last to clobber.
+          gh pr comment "$PR" --body-file /tmp/comment.md --edit-last --create-if-none

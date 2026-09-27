@@ -54,15 +54,25 @@ jobs:
       # texlive-extra-utils, which is where latexdiff lives. The longer package
       # list gives this job its own cache entry, which is expected.
       #
-      # libalgorithm-diff-perl is listed explicitly on purpose. latexdiff is a
-      # Perl script that dies at startup without Algorithm::Diff, and whether it
-      # arrives as a dependency of texlive-extra-utils is not something to leave
-      # to apt's recommends resolution inside a caching action.
+      # Four packages are listed explicitly that would otherwise arrive as
+      # transitive dependencies, because this action caches a *fileset* and only
+      # restores files it recorded when the cache was created. A dependency that
+      # happened to be present on the runner image at that moment is not recorded,
+      # and then goes missing on a later restore:
+      #
+      #   texlive-binaries      mktexlsr, kpsewhich  - its absence produced
+      #                         "sudo: mktexlsr: command not found"
+      #   texlive-base          updmap-sys
+      #   libalgorithm-diff-perl  latexdiff is a Perl script that dies at startup
+      #                         without Algorithm::Diff
+      #   texlive-extra-utils   latexdiff itself
+      #
+      # Bump `version` to discard a cached fileset that turns out to be incomplete.
       - name: Install TeX Live, pandoc and latexdiff
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
-          packages: texlive-latex-extra texlive-science texlive-fonts-extra texlive-fonts-recommended texlive-latex-recommended texlive-extra-utils libalgorithm-diff-perl lmodern pandoc
-          version: 1.1
+          packages: texlive-latex-extra texlive-science texlive-fonts-extra texlive-fonts-recommended texlive-latex-recommended texlive-base texlive-binaries texlive-extra-utils libalgorithm-diff-perl lmodern pandoc
+          version: 2
 
       - name: Verify the TeX toolchain is usable
         run: |
@@ -71,6 +81,16 @@ jobs:
           # two commands kpsewhich cannot see the restored packages and pdflatex
           # fails on missing fonts - the failure that bit latex-pages.yml on its
           # first cache hit. Fail here, loudly, rather than part way through.
+          #
+          # Check they exist first: bare `sudo mktexlsr` reports only "command not
+          # found", which says nothing about the cause being an incomplete cached
+          # fileset rather than a broken TeX install.
+          for tool in mktexlsr updmap-sys kpsewhich; do
+            command -v "$tool" >/dev/null && continue
+            echo "::error::$tool is not installed, so the restored apt cache is incomplete. Bump the 'version' input on the install step above to discard it and install fresh."
+            exit 1
+          done
+
           sudo mktexlsr
           sudo updmap-sys >/dev/null
 

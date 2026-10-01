@@ -1,0 +1,25 @@
+{
+  "name": "Hindsight.Tests.PlayMode",
+  "rootNamespace": "Hindsight.Tests.PlayMode",
+  "references": [
+    "Hindsight.Core",
+    "Hindsight.Runtime",
+    "UnityEngine.UI",
+    "Unity.TextMeshPro",
+    "UnityEngine.TestRunner",
+    "UnityEditor.TestRunner"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [
+    "nunit.framework.dll"
+  ],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

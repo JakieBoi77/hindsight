@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8FD3FF"/><stop offset="1" stop-color="#E4F6FF"/></linearGradient></defs>
+<rect x="0" y="0" width="1920" height="1080" fill="url(#sky)"/>
+<ellipse cx="960" cy="1150" rx="1300" ry="260" fill="#BFE3D2"/>
+<g transform="translate(260 220) scale(1.2)"><ellipse cx="0" cy="0" rx="120" ry="48" fill="#FFFFFF" fill-opacity="0.9"/><ellipse cx="60" cy="-30" rx="70" ry="50" fill="#FFFFFF" fill-opacity="0.9"/><ellipse cx="-50" cy="-20" rx="60" ry="40" fill="#FFFFFF" fill-opacity="0.9"/></g>
+<g transform="translate(1620 180) scale(1.0)"><ellipse cx="0" cy="0" rx="120" ry="48" fill="#FFFFFF" fill-opacity="0.9"/><ellipse cx="60" cy="-30" rx="70" ry="50" fill="#FFFFFF" fill-opacity="0.9"/><ellipse cx="-50" cy="-20" rx="60" ry="40" fill="#FFFFFF" fill-opacity="0.9"/></g>
+<g transform="translate(1500 520) scale(0.7)"><ellipse cx="0" cy="0" rx="120" ry="48" fill="#FFFFFF" fill-opacity="0.9"/><ellipse cx="60" cy="-30" rx="70" ry="50" fill="#FFFFFF" fill-opacity="0.9"/><ellipse cx="-50" cy="-20" rx="60" ry="40" fill="#FFFFFF" fill-opacity="0.9"/></g>
+<g transform="translate(380 600) scale(0.8)"><ellipse cx="0" cy="0" rx="120" ry="48" fill="#FFFFFF" fill-opacity="0.9"/><ellipse cx="60" cy="-30" rx="70" ry="50" fill="#FFFFFF" fill-opacity="0.9"/><ellipse cx="-50" cy="-20" rx="60" ry="40" fill="#FFFFFF" fill-opacity="0.9"/></g>
+
+<polygon points="160.0,866.0 168.8,887.9 192.3,889.5 174.3,904.6 180.0,927.5 160.0,915.0 140.0,927.5 145.7,904.6 127.7,889.5 151.2,887.9" fill="#FFC845" stroke="#2E3A59" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+
+<polygon points="1780.0,828.0 1788.8,847.9 1810.4,850.1 1794.3,864.6 1798.8,885.9 1780.0,875.0 1761.2,885.9 1765.7,864.6 1749.6,850.1 1771.2,847.9" fill="#FF6B6B" stroke="#2E3A59" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+
+<polygon points="1760.0,390.0 1768.8,407.9 1788.5,410.7 1774.3,424.6 1777.6,444.3 1760.0,435.0 1742.4,444.3 1745.7,424.6 1731.5,410.7 1751.2,407.9" fill="#9B6BE0" stroke="#2E3A59" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+
+<polygon points="150.0,442.0 158.8,457.9 176.6,461.3 164.3,474.6 166.5,492.7 150.0,485.0 133.5,492.7 135.7,474.6 123.4,461.3 141.2,457.9" fill="#5CBF73" stroke="#2E3A59" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

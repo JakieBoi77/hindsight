@@ -30,9 +30,11 @@ Project start date: September 21, 2026
 
 This repository currently contains the project's requirements, design,
 planning, verification and validation, user documentation, research material,
-presentation material, and generated PDF artifacts. The `src/` and `test/`
-directories currently contain documentation placeholders rather than a complete
-mobile application implementation and automated test suite.
+presentation material, and generated PDF artifacts. `src/HindsightGame/` contains
+the Unity proof-of-concept: a title screen, level select, and a complete Eye Drops
+walkthrough with automated EditMode and PlayMode tests. See
+[`src/HindsightGame/README.md`](src/HindsightGame/README.md) to open, run, test,
+and build it.
 
 ## Repository Structure
 
@@ -58,10 +60,9 @@ mobile application implementation and automated test suite.
 	relevant sections of `docs/`.
 - `refs/` - Reference material and the BibTeX bibliography in
 	`References.bib`.
-- `src/` - Intended location for the application source code. It currently
-	contains project notes and traceability documentation.
-- `test/` - Intended location for automated tests. Tests have not yet been
-	added.
+- `src/` - Application source code. `src/HindsightGame/` is the Unity 6 project.
+- `test/` - Pointer to the automated tests, which live inside the Unity project
+	(`src/HindsightGame/Assets/_Project/Tests`).
 - `site/` - Static GitHub Pages template and stylesheet for browsing generated
 	PDFs.
 - `.github/` - Issue and pull-request templates plus the workflow and scripts

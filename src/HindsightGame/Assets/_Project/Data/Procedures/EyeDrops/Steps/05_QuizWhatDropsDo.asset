@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05f105cd78f13424b9a25b3fbfe4620d, type: 3}
+  m_Name: 05_QuizWhatDropsDo
+  m_EditorClassIdentifier: Hindsight.Runtime::Hindsight.Procedures.Steps.QuizStepDefinition
+  viewPrefab: {fileID: 3956199038986421379, guid: 35772d9dfe3d8ff49825ec6b1ce3017e, type: 3}
+  question:
+    text: Quick question! What do the eye drops do?
+    pose: 2
+    narration: {fileID: 0}
+  answers:
+  - text: Make the black circle bigger
+    icon: {fileID: 3286163911610860551, guid: 017a9a401a43e2c45b30b1d61e91fbc8, type: 3}
+  - text: Change your eye colour
+    icon: {fileID: 3286163911610860551, guid: 9f68ec817ee091a4b89f7547167dd012, type: 3}
+  - text: Make you fall asleep
+    icon: {fileID: 3286163911610860551, guid: b72bd7ba521fbe545bbd1c0a9fe833f9, type: 3}
+  correctIndex: 0
+  tryAgainLine:
+    text: 'Good try! Here''s a hint: the drops help me see inside your eye.'
+    pose: 0
+    narration: {fileID: 0}
+  correctLine:
+    text: Yes! The drops make the black circle in your eye bigger, so I can see inside.
+    pose: 3
+    narration: {fileID: 0}

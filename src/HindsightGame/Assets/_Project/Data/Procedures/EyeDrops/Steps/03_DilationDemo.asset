@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: edd4ab1b3ebb6614da4c7efe5f32e5dd, type: 3}
+  m_Name: 03_DilationDemo
+  m_EditorClassIdentifier: Hindsight.Runtime::Hindsight.Procedures.Steps.DilationDemoStepDefinition
+  viewPrefab: {fileID: 2864761334705275344, guid: 1318583f5ae5a5749bcf726c4f84b6ed, type: 3}
+  tapPrompt:
+    text: Tap the eye drop bottle to see what the drops do!
+    pose: 2
+    narration: {fileID: 0}
+  explanationLines:
+  - text: Look! The black circle in the middle of your eye got bigger. It's called your pupil.
+    pose: 3
+    narration: {fileID: 0}
+  - text: A bigger pupil is like opening a window, so I can see inside.
+    pose: 0
+    narration: {fileID: 0}
+  - text: Afterwards, things may look blurry and extra bright for a few hours. Sunglasses can help!
+    pose: 0
+    narration: {fileID: 0}
+  startPupilScale: 0.4
+  endPupilScale: 0.85
+  dilationSeconds: 2.5

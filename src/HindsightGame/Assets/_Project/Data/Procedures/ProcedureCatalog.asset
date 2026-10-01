@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 090a38a776caa4f488d925d62d02f8d7, type: 3}
+  m_Name: ProcedureCatalog
+  m_EditorClassIdentifier: Hindsight.Runtime::Hindsight.Procedures.ProcedureCatalog
+  procedures:
+  - {fileID: 11400000, guid: 80d4e90d80467a34d86589f21b6fe145, type: 2}
+  - {fileID: 11400000, guid: 1fa4f09b5da4f3640ad898e916382575, type: 2}
+  - {fileID: 11400000, guid: c14a765b75ec22446b7147071daab44c, type: 2}
+  - {fileID: 11400000, guid: dad0e80238d5f624b8c01c5bdf937266, type: 2}
+  - {fileID: 11400000, guid: cdbeb1c26f80ced4c8fc05ef8fc46a31, type: 2}
+  - {fileID: 11400000, guid: 08af82c9c09e9f94aa2aab64f34642ec, type: 2}

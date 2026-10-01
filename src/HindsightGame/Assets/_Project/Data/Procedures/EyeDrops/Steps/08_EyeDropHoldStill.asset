@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed1e6b90604f9064e8a8c54bffcae284, type: 3}
+  m_Name: 08_EyeDropHoldStill
+  m_EditorClassIdentifier: Hindsight.Runtime::Hindsight.Procedures.Steps.HoldStillStepDefinition
+  viewPrefab: {fileID: 5206256412407770710, guid: e1ec9d7bc34dfae4cbc0cdd2504d01f4, type: 3}
+  introLines:
+  - text: First, tilt your head back and look up at the ceiling.
+    pose: 2
+    narration: {fileID: 0}
+  - text: Keep your eyes open and try not to blink.
+    pose: 0
+    narration: {fileID: 0}
+  - text: If you blink, the drop lands on your eyelid and I have to do it again. So let's keep them open!
+    pose: 0
+    narration: {fileID: 0}
+  holdPrompt:
+    text: Press and hold the big button to keep your eye open!
+    pose: 2
+    narration: {fileID: 0}
+  holdSeconds: 3
+  interruptedLine:
+    text: Oops, a blink! The drop landed on your eyelid, so we need to try again. You can do it!
+    pose: 0
+    narration: {fileID: 0}
+  successLines:
+  - text: You did it! The drop went right in.
+    pose: 3
+    narration: {fileID: 0}
+  - text: Did it feel cold? That's just the drop doing its job.
+    pose: 0
+    narration: {fileID: 0}
+  sensationCaption: Brrr! Cold!

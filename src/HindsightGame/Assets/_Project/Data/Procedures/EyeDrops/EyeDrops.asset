@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7432c69a42b4884fb7286ef2846ee81, type: 3}
+  m_Name: EyeDrops
+  m_EditorClassIdentifier: Hindsight.Runtime::Hindsight.Procedures.ProcedureDefinition
+  id: eye_drops
+  displayName: Eye Drops
+  icon: {fileID: 3286163911610860551, guid: 0b1f057fdc744194e94d1c39b3968bdd, type: 3}
+  accentColor: {r: 1, g: 0.90588236, b: 0.65882355, a: 1}
+  isPlayable: 1
+  requiredProcedure: {fileID: 0}
+  stickerId: sticker_brave_eyes
+  stickerSprite: {fileID: 3286163911610860551, guid: 2cd95f83f8582db44bf6fc7fd95ef97c, type: 3}
+  steps:
+  - {fileID: 11400000, guid: 4d4dcdcae224b1a41ad6ab04dab79062, type: 2}
+  - {fileID: 11400000, guid: d3076010bc3d76d4ba2ef12edcfd2759, type: 2}
+  - {fileID: 11400000, guid: d9666a279bbb5ea44b6b48e96f446cdd, type: 2}
+  - {fileID: 11400000, guid: 9f65cdfab17318a46856b043fa9dd5c3, type: 2}
+  - {fileID: 11400000, guid: dd455e9f2dcb2cb4d81a8f5e22b6356f, type: 2}
+  - {fileID: 11400000, guid: cbecb5a5dc5abcb46b5d62f11809a052, type: 2}
+  - {fileID: 11400000, guid: 82b43432e284a8244a31fd8b15f7f193, type: 2}
+  - {fileID: 11400000, guid: 9402d045a6c80aa4a8a6d65521ee4866, type: 2}
+  - {fileID: 11400000, guid: d54a2a70bfb66f34c9c0663ba2f9df97, type: 2}
+  - {fileID: 11400000, guid: 7d6d56663108c9942b2ba50e36287448, type: 2}
+  - {fileID: 11400000, guid: b21be4a3637d2f443b27d4334f6bef2e, type: 2}

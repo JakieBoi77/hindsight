@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1b30c1c1ab3aaa42b276d74294e5025, type: 3}
+  m_Name: 09_BlinkItIn
+  m_EditorClassIdentifier: Hindsight.Runtime::Hindsight.Procedures.Steps.TapCountStepDefinition
+  viewPrefab: {fileID: 7019709402414977779, guid: 1379435c9b354af49bd17b6847c2f80e, type: 3}
+  prompt:
+    text: Now blink, blink, blink! Tap the eye to blink 5 times.
+    pose: 2
+    narration: {fileID: 0}
+  requiredTaps: 5
+  successLines:
+  - text: Super blinking! Blinking spreads the drops all around your eye.
+    pose: 3
+    narration: {fileID: 0}

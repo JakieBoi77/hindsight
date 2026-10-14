@@ -1,0 +1,14 @@
+{
+    "name": "Hindsight.Ophthalmology.Editor",
+    "rootNamespace": "Hindsight.Ophthalmology.EditorTools",
+    "references": [
+        "Hindsight.Ophthalmology",
+        "Unity.Cinemachine",
+        "Unity.InputSystem",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
+        "Unity.RenderPipelines.Core.Runtime",
+        "Unity.RenderPipelines.Universal.Runtime"
+    ],
+    "includePlatforms": ["Editor"]
+}

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42c82c6f1e9d6734ba1cbfcd5fd40021, type: 3}
+  m_Name: 13_Exam
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.ExamStep
+  title: Look inside
+  shotId: ExamCloseFP
+  doctorAnchorId: DoctorExamPoint
+  speaker: Dr. Iris
+  introLine: Now I'll use my special light to look inside your eye. It's bright, but it doesn't hurt one bit.
+  followPrompt: Follow the light with your eyes - tap it every time it moves!
+  lookingLine: Hold still... I'm looking all the way inside...
+  doneLine: Wow! Your eyes look super healthy. Great job!

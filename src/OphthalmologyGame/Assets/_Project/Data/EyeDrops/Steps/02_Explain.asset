@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d158315af756b4e4d83096945fd2e07a, type: 3}
+  m_Name: 02_Explain
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.DialogueStep
+  title: Why eye drops?
+  shotId: DoctorExplain
+  doctorAnchorId: 
+  teleportDoctor: 0
+  doctorPose: 6
+  doctorProp: 1
+  speaker: Dr. Iris
+  lines:
+  - To see inside your eye, I need the dark circle in the middle - your pupil - to get BIG.
+  - Special eye drops make that happen. Your job is to tilt your head back, keep your eyes open, and stay nice and still.

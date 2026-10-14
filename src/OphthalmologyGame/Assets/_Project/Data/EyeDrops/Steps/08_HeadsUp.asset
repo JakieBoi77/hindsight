@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d158315af756b4e4d83096945fd2e07a, type: 3}
+  m_Name: 08_HeadsUp
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.DialogueStep
+  title: Heads up
+  shotId: FirstPerson
+  doctorAnchorId: 
+  teleportDoctor: 0
+  doctorPose: 1
+  doctorProp: 1
+  speaker: Dr. Iris
+  lines:
+  - 'Just so you know: the drops might feel a little cold, and they might sting for a few seconds.'
+  - That's totally normal, and it goes away quickly. You're going to do great!

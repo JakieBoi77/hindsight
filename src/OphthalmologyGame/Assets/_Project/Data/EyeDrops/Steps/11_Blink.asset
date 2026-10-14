@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61d3856ff2c9ae647a2a1c39dc65bcac, type: 3}
+  m_Name: 11_Blink
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.BlinkStep
+  title: Blink, blink, blink
+  shotId: FirstPerson
+  speaker: Dr. Iris
+  prompt: Now blink, blink, blink! Blinking spreads the drops all around your eye.
+  doneLine: Perfect! See how everything gets clearer?
+  blinksNeeded: 6
+  startingBlur: 0.8

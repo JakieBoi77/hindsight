@@ -1,0 +1,11 @@
+{
+    "name": "Hindsight.Ophthalmology",
+    "rootNamespace": "Hindsight.Ophthalmology",
+    "references": [
+        "Unity.Cinemachine",
+        "Unity.InputSystem",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
+    ],
+    "autoReferenced": true
+}

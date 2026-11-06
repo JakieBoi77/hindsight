@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<polyline points="128,236 128,140" fill="none" stroke="#2E3A59" stroke-width="16" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M50 140 Q50 40 128 40 Q206 40 206 140 Z" fill="#FFC845" stroke="#2E3A59" stroke-width="10" stroke-linejoin="round" stroke-linecap="round" />
+<ellipse cx="128" cy="140" rx="78" ry="16" fill="#FFF2B8" stroke="#2E3A59" stroke-width="8" stroke-linejoin="round" stroke-linecap="round" />
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<path d="M24 150 L232 150 L196 216 L60 216 Z" fill="#FF6B6B" stroke="#2E3A59" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="128,150 128,30" fill="none" stroke="#2E3A59" stroke-width="8" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M136 36 L210 130 L136 130 Z" fill="#FFFFFF" stroke="#2E3A59" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M120 56 L60 130 L120 130 Z" fill="#FFC845" stroke="#2E3A59" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+</svg>

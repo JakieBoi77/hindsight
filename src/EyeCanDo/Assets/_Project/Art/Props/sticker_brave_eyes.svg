@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 500 500">
+<polygon points="480.0,250.0 454.8,304.9 449.2,365.0 399.9,399.9 365.0,449.2 304.9,454.8 250.0,480.0 195.1,454.8 135.0,449.2 100.1,399.9 50.8,365.0 45.2,304.9 20.0,250.0 45.2,195.1 50.8,135.0 100.1,100.1 135.0,50.8 195.1,45.2 250.0,20.0 304.9,45.2 365.0,50.8 399.9,100.1 449.2,135.0 454.8,195.1" fill="#FFC845" stroke="#2E3A59" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="250" cy="250" r="170" fill="#FFFFFF" stroke="#2E3A59" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M130 230 Q250 126 370 230 Q250 334 130 230 Z" fill="#FFFFFF" stroke="#2E3A59" stroke-width="8" stroke-linejoin="round" stroke-linecap="round" />
+<circle cx="250" cy="230" r="50" fill="#4A90E2" stroke="#2E3A59" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+<circle cx="250" cy="230" r="24" fill="#2E3A59"  />
+<circle cx="264" cy="216" r="10" fill="#FFFFFF"  />
+<polygon points="150.0,320.0 157.6,339.5 178.5,340.7 162.4,354.0 167.6,374.3 150.0,363.0 132.4,374.3 137.6,354.0 121.5,340.7 142.4,339.5" fill="#FFC845" stroke="#2E3A59" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="250.0,342.0 257.6,361.5 278.5,362.7 262.4,376.0 267.6,396.3 250.0,385.0 232.4,396.3 237.6,376.0 221.5,362.7 242.4,361.5" fill="#FFC845" stroke="#2E3A59" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="350.0,320.0 357.6,339.5 378.5,340.7 362.4,354.0 367.6,374.3 350.0,363.0 332.4,374.3 337.6,354.0 321.5,340.7 342.4,339.5" fill="#FFC845" stroke="#2E3A59" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<ellipse cx="128" cy="96" rx="96" ry="34" fill="#FFFFFF" stroke="#2E3A59" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M32 96 L32 186 Q128 226 224 186 L224 96 Q128 136 32 96 Z" fill="#FF6B6B" stroke="#2E3A59" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+<path d="M32 120 L80 186 L128 130 L176 186 L224 120" fill="none" stroke="#FFC845" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="150,20 110,80" fill="none" stroke="#B07A45" stroke-width="12" stroke-linejoin="round" stroke-linecap="round" />
+<circle cx="150" cy="20" r="12" fill="#FFC845" stroke="#2E3A59" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+</svg>

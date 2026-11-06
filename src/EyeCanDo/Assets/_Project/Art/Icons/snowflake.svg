@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<polyline points="128.0,236.0 128.0,20.0" fill="none" stroke="#3E9BE0" stroke-width="18" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="221.53074360871938,182.0 34.469256391280624,74.0" fill="none" stroke="#3E9BE0" stroke-width="18" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="221.53074360871938,74.0 34.469256391280624,182.0" fill="none" stroke="#3E9BE0" stroke-width="18" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="220.98133329356935,147.28362829059617 198.0,128.0 220.98133329356935,108.71637170940383" fill="none" stroke="#3E9BE0" stroke-width="14" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="157.7905546699921,218.16601085527694 163.0,188.6217782649107 191.19077862357724,198.88238256468074" fill="none" stroke="#3E9BE0" stroke-width="14" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="64.80922137642277,198.88238256468077 93.00000000000001,188.62177826491072 98.20944533000792,218.16601085527697" fill="none" stroke="#3E9BE0" stroke-width="14" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="35.018666706430665,108.71637170940383 58.0,128.0 35.018666706430665,147.2836282905962" fill="none" stroke="#3E9BE0" stroke-width="14" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="98.20944533000787,37.83398914472307 92.99999999999997,67.37822173508931 64.80922137642273,57.117617435319254" fill="none" stroke="#3E9BE0" stroke-width="14" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="191.19077862357724,57.11761743531924 163.0,67.3782217350893 157.7905546699921,37.833989144723056" fill="none" stroke="#3E9BE0" stroke-width="14" stroke-linejoin="round" stroke-linecap="round" />
+</svg>

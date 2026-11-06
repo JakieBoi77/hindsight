@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+<circle cx="300" cy="300" r="96" fill="#FFFFFF"  />
+<polyline points="350.0,300.0 386.0,300.0" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.12"/>
+<polyline points="343.30127018922195,325.0 374.47818472546174,343.0" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.12"/>
+<polyline points="325.0,343.30127018922195 343.0,374.4781847254617" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.12"/>
+<polyline points="300.0,350.0 300.0,386.0" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.12"/>
+<polyline points="275.0,343.30127018922195 257.0,374.47818472546174" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.12"/>
+<polyline points="256.69872981077805,325.0 225.52181527453826,343.0" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.12"/>
+<polyline points="250.0,300.0 214.0,300.0" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.12"/>
+<polyline points="256.69872981077805,275.0 225.52181527453828,257.0" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.12"/>
+<polyline points="275.0,256.6987298107781 256.99999999999994,225.52181527453828" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.12"/>
+<polyline points="300.0,250.0 300.0,214.0" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.12"/>
+<polyline points="325.0,256.69872981077805 343.0,225.52181527453828" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.12"/>
+<polyline points="343.3012701892219,275.0 374.4781847254617,256.99999999999994" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" stroke-opacity="0.12"/>
+<circle cx="300" cy="300" r="96" fill="none" stroke="#2E3A59" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+</svg>

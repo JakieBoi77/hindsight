@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<polyline points="210.0,128.0 246.0,128.0" fill="none" stroke="#FF9F43" stroke-width="16" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="185.9827560572969,185.9827560572969 211.4386001800126,211.4386001800126" fill="none" stroke="#FF9F43" stroke-width="16" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="128.0,210.0 128.0,246.0" fill="none" stroke="#FF9F43" stroke-width="16" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="70.01724394270312,185.9827560572969 44.5613998199874,211.4386001800126" fill="none" stroke="#FF9F43" stroke-width="16" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="46.0,128.0 10.0,128.00000000000003" fill="none" stroke="#FF9F43" stroke-width="16" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="70.01724394270309,70.01724394270312 44.56139981998737,44.5613998199874" fill="none" stroke="#FF9F43" stroke-width="16" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="127.99999999999999,46.0 127.99999999999997,10.0" fill="none" stroke="#FF9F43" stroke-width="16" stroke-linejoin="round" stroke-linecap="round" />
+<polyline points="185.98275605729688,70.01724394270309 211.4386001800126,44.56139981998737" fill="none" stroke="#FF9F43" stroke-width="16" stroke-linejoin="round" stroke-linecap="round" />
+<circle cx="128" cy="128" r="62" fill="#FFC845" stroke="#2E3A59" stroke-width="10" stroke-linejoin="round" stroke-linecap="round" />
+</svg>

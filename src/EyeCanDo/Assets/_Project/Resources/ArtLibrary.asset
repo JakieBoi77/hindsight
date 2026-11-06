@@ -1,0 +1,539 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5aae3a14e3a2bb44082697ea5c3856df, type: 3}
+  m_Name: ArtLibrary
+  m_EditorClassIdentifier: EyeCanDo.Runtime::EyeCanDo.Art.ArtLibrary
+  sprites:
+  - name: Avatar/brows_arched_calm
+    sprite: {fileID: 3286163911610860551, guid: 8f05d6924d34dd44988826d0b77a6a3f, type: 3}
+  - name: Avatar/brows_arched_up
+    sprite: {fileID: 3286163911610860551, guid: 66adb384d5783df4faeeba8836c07337, type: 3}
+  - name: Avatar/brows_arched_worried
+    sprite: {fileID: 3286163911610860551, guid: 6874d22638feafa4baf583552d0b892f, type: 3}
+  - name: Avatar/brows_soft_calm
+    sprite: {fileID: 3286163911610860551, guid: ee0ffabde1b06414eaec4fcbcdd81e9f, type: 3}
+  - name: Avatar/brows_soft_up
+    sprite: {fileID: 3286163911610860551, guid: 81e5b17b28998834696817b337179722, type: 3}
+  - name: Avatar/brows_soft_worried
+    sprite: {fileID: 3286163911610860551, guid: 36c85bbac398a2448b20d74bf3c2f3e3, type: 3}
+  - name: Avatar/brows_straight_calm
+    sprite: {fileID: 3286163911610860551, guid: de66a861ab097c14897e8a256808dc53, type: 3}
+  - name: Avatar/brows_straight_up
+    sprite: {fileID: 3286163911610860551, guid: da36b63535ddf8c4a92a3f84e1058567, type: 3}
+  - name: Avatar/brows_straight_worried
+    sprite: {fileID: 3286163911610860551, guid: 99169bb2aeac51a4db11eb46f5144879, type: 3}
+  - name: Avatar/brows_thick_calm
+    sprite: {fileID: 3286163911610860551, guid: dd31fce9612c06e4887b34db4e69a82f, type: 3}
+  - name: Avatar/brows_thick_up
+    sprite: {fileID: 3286163911610860551, guid: cf8c6926b36fd5c4ab19f2c96b7209e0, type: 3}
+  - name: Avatar/brows_thick_worried
+    sprite: {fileID: 3286163911610860551, guid: fbb4b130411cacd49b2afa65506f4e10, type: 3}
+  - name: Avatar/cheeks
+    sprite: {fileID: 3286163911610860551, guid: f93a491b106666c47aa91ef38890fa02, type: 3}
+  - name: Avatar/ears_big
+    sprite: {fileID: 3286163911610860551, guid: 75c62d77cdbacda47b348241e49b8e46, type: 3}
+  - name: Avatar/ears_pointy
+    sprite: {fileID: 3286163911610860551, guid: 82532f75f3b14774da75a8d54eb84fe2, type: 3}
+  - name: Avatar/ears_round
+    sprite: {fileID: 3286163911610860551, guid: c00cbf25ab96ea34a8a7cc0b00eff76c, type: 3}
+  - name: Avatar/ears_small
+    sprite: {fileID: 3286163911610860551, guid: f93857d59332dc14a8d3bfd85f03d08e, type: 3}
+  - name: Avatar/emblem_bolt
+    sprite: {fileID: 3286163911610860551, guid: d3d7d71a84328c341a7c49568670e5cd, type: 3}
+  - name: Avatar/emblem_butterfly
+    sprite: {fileID: 3286163911610860551, guid: 545cc7d70371bd54fb481c93ef39667d, type: 3}
+  - name: Avatar/emblem_cat
+    sprite: {fileID: 3286163911610860551, guid: ce8933681cbfc9846af8d31384dc2173, type: 3}
+  - name: Avatar/emblem_dino
+    sprite: {fileID: 3286163911610860551, guid: 6ca19cae610e8674fa171a2ba55f411a, type: 3}
+  - name: Avatar/emblem_eye
+    sprite: {fileID: 3286163911610860551, guid: 2e30d7ebda5109749bc62fcea75023c8, type: 3}
+  - name: Avatar/emblem_fish
+    sprite: {fileID: 3286163911610860551, guid: 13d0add4c00837c4da3e89c748801c02, type: 3}
+  - name: Avatar/emblem_flower
+    sprite: {fileID: 3286163911610860551, guid: 293747d753f18834696b73842e8f2458, type: 3}
+  - name: Avatar/emblem_heart
+    sprite: {fileID: 3286163911610860551, guid: bf39acf64287c6d4aae58bc9ab5e474c, type: 3}
+  - name: Avatar/emblem_moon
+    sprite: {fileID: 3286163911610860551, guid: c900cccbd0c2192499ed0e5d23b6536a, type: 3}
+  - name: Avatar/emblem_music
+    sprite: {fileID: 3286163911610860551, guid: e0b777deb13da9d43bed63d4958836fa, type: 3}
+  - name: Avatar/emblem_paw
+    sprite: {fileID: 3286163911610860551, guid: 083ff99b78ebedb4486ea7f3bd31b480, type: 3}
+  - name: Avatar/emblem_planet
+    sprite: {fileID: 3286163911610860551, guid: da8071d35557b374daae104b26e9f415, type: 3}
+  - name: Avatar/emblem_rainbow
+    sprite: {fileID: 3286163911610860551, guid: 5e4a73cbdc5effd48a54339ea9bde0aa, type: 3}
+  - name: Avatar/emblem_rocket
+    sprite: {fileID: 3286163911610860551, guid: 8dff848de386d0a4487060c6a89b0545, type: 3}
+  - name: Avatar/emblem_smile
+    sprite: {fileID: 3286163911610860551, guid: 5989b9a209e52434ea1ed5ab649ce8d0, type: 3}
+  - name: Avatar/emblem_star
+    sprite: {fileID: 3286163911610860551, guid: f7cb8099ae080fa438e5c0d149a680f8, type: 3}
+  - name: Avatar/emblem_sun
+    sprite: {fileID: 3286163911610860551, guid: 6d728f21f737d4d41bc421de4a59f02f, type: 3}
+  - name: Avatar/eyes_big_open_iris
+    sprite: {fileID: 3286163911610860551, guid: c0fd7bf8afba46f4f814bbcbebd87c0a, type: 3}
+  - name: Avatar/eyes_big_open_pupil
+    sprite: {fileID: 3286163911610860551, guid: 8af89cae712f77846ab841ca13d3e762, type: 3}
+  - name: Avatar/eyes_big_open_white
+    sprite: {fileID: 3286163911610860551, guid: 76c754b9733567d45bdc4d67d47f2579, type: 3}
+  - name: Avatar/eyes_big_up_iris
+    sprite: {fileID: 3286163911610860551, guid: c96af0e0305b7ad46a2855ce4306f850, type: 3}
+  - name: Avatar/eyes_big_up_pupil
+    sprite: {fileID: 3286163911610860551, guid: 36ded2d5895883149ab61c392233ab1a, type: 3}
+  - name: Avatar/eyes_big_up_white
+    sprite: {fileID: 3286163911610860551, guid: 158811810eac019438ef3eeac2d4173c, type: 3}
+  - name: Avatar/eyes_closed
+    sprite: {fileID: 3286163911610860551, guid: c68897017e6ca1d47b6e00f2358e2181, type: 3}
+  - name: Avatar/eyes_dots_open_pupil
+    sprite: {fileID: 3286163911610860551, guid: 0f037584cbaff214c96c40ee0370d644, type: 3}
+  - name: Avatar/eyes_dots_up_pupil
+    sprite: {fileID: 3286163911610860551, guid: ea723cf3fabd5084184f787d20697d96, type: 3}
+  - name: Avatar/eyes_happy
+    sprite: {fileID: 3286163911610860551, guid: 47581571b94225a40aede173986529c0, type: 3}
+  - name: Avatar/eyes_lashes_open_iris
+    sprite: {fileID: 3286163911610860551, guid: 9da83563c5411c8408df575a965e394d, type: 3}
+  - name: Avatar/eyes_lashes_open_pupil
+    sprite: {fileID: 3286163911610860551, guid: ffb06d6be5440c347b583e381d7a0dd1, type: 3}
+  - name: Avatar/eyes_lashes_open_white
+    sprite: {fileID: 3286163911610860551, guid: 27f1f39173e96b14db3da30539c192db, type: 3}
+  - name: Avatar/eyes_lashes_up_iris
+    sprite: {fileID: 3286163911610860551, guid: eba7bc44ddc7ca44d96e907b06e709d3, type: 3}
+  - name: Avatar/eyes_lashes_up_pupil
+    sprite: {fileID: 3286163911610860551, guid: f0f9245262f8da14ea86ee25788e84e5, type: 3}
+  - name: Avatar/eyes_lashes_up_white
+    sprite: {fileID: 3286163911610860551, guid: 39ae3b4f346fcd649ae9344970bc44b7, type: 3}
+  - name: Avatar/eyes_round_open_iris
+    sprite: {fileID: 3286163911610860551, guid: 6562afe03bb475148991f4a52bf32898, type: 3}
+  - name: Avatar/eyes_round_open_pupil
+    sprite: {fileID: 3286163911610860551, guid: b10cba72ef3cec94b8bbaae28356c749, type: 3}
+  - name: Avatar/eyes_round_open_white
+    sprite: {fileID: 3286163911610860551, guid: aa537e81511ffe14b8a94322f957c6ed, type: 3}
+  - name: Avatar/eyes_round_up_iris
+    sprite: {fileID: 3286163911610860551, guid: 364ca0c46d1760b4784d728dfc921860, type: 3}
+  - name: Avatar/eyes_round_up_pupil
+    sprite: {fileID: 3286163911610860551, guid: c91884e1ce0295a47a054beed6185c34, type: 3}
+  - name: Avatar/eyes_round_up_white
+    sprite: {fileID: 3286163911610860551, guid: 24760a0e60f22504cb81eb9a781b9fdb, type: 3}
+  - name: Avatar/eyes_squeeze
+    sprite: {fileID: 3286163911610860551, guid: 9b2bd5e8ef4292e41811a3d09bd85290, type: 3}
+  - name: Avatar/glasses_aviator
+    sprite: {fileID: 3286163911610860551, guid: beb0abc2b22aa9f45a35787a451d6709, type: 3}
+  - name: Avatar/glasses_cateye
+    sprite: {fileID: 3286163911610860551, guid: ee44639d83553d640a6fce2615ae2cbc, type: 3}
+  - name: Avatar/glasses_goggles
+    sprite: {fileID: 3286163911610860551, guid: 8e697ce7996963a4d8fdcd9f1e198b7e, type: 3}
+  - name: Avatar/glasses_heart
+    sprite: {fileID: 3286163911610860551, guid: 71b9273fde2d4b741beebdea2d82b3cf, type: 3}
+  - name: Avatar/glasses_mask
+    sprite: {fileID: 3286163911610860551, guid: 2eaf7b44374ec6b42aa90ce4cb4b6d98, type: 3}
+  - name: Avatar/glasses_round
+    sprite: {fileID: 3286163911610860551, guid: 94a6bad15992d00499199bc0885f31c3, type: 3}
+  - name: Avatar/glasses_shades
+    sprite: {fileID: 3286163911610860551, guid: 19810d54d6b3aaf48a68b1ab26843382, type: 3}
+  - name: Avatar/glasses_sparkle
+    sprite: {fileID: 3286163911610860551, guid: ce44348975b4c4a448020820537726ac, type: 3}
+  - name: Avatar/glasses_square
+    sprite: {fileID: 3286163911610860551, guid: 5ae25fd9b903f694da8f71c24b1acb12, type: 3}
+  - name: Avatar/glasses_star
+    sprite: {fileID: 3286163911610860551, guid: 3ad4729d4919eac4c83401dbc4144a80, type: 3}
+  - name: Avatar/glasses_threed
+    sprite: {fileID: 3286163911610860551, guid: 4f3b641bd80766d4caaf6c6ebefe5f96, type: 3}
+  - name: Avatar/hair_bowl_front
+    sprite: {fileID: 3286163911610860551, guid: 41c0aa03aea7e534dbab1d099bdd14da, type: 3}
+  - name: Avatar/hair_bun_back
+    sprite: {fileID: 3286163911610860551, guid: 1b8fc2523ee6c114d911df3aa353248d, type: 3}
+  - name: Avatar/hair_bun_front
+    sprite: {fileID: 3286163911610860551, guid: 4ebb79709860ba94aa0148e6962b34a2, type: 3}
+  - name: Avatar/hair_buzz_front
+    sprite: {fileID: 3286163911610860551, guid: fa9dd1d757d749249ba53b1b6624e7d1, type: 3}
+  - name: Avatar/hair_curly_back
+    sprite: {fileID: 3286163911610860551, guid: c975392c453bbe84d855f45cea43d86d, type: 3}
+  - name: Avatar/hair_curly_front
+    sprite: {fileID: 3286163911610860551, guid: 73b2e1da63d1f264e8b202771bc7bb54, type: 3}
+  - name: Avatar/hair_long_back
+    sprite: {fileID: 3286163911610860551, guid: 7b9eafd0e5192974092acd4ba8259f13, type: 3}
+  - name: Avatar/hair_long_front
+    sprite: {fileID: 3286163911610860551, guid: 8673c220763236943aafcee504beffac, type: 3}
+  - name: Avatar/hair_pigtails_back
+    sprite: {fileID: 3286163911610860551, guid: 2e818dc9b7d31de459162d56c4e1a09f, type: 3}
+  - name: Avatar/hair_pigtails_front
+    sprite: {fileID: 3286163911610860551, guid: d7541436b14b9614187cdcb56832ddb2, type: 3}
+  - name: Avatar/hair_puffs_back
+    sprite: {fileID: 3286163911610860551, guid: 3756f4a00a937354e8d6fc03510f8228, type: 3}
+  - name: Avatar/hair_puffs_front
+    sprite: {fileID: 3286163911610860551, guid: 2608e52d74969354dae50e274218afe8, type: 3}
+  - name: Avatar/hair_spiky_front
+    sprite: {fileID: 3286163911610860551, guid: 89ca4cfc162f3e74ab9d14cecca1cc54, type: 3}
+  - name: Avatar/hair_tuft_front
+    sprite: {fileID: 3286163911610860551, guid: d8d4787fbfa0d8140b0556d98d91a891, type: 3}
+  - name: Avatar/hands_seated
+    sprite: {fileID: 3286163911610860551, guid: bfdbec437759aca45b2faa8da0ae4510, type: 3}
+  - name: Avatar/hands_stand
+    sprite: {fileID: 3286163911610860551, guid: a3a7f9cf03f2d6d4abf1c1feca9a8be2, type: 3}
+  - name: Avatar/hands_wave
+    sprite: {fileID: 3286163911610860551, guid: 19200b5df39996b4cad11a5ddc185c46, type: 3}
+  - name: Avatar/hat_beanie
+    sprite: {fileID: 3286163911610860551, guid: c98bc44986a12214fb4523c203e315cb, type: 3}
+  - name: Avatar/hat_bow
+    sprite: {fileID: 3286163911610860551, guid: 6b862184b3ce1a845ae3e769f982b8cb, type: 3}
+  - name: Avatar/hat_bucket
+    sprite: {fileID: 3286163911610860551, guid: 90bcedbea192f1e4b91bca171f323257, type: 3}
+  - name: Avatar/hat_bunny
+    sprite: {fileID: 3286163911610860551, guid: 3e19eb5014db34341bfc222dbc68e049, type: 3}
+  - name: Avatar/hat_cap
+    sprite: {fileID: 3286163911610860551, guid: dc77d974ced64544da4c5c2db88737e9, type: 3}
+  - name: Avatar/hat_catears
+    sprite: {fileID: 3286163911610860551, guid: 9c67f875b66b33b44bef08c6b30f1b72, type: 3}
+  - name: Avatar/hat_chef
+    sprite: {fileID: 3286163911610860551, guid: 5d3d1f5b888f4fa489cdc456899bdd5a, type: 3}
+  - name: Avatar/hat_cowboy
+    sprite: {fileID: 3286163911610860551, guid: 050361fc251f6ff4eb65c5458ee4fbf7, type: 3}
+  - name: Avatar/hat_crown
+    sprite: {fileID: 3286163911610860551, guid: 74260836643584c4da497ef2b870958c, type: 3}
+  - name: Avatar/hat_flowers
+    sprite: {fileID: 3286163911610860551, guid: 0a31ee8a513d10c42902412d3a79c063, type: 3}
+  - name: Avatar/hat_headphones
+    sprite: {fileID: 3286163911610860551, guid: 13bfac1f77672a24389b64f5ecd829fe, type: 3}
+  - name: Avatar/hat_party
+    sprite: {fileID: 3286163911610860551, guid: 431709b0c634e9d4d81ab44282c0ab4e, type: 3}
+  - name: Avatar/hat_pirate
+    sprite: {fileID: 3286163911610860551, guid: a4242ec0071bb9a41837a3f91efbb638, type: 3}
+  - name: Avatar/hat_propeller
+    sprite: {fileID: 3286163911610860551, guid: 32205da0e37f2f14f9d50269aee3a96f, type: 3}
+  - name: Avatar/hat_tiara
+    sprite: {fileID: 3286163911610860551, guid: 791322b7ab438b14bb8fd3911cf89945, type: 3}
+  - name: Avatar/hat_unicorn
+    sprite: {fileID: 3286163911610860551, guid: 622303930f021cb45b32d406011ea1b3, type: 3}
+  - name: Avatar/hat_viking
+    sprite: {fileID: 3286163911610860551, guid: 9a199cd3ed52f3844af5548f04f5f5ef, type: 3}
+  - name: Avatar/hat_wizard
+    sprite: {fileID: 3286163911610860551, guid: 07ab5810e3350184fa7e14b2aa7ce64b, type: 3}
+  - name: Avatar/head
+    sprite: {fileID: 3286163911610860551, guid: 44e991e08fa9bb2449a298a35cf5f628, type: 3}
+  - name: Avatar/held_balloon
+    sprite: {fileID: 3286163911610860551, guid: 14b3a8837fa835141983143d27a7d362, type: 3}
+  - name: Avatar/held_book
+    sprite: {fileID: 3286163911610860551, guid: 8374c59bb49be264fb1e98f8f0b2b4df, type: 3}
+  - name: Avatar/held_bubbles
+    sprite: {fileID: 3286163911610860551, guid: ea39b1cb194b84a4baedbcd779ec8f56, type: 3}
+  - name: Avatar/held_dino
+    sprite: {fileID: 3286163911610860551, guid: cd8a42116ef6b9a47900353fed70e24f, type: 3}
+  - name: Avatar/held_flag
+    sprite: {fileID: 3286163911610860551, guid: f30979702a29a6d4ca8efc5b3fd0cea2, type: 3}
+  - name: Avatar/held_guitar
+    sprite: {fileID: 3286163911610860551, guid: 3725614e5d14f23409e4cfd98e935e27, type: 3}
+  - name: Avatar/held_icecream
+    sprite: {fileID: 3286163911610860551, guid: 3eb5da8221f5c3447b345364599647af, type: 3}
+  - name: Avatar/held_kite
+    sprite: {fileID: 3286163911610860551, guid: c176dc9b18180ef4fa266bee3f50dca6, type: 3}
+  - name: Avatar/held_lollipop
+    sprite: {fileID: 3286163911610860551, guid: f7393ce30f387fd4f8d37c201a5c84f2, type: 3}
+  - name: Avatar/held_magnifier
+    sprite: {fileID: 3286163911610860551, guid: 2fa623c1839baa348ba29acf9c5ad307, type: 3}
+  - name: Avatar/held_rocket
+    sprite: {fileID: 3286163911610860551, guid: 2d8d8cf78b1f83548b25b023887f4731, type: 3}
+  - name: Avatar/held_sunflower
+    sprite: {fileID: 3286163911610860551, guid: 0a05345d843371f47af949dadc549d3b, type: 3}
+  - name: Avatar/held_teddy
+    sprite: {fileID: 3286163911610860551, guid: 07adb9b68fb559c49b0a411f24707098, type: 3}
+  - name: Avatar/held_trophy
+    sprite: {fileID: 3286163911610860551, guid: 430f5261f2017e44bbb3688c509882ef, type: 3}
+  - name: Avatar/held_umbrella
+    sprite: {fileID: 3286163911610860551, guid: fd63a97c2c0b212429a3809091e8d88a, type: 3}
+  - name: Avatar/held_wand
+    sprite: {fileID: 3286163911610860551, guid: 033cd7c511878a048aa6b4a4cd2134c0, type: 3}
+  - name: Avatar/mouth_big
+    sprite: {fileID: 3286163911610860551, guid: 7639c08838a4b724e9cbaa5cbb8b6b58, type: 3}
+  - name: Avatar/mouth_cheeky
+    sprite: {fileID: 3286163911610860551, guid: 562cd90bf5405ed4c9f748ba694d65d2, type: 3}
+  - name: Avatar/mouth_grin
+    sprite: {fileID: 3286163911610860551, guid: 3334b2fc424a99647b71f3432886ba50, type: 3}
+  - name: Avatar/mouth_oh
+    sprite: {fileID: 3286163911610860551, guid: bc3697d6c9b94124d8d40be24fe1e324, type: 3}
+  - name: Avatar/mouth_smile
+    sprite: {fileID: 3286163911610860551, guid: a58f6e823462a434b89b5d26199ff407, type: 3}
+  - name: Avatar/mouth_talk
+    sprite: {fileID: 3286163911610860551, guid: be2f08d48c33ed441ba8dcfc732ed69d, type: 3}
+  - name: Avatar/mouth_tongue
+    sprite: {fileID: 3286163911610860551, guid: 2ca6a562dcadea942b18e742f0676c07, type: 3}
+  - name: Avatar/mouth_wobble
+    sprite: {fileID: 3286163911610860551, guid: 134497c9cd1675f44855cf597b7b05e7, type: 3}
+  - name: Avatar/nose_button
+    sprite: {fileID: 3286163911610860551, guid: 6f08be7d770e4004a919286352af3da5, type: 3}
+  - name: Avatar/nose_curve
+    sprite: {fileID: 3286163911610860551, guid: f0daa354fe3516b4283cbeae64ead8a5, type: 3}
+  - name: Avatar/nose_dot
+    sprite: {fileID: 3286163911610860551, guid: 5b9403bfd9c32054d8cce39796d22021, type: 3}
+  - name: Avatar/nose_round
+    sprite: {fileID: 3286163911610860551, guid: 088d8e4e6cf82b841bf3f1e97502eb85, type: 3}
+  - name: Avatar/shirt_seated
+    sprite: {fileID: 3286163911610860551, guid: e5267d744da92d34c9d4924f55736ca2, type: 3}
+  - name: Avatar/shirt_stand
+    sprite: {fileID: 3286163911610860551, guid: ccf15a177844efe45bf89b25ded80b90, type: 3}
+  - name: Avatar/shirt_wave
+    sprite: {fileID: 3286163911610860551, guid: 3e76c17111da7024ab7ae7829364996e, type: 3}
+  - name: Avatar/shoes_seated
+    sprite: {fileID: 3286163911610860551, guid: e61880163590f714c869807927bc9fa8, type: 3}
+  - name: Avatar/shoes_stand
+    sprite: {fileID: 3286163911610860551, guid: 0ef80e03359d68642a3845abe61bbe92, type: 3}
+  - name: Avatar/shoes_wave
+    sprite: {fileID: 3286163911610860551, guid: e252cc4f62908d74f8077b2dc8d43972, type: 3}
+  - name: Avatar/shorts_seated
+    sprite: {fileID: 3286163911610860551, guid: d31a782645893b4458a512fdfb735bef, type: 3}
+  - name: Avatar/shorts_stand
+    sprite: {fileID: 3286163911610860551, guid: 66bcd8c37e704d341a9b06443d31a5ee, type: 3}
+  - name: Avatar/shorts_wave
+    sprite: {fileID: 3286163911610860551, guid: 869dc53da4b7bf943835d20f0e5973c8, type: 3}
+  - name: Avatar/skin_seated
+    sprite: {fileID: 3286163911610860551, guid: 0ef03d2203f84524098eb0de61d3039e, type: 3}
+  - name: Avatar/skin_stand
+    sprite: {fileID: 3286163911610860551, guid: e4b1adc1450352d49bd6c8f7fee80f41, type: 3}
+  - name: Avatar/skin_wave
+    sprite: {fileID: 3286163911610860551, guid: df2e767f66740fd4581bc419a75d2c5d, type: 3}
+  - name: Characters/doctor_cheer
+    sprite: {fileID: 3286163911610860551, guid: c4f06d6398bd0404a8d73128a6999e40, type: 3}
+  - name: Characters/doctor_eyes_closed
+    sprite: {fileID: 3286163911610860551, guid: 5a05d33295ae0934d8cffe86efc7d5ab, type: 3}
+  - name: Characters/doctor_eyes_happy
+    sprite: {fileID: 3286163911610860551, guid: 579acd7083086e04b9e1996c15be3656, type: 3}
+  - name: Characters/doctor_eyes_open
+    sprite: {fileID: 3286163911610860551, guid: a2b96df39f6aacc43ba3ef5f958b6667, type: 3}
+  - name: Characters/doctor_eyes_squeeze
+    sprite: {fileID: 3286163911610860551, guid: 9b50e82af980b2b458dc41672036d7f7, type: 3}
+  - name: Characters/doctor_eyes_up
+    sprite: {fileID: 3286163911610860551, guid: c27a1a6051ae35d4caf5594fef5e2bf7, type: 3}
+  - name: Characters/doctor_eyes_worried
+    sprite: {fileID: 3286163911610860551, guid: cd7ddc01860f07245a6a5c30f5a8960c, type: 3}
+  - name: Characters/doctor_glasses
+    sprite: {fileID: 3286163911610860551, guid: fd2fc31b0a5b88d43a701f30c3adc366, type: 3}
+  - name: Characters/doctor_head
+    sprite: {fileID: 3286163911610860551, guid: f572e2b4b60e25c4db4c2bbfeedd369e, type: 3}
+  - name: Characters/doctor_hold
+    sprite: {fileID: 3286163911610860551, guid: 24891f092f574cb4488bac47294ea3cd, type: 3}
+  - name: Characters/doctor_idle
+    sprite: {fileID: 3286163911610860551, guid: e828277b296c4d1449908dda48c700b2, type: 3}
+  - name: Characters/doctor_mouth_grin
+    sprite: {fileID: 3286163911610860551, guid: eec052b61cd834d4189c76586ca4c679, type: 3}
+  - name: Characters/doctor_mouth_oh
+    sprite: {fileID: 3286163911610860551, guid: 270be0a15fc587f42b9a63feac236cef, type: 3}
+  - name: Characters/doctor_mouth_smile
+    sprite: {fileID: 3286163911610860551, guid: 9d5e1500e4cdd7943866a9e577d29773, type: 3}
+  - name: Characters/doctor_mouth_talk
+    sprite: {fileID: 3286163911610860551, guid: 71c7fcdfd3d65ed42a62062134c88f12, type: 3}
+  - name: Characters/doctor_mouth_wobble
+    sprite: {fileID: 3286163911610860551, guid: c5bf7305d2566454cb91551ffb77ec11, type: 3}
+  - name: Characters/doctor_point
+    sprite: {fileID: 3286163911610860551, guid: 84fbda790d2a09d4385cdc8ec6fe066e, type: 3}
+  - name: Characters/doctor_wave
+    sprite: {fileID: 3286163911610860551, guid: 14891ca2f10fb274ab2be39e05e15d09, type: 3}
+  - name: Eye/closeup_closed
+    sprite: {fileID: 3286163911610860551, guid: f9b76e773549f61459d5aff2babe76ca, type: 3}
+  - name: Eye/closeup_iris
+    sprite: {fileID: 3286163911610860551, guid: 191c1962b5ec98241bac488975b1d8e7, type: 3}
+  - name: Eye/closeup_lid
+    sprite: {fileID: 3286163911610860551, guid: ef315690bd8461c4cad943331414a3ac, type: 3}
+  - name: Eye/closeup_outline
+    sprite: {fileID: 3286163911610860551, guid: 0fdce41227785644cba545cb14fc6dc7, type: 3}
+  - name: Eye/closeup_pupil
+    sprite: {fileID: 3286163911610860551, guid: 960428c30d811004986e228f0473bd89, type: 3}
+  - name: Eye/closeup_shine
+    sprite: {fileID: 3286163911610860551, guid: 3f680ecde4a088a49891b1892b41a10e, type: 3}
+  - name: Eye/closeup_skin
+    sprite: {fileID: 3286163911610860551, guid: a4c7bdc89e550b34ca28b7950a491dcb, type: 3}
+  - name: Eye/closeup_white
+    sprite: {fileID: 3286163911610860551, guid: c9e2232cf6cecbf4f81f2bfb84f4035e, type: 3}
+  - name: Icons/arrow_right
+    sprite: {fileID: 3286163911610860551, guid: 2abb3c85da58aea4586f93670423a761, type: 3}
+  - name: Icons/arrow_up
+    sprite: {fileID: 3286163911610860551, guid: db87838cd5ea63d4bbe2d8f2c522bda5, type: 3}
+  - name: Icons/bag
+    sprite: {fileID: 3286163911610860551, guid: 86f951f885e2c2f4e95dbf64cf1f00be, type: 3}
+  - name: Icons/blurry
+    sprite: {fileID: 3286163911610860551, guid: b03c25fe5c606d74ea0da8ed589ebc69, type: 3}
+  - name: Icons/cap
+    sprite: {fileID: 3286163911610860551, guid: 2a5af0e2295d2664daa50166f29db1d6, type: 3}
+  - name: Icons/check
+    sprite: {fileID: 3286163911610860551, guid: 151e9e6a5e15c9248b92e40601a2698b, type: 3}
+  - name: Icons/clock
+    sprite: {fileID: 3286163911610860551, guid: 172472119bced8449916f6a518c11cc3, type: 3}
+  - name: Icons/close
+    sprite: {fileID: 3286163911610860551, guid: 229bed893ba1d2d478cab46f8541b403, type: 3}
+  - name: Icons/coin
+    sprite: {fileID: 3286163911610860551, guid: 46a2a4c73849f8c48a57421f951afbc8, type: 3}
+  - name: Icons/drop
+    sprite: {fileID: 3286163911610860551, guid: 981d105209af055439f4a7cfdaf92d73, type: 3}
+  - name: Icons/eye
+    sprite: {fileID: 3286163911610860551, guid: 393a60c30b09bc24eb2f3feaddec0e47, type: 3}
+  - name: Icons/eye_big_pupil
+    sprite: {fileID: 3286163911610860551, guid: f966217058f7c7f4f9f5b5df2140dd1c, type: 3}
+  - name: Icons/eye_rainbow
+    sprite: {fileID: 3286163911610860551, guid: 104ff47b07abc4946b65d638255be7a8, type: 3}
+  - name: Icons/eyes_shut
+    sprite: {fileID: 3286163911610860551, guid: e7114bd6d337b664ea788f2a2b503c51, type: 3}
+  - name: Icons/gear
+    sprite: {fileID: 3286163911610860551, guid: 98bdf42dc62513f438bea5b302d2147c, type: 3}
+  - name: Icons/glasses
+    sprite: {fileID: 3286163911610860551, guid: 91082a62d2bde2444bebcd3777dda44e, type: 3}
+  - name: Icons/hair
+    sprite: {fileID: 3286163911610860551, guid: d42487a886f858e4b8fa94aac0187a16, type: 3}
+  - name: Icons/hand
+    sprite: {fileID: 3286163911610860551, guid: e0bd4afe514ef1049a2641e89bbad88d, type: 3}
+  - name: Icons/head_back
+    sprite: {fileID: 3286163911610860551, guid: 9b8f4ee271a368c438f0cd29fbccba30, type: 3}
+  - name: Icons/heart
+    sprite: {fileID: 3286163911610860551, guid: a4e35db9914b43946950883009da1470, type: 3}
+  - name: Icons/hold
+    sprite: {fileID: 3286163911610860551, guid: dd51ac31026009641b13a880c8eb1a77, type: 3}
+  - name: Icons/home
+    sprite: {fileID: 3286163911610860551, guid: e6e1eff0b10d9064796f1ff5b289b9ec, type: 3}
+  - name: Icons/lock
+    sprite: {fileID: 3286163911610860551, guid: 1f55b589b9abc7546b356010a5944674, type: 3}
+  - name: Icons/palette
+    sprite: {fileID: 3286163911610860551, guid: af6b6ac8d60759140a012158f7019482, type: 3}
+  - name: Icons/play
+    sprite: {fileID: 3286163911610860551, guid: a255059b78b614d4fa92547cbb9d4e14, type: 3}
+  - name: Icons/plus
+    sprite: {fileID: 3286163911610860551, guid: f8ce3cd6383b39b4882ba91b1e02a91c, type: 3}
+  - name: Icons/restart
+    sprite: {fileID: 3286163911610860551, guid: 0af8f8f13fae9e542b842d46bc384410, type: 3}
+  - name: Icons/shirt
+    sprite: {fileID: 3286163911610860551, guid: 501fe3158cb6e3e4895b779881f4ec66, type: 3}
+  - name: Icons/skip
+    sprite: {fileID: 3286163911610860551, guid: 03c63a2de7a50fb4ca451b57959f0388, type: 3}
+  - name: Icons/sleepy
+    sprite: {fileID: 3286163911610860551, guid: dac4a0600bd0df94ba9e8f731df8391d, type: 3}
+  - name: Icons/smile
+    sprite: {fileID: 3286163911610860551, guid: cfa6e3bb4b126fd408d17ddb98a7d183, type: 3}
+  - name: Icons/snowflake
+    sprite: {fileID: 3286163911610860551, guid: 8462a08e2ed36de46b092259c83fe8b7, type: 3}
+  - name: Icons/sound_off
+    sprite: {fileID: 3286163911610860551, guid: c3b81f16f1410fb459e2358bbfffd40a, type: 3}
+  - name: Icons/sound_on
+    sprite: {fileID: 3286163911610860551, guid: 2c97ab61011812b499c01cea48593d30, type: 3}
+  - name: Icons/sparkle
+    sprite: {fileID: 3286163911610860551, guid: 30b08abd75d5c194c9d1ea6cbb0959b9, type: 3}
+  - name: Icons/speak
+    sprite: {fileID: 3286163911610860551, guid: 2754091cc816d50419439ea0e2f7dbf8, type: 3}
+  - name: Icons/star
+    sprite: {fileID: 3286163911610860551, guid: d7444a1e4bde3284ca45a762879957e9, type: 3}
+  - name: Icons/star_empty
+    sprite: {fileID: 3286163911610860551, guid: 4df103a3c0ea9414cb6540315cf5d145, type: 3}
+  - name: Icons/sun
+    sprite: {fileID: 3286163911610860551, guid: 72afec95888e21b47adbeb7505ece8b8, type: 3}
+  - name: Icons/sunglasses
+    sprite: {fileID: 3286163911610860551, guid: 38c92fec0ec137b43a3f649c53c460d6, type: 3}
+  - name: Icons/text_size
+    sprite: {fileID: 3286163911610860551, guid: 6f424397a408be343907c33628ad7a96, type: 3}
+  - name: Icons/trash
+    sprite: {fileID: 3286163911610860551, guid: 54ac5561783ec924d9cd3628af58266d, type: 3}
+  - name: Icons/warning
+    sprite: {fileID: 3286163911610860551, guid: 3c8f091348d42824bbeac222baba3bff, type: 3}
+  - name: Icons/wiggle
+    sprite: {fileID: 3286163911610860551, guid: 62b6263039320cf4e89866114c309f5b, type: 3}
+  - name: Map/clinic
+    sprite: {fileID: 3286163911610860551, guid: 2d2c5c0f2cdd5be408aee54f994ae12f, type: 3}
+  - name: Map/cloud
+    sprite: {fileID: 3286163911610860551, guid: 53b196694f3ddbe4b96dc2f27d5d4c16, type: 3}
+  - name: Map/tree
+    sprite: {fileID: 3286163911610860551, guid: 3bb064459ad722048b0f27b5e50fdf51, type: 3}
+  - name: Props/bottle
+    sprite: {fileID: 3286163911610860551, guid: c0e66352e36832646a47ea2f653f7557, type: 3}
+  - name: Props/bottle_buddy
+    sprite: {fileID: 3286163911610860551, guid: cabd08ef93d0456489324660bebd8f18, type: 3}
+  - name: Props/ceiling_star
+    sprite: {fileID: 3286163911610860551, guid: 38c593a5fd8f1cd45b1f70f504be7dda, type: 3}
+  - name: Props/drop
+    sprite: {fileID: 3286163911610860551, guid: 7654814f8a763c9448357979237d12c7, type: 3}
+  - name: Props/drop_gold
+    sprite: {fileID: 3286163911610860551, guid: f64f38a0a7c19b347bd2b6c69f003228, type: 3}
+  - name: Props/exam_chair
+    sprite: {fileID: 3286163911610860551, guid: b147a146631567d41a6c46d46b62efb4, type: 3}
+  - name: Props/splash
+    sprite: {fileID: 3286163911610860551, guid: d51afe791cdf59f46a70b84aac78f805, type: 3}
+  - name: Props/sticker_brave_eyes
+    sprite: {fileID: 3286163911610860551, guid: 7eeaaf7c178a94245bea151c4548f3e3, type: 3}
+  - name: Props/sunglasses
+    sprite: {fileID: 3286163911610860551, guid: c59743f6991588c49ae89ddac95cb14a, type: 3}
+  - name: Props/tissue
+    sprite: {fileID: 3286163911610860551, guid: bb04b7cf83edce64b81309929a97c1cb, type: 3}
+  - name: Room/cabinet
+    sprite: {fileID: 3286163911610860551, guid: f2378a095936bf94bbc8e1706574d4cb, type: 3}
+  - name: Room/eye_chart
+    sprite: {fileID: 3286163911610860551, guid: 928857fde1701be4cba427a6cdc9c5c0, type: 3}
+  - name: Room/lamp
+    sprite: {fileID: 3286163911610860551, guid: db1e0d06afa930f4b8d8d2ddc7bc0451, type: 3}
+  - name: Room/plant
+    sprite: {fileID: 3286163911610860551, guid: 8a10a6504c4577f42a1f2e5496c7ce04, type: 3}
+  - name: Room/rug
+    sprite: {fileID: 3286163911610860551, guid: be92f53a53ed82b409409627e71dfc82, type: 3}
+  - name: Room/window
+    sprite: {fileID: 3286163911610860551, guid: 3fd4a76cf878a6043abc579ba50febe1, type: 3}
+  - name: Spy/apple
+    sprite: {fileID: 3286163911610860551, guid: 700608240e1505f469aa2efd774015cf, type: 3}
+  - name: Spy/ball
+    sprite: {fileID: 3286163911610860551, guid: ea0c5c5f82e54ca47a26c6e72309ae70, type: 3}
+  - name: Spy/balloon
+    sprite: {fileID: 3286163911610860551, guid: 84c1f051e63bd3549a23b0d5e8f5e0e0, type: 3}
+  - name: Spy/boat
+    sprite: {fileID: 3286163911610860551, guid: ca8251b687b9ee34ea3645586639dbc0, type: 3}
+  - name: Spy/book
+    sprite: {fileID: 3286163911610860551, guid: 4be7bb082ef680e49a047b152fadd9b0, type: 3}
+  - name: Spy/butterfly
+    sprite: {fileID: 3286163911610860551, guid: a14179c0ae816e54d89b1ebc11188b9c, type: 3}
+  - name: Spy/car
+    sprite: {fileID: 3286163911610860551, guid: 2d85069fd5c68a04e9d106a1c35f2559, type: 3}
+  - name: Spy/cat
+    sprite: {fileID: 3286163911610860551, guid: 7001929268856ab4c905f82f77a5d663, type: 3}
+  - name: Spy/cupcake
+    sprite: {fileID: 3286163911610860551, guid: 4787f4972c04c1946a808c0f6f196767, type: 3}
+  - name: Spy/drum
+    sprite: {fileID: 3286163911610860551, guid: 1369c757e46a15743a15e43f1b4f19d9, type: 3}
+  - name: Spy/duck
+    sprite: {fileID: 3286163911610860551, guid: 1e77c7c12a6afea4fb7fc352ccf1554a, type: 3}
+  - name: Spy/fish
+    sprite: {fileID: 3286163911610860551, guid: 362d713b371ac5b49bdaed3ba8e7ae4d, type: 3}
+  - name: Spy/flower
+    sprite: {fileID: 3286163911610860551, guid: e010d059b4253694c91fec572c15e7c3, type: 3}
+  - name: Spy/kite
+    sprite: {fileID: 3286163911610860551, guid: 48a8b7be5bb0a7042b30da862ea04471, type: 3}
+  - name: Spy/rocket
+    sprite: {fileID: 3286163911610860551, guid: 3605050b8ca8e08439e22c3eb4c6cddf, type: 3}
+  - name: Spy/shelf
+    sprite: {fileID: 3286163911610860551, guid: c68c9e91b57ecbd4e857165fce27c32e, type: 3}
+  - name: Spy/shoe
+    sprite: {fileID: 3286163911610860551, guid: c364b6866b9857243b1e45c71b53d313, type: 3}
+  - name: Spy/sofa
+    sprite: {fileID: 3286163911610860551, guid: a8ee53e9d28d8204594a412cca90318f, type: 3}
+  - name: Spy/teddy
+    sprite: {fileID: 3286163911610860551, guid: 47d25ccdc0d51bd4f9d7037aedc61110, type: 3}
+  - name: Spy/umbrella
+    sprite: {fileID: 3286163911610860551, guid: 55d95f0622aaf1747939d4a1e48b7401, type: 3}
+  - name: Stops/biglight
+    sprite: {fileID: 3286163911610860551, guid: 4378e022893f8d446b3e7a3a8f813a5e, type: 3}
+  - name: Stops/done
+    sprite: {fileID: 3286163911610860551, guid: 25fde0e5566f4f5408c2c9b94c3869ad, type: 3}
+  - name: Stops/drops
+    sprite: {fileID: 3286163911610860551, guid: c0f3fb893c99195489049289a49424f0, type: 3}
+  - name: Stops/light
+    sprite: {fileID: 3286163911610860551, guid: f9c0d753b76c5c848a6a3c6cf31661b6, type: 3}
+  - name: Stops/match
+    sprite: {fileID: 3286163911610860551, guid: efd80dfcce20dc741992ac028778cc3c, type: 3}
+  - name: Stops/microscope
+    sprite: {fileID: 3286163911610860551, guid: e1e7843d53963e447ab61d50aef89a0e, type: 3}
+  - name: Stops/visit
+    sprite: {fileID: 3286163911610860551, guid: 706ca950d21a19b429462a0f4b271edd, type: 3}
+  - name: Stops/wait
+    sprite: {fileID: 3286163911610860551, guid: c912dcce8384ac941809449721d34b59, type: 3}
+  - name: Stops/waiting
+    sprite: {fileID: 3286163911610860551, guid: 82e88847f680c554ab52bd308dfdbd68, type: 3}

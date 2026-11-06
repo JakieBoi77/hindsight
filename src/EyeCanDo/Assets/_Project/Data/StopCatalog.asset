@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4340cef6758b7fb40b68e0f31adb6f80, type: 3}
+  m_Name: StopCatalog
+  m_EditorClassIdentifier: EyeCanDo.Runtime::EyeCanDo.Content.StopCatalog
+  stops:
+  - id: my_visit
+    title: My Visit
+    icon: Stops/visit
+    playable: 0
+  - id: waiting_room
+    title: Waiting Room
+    icon: Stops/waiting
+    playable: 0
+  - id: picture_match
+    title: Picture Match
+    icon: Stops/match
+    playable: 0
+  - id: follow_light
+    title: Follow the Light
+    icon: Stops/light
+    playable: 0
+  - id: special_drops
+    title: Special Drops
+    icon: Stops/drops
+    playable: 1
+  - id: drop_wait
+    title: Drop Wait
+    icon: Stops/wait
+    playable: 0
+  - id: microscope
+    title: Microscope
+    icon: Stops/microscope
+    playable: 0
+  - id: big_light
+    title: Big Light
+    icon: Stops/biglight
+    playable: 0
+  - id: all_done
+    title: All Done!
+    icon: Stops/done
+    playable: 0

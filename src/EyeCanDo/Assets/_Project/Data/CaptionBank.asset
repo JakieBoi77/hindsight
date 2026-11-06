@@ -1,0 +1,206 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79d905148ab75c43801b7d95ce9c75d, type: 3}
+  m_Name: CaptionBank
+  m_EditorClassIdentifier: EyeCanDo.Runtime::EyeCanDo.Content.CaptionBank
+  titleHello:
+    text: Hi! Tap Play to start!
+    icon: 0
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  titleReset:
+    text: Everything was deleted. A brand new start!
+    icon: 0
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  savesHello:
+    text: Who's playing? Tap your save file!
+    icon: 0
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  saveDeleted:
+    text: That save file was deleted.
+    icon: 0
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  dressUpHello:
+    text: Make your friend look just right!
+    icon: 6
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  dressUpTryOn:
+    text: Looking good! Tap Buy to keep it.
+    icon: 11
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  dressUpNeedCoins:
+    text: Play the games to earn more coins!
+    icon: 11
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  dressUpBought:
+    text: It's yours! You look great!
+    icon: 6
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  mapWelcome:
+    text: Welcome to the eye clinic! Tap the drops.
+    icon: 8
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  comingSoon:
+    text: This part is coming soon!
+    icon: 0
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  pickActivity:
+    text: Pick the story or a game!
+    icon: 0
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  storyFirst:
+    text: Start with the story! It opens the games.
+    icon: 0
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  gamesLocked:
+    text: Finish the story to open the games!
+    icon: 12
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  gamesUnlocked:
+    text: The games are open! Earn coins and stars.
+    icon: 11
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  storyPaused:
+    text: Ready when you are. Hold the star again.
+    icon: 0
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  storyAgain:
+    text: Great practising! This sticker is already yours.
+    icon: 6
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  storyCoins:
+    text: You earned coins! Spend them on new clothes.
+    icon: 11
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  pickLevel:
+    text: Pick a level. Any level is fine!
+    icon: 0
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  timeUp:
+    text: Time's up! Let's see your stars.
+    icon: 6
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  allFound:
+    text: You found them all! The blur is gone.
+    icon: 6
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  newBest:
+    text: A new best! Wow!
+    icon: 6
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  greatGame:
+    text: Great playing!
+    icon: 6
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  catchIntro:
+    text: Lean back and catch the drops in your eyes!
+    icon: 8
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  catchHowTo:
+    text: Slide the chair to catch them.
+    icon: 0
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  catchCold:
+    text: Brr, cold! That's okay.
+    icon: 1
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  catchBlink:
+    text: Eyes full! Tap two times to blink.
+    icon: 9
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  catchBlinkDone:
+    text: Blink, blink! Bonus points!
+    icon: 6
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  catchGolden:
+    text: A golden drop! Three points!
+    icon: 6
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  spyIntro:
+    text: After drops, things can look blurry and bright.
+    icon: 3
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  spyHowTo:
+    text: Find the thing in the picture!
+    icon: 0
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  spyNotThis:
+    text: Not that one. Keep looking!
+    icon: 0
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}
+  spyClearing:
+    text: Look! The blur is going away.
+    icon: 2
+    speaker: 0
+    beat: 0
+    narration: {fileID: 0}

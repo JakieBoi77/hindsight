@@ -1,0 +1,366 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d3f70af6317054198230f26cdc540a, type: 3}
+  m_Name: StoryScript
+  m_EditorClassIdentifier: EyeCanDo.Runtime::EyeCanDo.Content.StoryScript
+  steps:
+  - kind: 0
+    skippable: 1
+    lines:
+    - text: Hi! I'm Dr. Iris. I'm an eye doctor.
+      icon: 0
+      speaker: 0
+      beat: 1
+      narration: {fileID: 0}
+    - text: Today we'll learn about special eye drops!
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    hint:
+      text: 
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+  - kind: 1
+    skippable: 1
+    lines:
+    - text: Here comes my friend Mia!
+      icon: 0
+      speaker: 0
+      beat: 4
+      narration: {fileID: 0}
+    - text: Hi! I'm getting eye drops today.
+      icon: 0
+      speaker: 1
+      beat: 5
+      narration: {fileID: 0}
+    - text: You can watch me first!
+      icon: 0
+      speaker: 1
+      beat: 0
+      narration: {fileID: 0}
+    hint:
+      text: 
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+  - kind: 2
+    skippable: 1
+    lines:
+    - text: These are my special eye drops.
+      icon: 8
+      speaker: 0
+      beat: 6
+      narration: {fileID: 0}
+    - text: Tap the bottle to see what they do!
+      icon: 0
+      speaker: 0
+      beat: 7
+      narration: {fileID: 0}
+    - text: Look! The black circle got bigger.
+      icon: 9
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    - text: It's called the pupil. It's like a window.
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    - text: A big window helps me see inside your eye!
+      icon: 0
+      speaker: 0
+      beat: 8
+      narration: {fileID: 0}
+    hint:
+      text: 
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+  - kind: 3
+    skippable: 1
+    lines:
+    - text: What do the drops do? Tap a picture!
+      icon: 0
+      speaker: 0
+      beat: 9
+      narration: {fileID: 0}
+    - text: Yes! They make the pupil bigger.
+      icon: 6
+      speaker: 0
+      beat: 3
+      narration: {fileID: 0}
+    hint:
+      text: Good try! The drops help me see inside.
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+  - kind: 4
+    skippable: 0
+    lines:
+    - text: Here's how the drops feel.
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    - text: They feel cold, like a raindrop.
+      icon: 1
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    - text: They might sting a little, for a few seconds.
+      icon: 2
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    - text: Then it goes away.
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    - text: After, things can look blurry and bright.
+      icon: 3
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    - text: Sunglasses help. That goes away later too.
+      icon: 10
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    hint:
+      text: 
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+  - kind: 5
+    skippable: 1
+    lines:
+    - text: Watch Mia get her drops.
+      icon: 0
+      speaker: 0
+      beat: 10
+      narration: {fileID: 0}
+    - text: Head back, and look up at the star.
+      icon: 0
+      speaker: 0
+      beat: 11
+      narration: {fileID: 0}
+    - text: I'm looking up!
+      icon: 0
+      speaker: 1
+      beat: 0
+      narration: {fileID: 0}
+    - text: Here comes the drop.
+      icon: 8
+      speaker: 0
+      beat: 12
+      narration: {fileID: 0}
+    - text: Ooh, cold!
+      icon: 1
+      speaker: 1
+      beat: 13
+      narration: {fileID: 0}
+    - text: Blink, blink. That spreads the drop around.
+      icon: 0
+      speaker: 0
+      beat: 14
+      narration: {fileID: 0}
+    - text: A tissue wipes away the extra.
+      icon: 0
+      speaker: 0
+      beat: 15
+      narration: {fileID: 0}
+    - text: It feels better now. I did it!
+      icon: 6
+      speaker: 1
+      beat: 0
+      narration: {fileID: 0}
+    - text: Great job, Mia! See you soon.
+      icon: 0
+      speaker: 0
+      beat: 16
+      narration: {fileID: 0}
+    hint:
+      text: 
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+  - kind: 6
+    skippable: 1
+    lines:
+    - text: What is your job when drops go in?
+      icon: 0
+      speaker: 0
+      beat: 9
+      narration: {fileID: 0}
+    - text: That's right! Head back, eyes open.
+      icon: 6
+      speaker: 0
+      beat: 3
+      narration: {fileID: 0}
+    hint:
+      text: Good try! Remember Mia. Head back, eyes open.
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+  - kind: 7
+    skippable: 1
+    lines:
+    - text: Now it's your turn!
+      icon: 0
+      speaker: 0
+      beat: 17
+      narration: {fileID: 0}
+    - text: Tap the chair to hop up.
+      icon: 0
+      speaker: 0
+      beat: 18
+      narration: {fileID: 0}
+    - text: Great sitting!
+      icon: 6
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    hint:
+      text: 
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+  - kind: 8
+    skippable: 1
+    lines:
+    - text: Tip your head back. Push your chin up!
+      icon: 0
+      speaker: 0
+      beat: 19
+      narration: {fileID: 0}
+    - text: You tipped your head back!
+      icon: 6
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    hint:
+      text: 
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+  - kind: 9
+    skippable: 1
+    lines:
+    - text: Look up at the star. Press and hold it!
+      icon: 0
+      speaker: 0
+      beat: 20
+      narration: {fileID: 0}
+    hint:
+      text: 
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+  - kind: 10
+    skippable: 1
+    lines:
+    - text: Ooh, cold!
+      icon: 1
+      speaker: 2
+      beat: 21
+      narration: {fileID: 0}
+    - text: Cold is okay. It goes away soon.
+      icon: 2
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    hint:
+      text: 
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+  - kind: 11
+    skippable: 1
+    lines:
+    - text: Blink, blink, blink! Tap your eye.
+      icon: 0
+      speaker: 0
+      beat: 22
+      narration: {fileID: 0}
+    - text: Super blinking!
+      icon: 6
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    hint:
+      text: 
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+  - kind: 12
+    skippable: 1
+    lines:
+    - text: Wipe the drip with the tissue.
+      icon: 0
+      speaker: 0
+      beat: 23
+      narration: {fileID: 0}
+    - text: All clean!
+      icon: 6
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    hint:
+      text: 
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+  - kind: 13
+    skippable: 1
+    lines:
+    - text: You did it! You were so brave!
+      icon: 6
+      speaker: 0
+      beat: 3
+      narration: {fileID: 0}
+    - text: Your doctor might do it a little differently.
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    - text: You can always tell them if you feel worried.
+      icon: 7
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}
+    - text: Here's your Brave Eyes sticker!
+      icon: 6
+      speaker: 0
+      beat: 24
+      narration: {fileID: 0}
+    hint:
+      text: 
+      icon: 0
+      speaker: 0
+      beat: 0
+      narration: {fileID: 0}

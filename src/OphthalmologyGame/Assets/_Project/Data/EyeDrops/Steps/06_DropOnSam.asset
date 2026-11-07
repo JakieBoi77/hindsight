@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea164e4133db57343b8761fa6b1896b5, type: 3}
+  m_Name: 06_DropOnSam
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.PanelStep
+  title: 6. Sam's drop
+  shotId: SamChair
+  setupBeat: 0
+  doctorAnchorId: 
+  teleportDoctor: 0
+  doctorPose: 1
+  doctorProp: 0
+  beat: 6
+  beatBeforeLine: 1
+  line:
+    id: p06_ooh
+    speaker: 1
+    narration: Oooh, cold!
+    caption: Ooh, cold!
+    clip: {fileID: 8300000, guid: 1b270e45a608b314ba6a7606c7878b40, type: 3}
+  followUpLine:
+    id: p06_blink
+    speaker: 0
+    narration: Make sure to blink to spread the drop around. Then I can take a look inside your eye.
+    caption: Blink to spread the drop
+    clip: {fileID: 8300000, guid: 4723298fca37d9544b2b4a33bb6ef952, type: 3}
+  discoverId: 
+  discoverLine:
+    id: 
+    speaker: 0
+    narration: 
+    caption: 
+    clip: {fileID: 0}
+  endOn: 0
+  dropperWithButton: 0
+  afterBeat: 7

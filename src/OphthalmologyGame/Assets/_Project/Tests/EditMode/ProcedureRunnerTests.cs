@@ -13,6 +13,8 @@ namespace Hindsight.Ophthalmology.Tests
             public List<string> Log;
             public int Frames;
 
+            public override IEnumerable<StoryLine> Lines => new StoryLine[0];
+
             public override IEnumerator Run(IProcedureContext context)
             {
                 Log.Add(name + ":start");

@@ -30,7 +30,13 @@ namespace Hindsight.Ophthalmology.EditorTools
     {
         public const string MenuScenePath = ScenesDir + "/Menu.unity";
         public const string EyeDropsScenePath = ScenesDir + "/EyeDrops.unity";
-        const string Doctor = "Dr. Iris";
+        // Seated child in the exam chair: hips position and backrest recline (degrees).
+        const float SeatHeight = 0.71f;
+        const float SeatZ = -0.17f;
+        const float SeatRecline = 0f; // the spine leans back (KidActor.seatRecline), not the whole body
+
+        const string NarrationDir = Root + "/Audio/Narration";
+        const string SfxDir = Root + "/Audio/Sfx";
 
         static readonly Color Ink = new(0.13f, 0.2f, 0.3f);
         static readonly Color Teal = new(0.1f, 0.55f, 0.6f);
@@ -50,8 +56,10 @@ namespace Hindsight.Ophthalmology.EditorTools
             ConfigurePlayer();
             UiKit.Prepare();
             PrefabBuilder.BuildAll();
+            BuildSoundLibrary();
             var (catalog, eyeDrops) = BuildLevelData();
             var procedure = BuildEyeDropsProcedure();
+            WriteNarrationScript(procedure);
             BuildEyeDropsScene(eyeDrops, procedure);
             BuildMenuScene(catalog);
             EditorBuildSettings.scenes = new[]
@@ -136,9 +144,31 @@ namespace Hindsight.Ophthalmology.EditorTools
             return (catalog, eyeDrops);
         }
 
+        /// <summary>A narrated line. Its clip is Audio/Narration/&lt;id&gt;.wav (or .ogg/.mp3) when that file exists.</summary>
+        static StoryLine L(string id, Speaker speaker, string narration, string caption)
+        {
+            AudioClip clip = null;
+            foreach (var ext in new[] { "wav", "ogg", "mp3" })
+            {
+                clip = AssetDatabase.LoadAssetAtPath<AudioClip>($"{NarrationDir}/{id}.{ext}");
+                if (clip != null) break;
+            }
+            return new StoryLine(id, speaker, narration, caption, clip);
+        }
+
+        static StoryLine Dr(string id, string narration, string caption) => L(id, Speaker.Doctor, narration, caption);
+
+        static StoryLine Kid(string id, string narration, string caption) => L(id, Speaker.Sam, narration, caption);
+
+        /// <summary>
+        /// The storyboard: Dr. Iris and Sam show how eye drops go, then it is the player's turn.
+        /// Each panel is one shot with one or two spoken lines and at most one action. Captions are
+        /// 8 words or fewer; the narration says the full sentence.
+        /// </summary>
         static ProcedureDefinition BuildEyeDropsProcedure()
         {
             var dir = DataDir + "/EyeDrops/Steps";
+            AssetDatabase.DeleteAsset(dir); // step files change between versions; the procedure is rebuilt below
             var index = 0;
             T Step<T>(string file, string title) where T : ProcedureStep
             {
@@ -150,58 +180,109 @@ namespace Hindsight.Ophthalmology.EditorTools
 
             var steps = new List<ProcedureStep>
             {
-                Step<DialogueStep>("Greeting", "Say hello").EditorInit("DoctorGreeting", "", DoctorPose.Wave,
-                    "Hi there! I'm Dr. Iris, your eye doctor.",
-                    "Welcome to my clinic! Today I'm going to take a super close look at your eyes."),
-                Step<DialogueStep>("Explain", "Why eye drops?").EditorInit("DoctorExplain", "", DoctorPose.UseItem,
-                    "To see inside your eye, I need the dark circle in the middle - your pupil - to get BIG.",
-                    "Special eye drops make that happen. Your job is to tilt your head back, keep your eyes open, and stay nice and still.")
-                    .EditorProp(DoctorProp.EyeDrops),
-                Step<ShowCloseupStep>("Dilation", "What drops do").EditorInit(
-                    "This is your pupil before the drops. It's small, like a tiny window.",
-                    "After the drops, it gets nice and big - now I can see all the way inside!",
-                    "DoctorExplain"),
-                Step<TapTargetStep>("SitInChair", "Sit in the chair").EditorInit("ChairApproach", "ExamChair",
-                    "Let's get started! Can you hop up into the big chair? Tap the chair to sit down.", "FirstPerson"),
-                Step<DialogueStep>("Seated", "Get comfy").EditorInit("FirstPerson", "DoctorExamPoint", DoctorPose.Wave,
-                    "Great job! Nice and comfy. Before we start, let's see what you remember."),
-                Step<QuizStep>("QuizWhy", "Quiz: why?").EditorInit("FirstPerson",
-                    "Why do we use eye drops?", 0,
-                    "That's right! Great listening!",
-                    "Not quite! The drops make your pupil bigger. Try again!",
-                    "Make my pupils big so the doctor can see inside",
-                    "Change the color of my eyes",
-                    "Help me fall asleep")
-                    .EditorIcons(UiKit.Icon("quiz_big_pupil"), UiKit.Icon("quiz_rainbow_eye"), UiKit.Icon("quiz_sleepy")),
-                Step<QuizStep>("QuizJob", "Quiz: your job").EditorInit("FirstPerson",
-                    "What is YOUR job when the drops go in?", 1,
-                    "Yes! You've got it!",
-                    "Hmm, not that one. Remember: head back and eyes open!",
-                    "Squeeze my eyes shut tight",
-                    "Tilt my head back and don't blink",
-                    "Wiggle around")
-                    .EditorIcons(UiKit.Icon("quiz_eyes_shut"), UiKit.Icon("quiz_head_back"), UiKit.Icon("quiz_wiggle")),
-                Step<DialogueStep>("HeadsUp", "Heads up").EditorInit("FirstPerson", "", DoctorPose.Idle,
-                    "Just so you know: the drops might feel a little cold, and they might sting for a few seconds.",
-                    "That's totally normal, and it goes away quickly. You're going to do great!")
-                    .EditorProp(DoctorProp.EyeDrops),
-                Step<DialogueStep>("TiltBack", "Tilt back").EditorInit("FirstPersonTiltBack", "DoctorDropPoint", DoctorPose.Idle,
-                    "Now tilt your head back and look up at the ceiling.",
-                    "Keep your eye wide open and try not to blink. If you blink, the drop will miss and we'll have to do it again.")
-                    .EditorTeleport(),
-                Step<HoldStillStep>("EyeDrop", "The eye drop"),
-                Step<BlinkStep>("Blink", "Blink, blink, blink"),
-                Step<DialogueStep>("Wait", "Let the drops work").EditorInit("FirstPerson", "DoctorExamPoint", DoctorPose.Idle,
-                    "The drops take a little while to work, so let's wait together...",
-                    "...and done! Your pupils are nice and big now.").EditorTeleport(),
-                Step<ExamStep>("Exam", "Look inside"),
-                Step<RewardStep>("Reward", "Reward"),
+                Step<PanelStep>("Hello", "1. Dr. Iris says hi").EditorInit("DoctorGreeting",
+                    Dr("p01_hello", "Hey, I'm Dr. Iris. I'm going to be looking at your eyes today.", "Hi! I'm Dr. Iris."), StoryBeat.DoctorWave),
+                Step<TapTargetStep>("MeetSam", "2. Meet Sam").EditorInit("SamWaiting", "Sam",
+                    Dr("p02_sam", "This is Sam. He is also getting eye drops today. Click on Sam to say hi.", "This is Sam. Click to say hi!"),
+                    onTap: StoryBeat.SamWave, reaction: Kid("p02_hi", "Hi! I'm Sam, nice to meet you.", "Hi! I'm Sam. Nice to meet you!")),
+                Step<ChartStep>("Chart", "3. What the drops do").EditorInit(
+                    Dr("p03_chart", "In order to see into your eye, I'll need to use some special eye drops. The drops make your pupil nice and big, so that I can see all the way inside.",
+                        "Drops make your pupil big"), "special", "big", "see"),
+                Step<PanelStep>("SamFirst", "4. Sam goes first").EditorInit("ChartTalk",
+                        Dr("p04_first", "Sam, you're up first. Hop into the chair so we can see how it's done.", "Sam goes first. Hop in!"))
+                    .EditorFollowUp(Kid("p04_willdo", "Will do!", "Will do!"))
+                    .EditorAfter(StoryBeat.SamWalkToChair),
+                Step<PanelStep>("SamHeadBack", "5. Head back, eyes open").EditorInit("SamChair",
+                        Dr("p05_cold", "When I put the drops in, they will be cold and may sting for a little bit. Lots of kids say it's not so bad. You're going to do great!",
+                            "Cold, may sting a bit. You'll do great!"),
+                        StoryBeat.SamTiltBack, setup: StoryBeat.SamSit),
+                Step<PanelStep>("DropOnSam", "6. Sam's drop").EditorInit("SamChair",
+                        Kid("p06_ooh", "Oooh, cold!", "Ooh, cold!"), StoryBeat.DropOnSam)
+                    .EditorFollowUp(Dr("p06_blink", "Make sure to blink to spread the drop around. Then I can take a look inside your eye.", "Blink to spread the drop"))
+                    .EditorBeatFirst()
+                    .EditorAfter(StoryBeat.SamBlink),
+                Step<PanelStep>("LookAtSam", "7. A look inside Sam's eye").EditorInit("SamChair",
+                        Dr("p07_good", "Looking good, Sam!", "Looking good, Sam!"), StoryBeat.DoctorExamSam)
+                    .EditorBeatFirst(),
+                Step<PanelStep>("SamDance", "8. Sam's happy dance").EditorInit("ChairApproach",
+                        Kid("p08_yay", "Yay, that wasn't so bad!", "Yay! That wasn't so bad!"), StoryBeat.SamDance, setup: StoryBeat.SamStandUp)
+                    .EditorFollowUp(Dr("p08_set", "You're all set!", "You're all set!"))
+                    .EditorAfter(StoryBeat.SamLeave),
+                Step<TapTargetStep>("YourTurn", "9. Your turn").EditorInit("ChairApproach", "ExamChair",
+                    Dr("p09_turn", "Now it's your turn! Click on the chair to have a seat.", "Your turn! Click the chair."), "FirstPerson",
+                    setup: StoryBeat.KidAppear, afterSetup: StoryBeat.KidHide),
+                Step<PanelStep>("LookUp", "10. Head back, eyes open").EditorInit("FirstPersonTiltBack",
+                        Dr("p10_hold", "Make sure to keep your head back and eyes open. Remember, the drops will feel cold and may sting for a little bit.",
+                            "Head back, eyes open. May sting a bit."), setup: StoryBeat.DoctorToDropPoint)
+                    // The button and the bottle only appear with this line, once the explaining is done.
+                    .EditorFollowUp(Dr("p10_button", "Hold the button to keep your eye open!", "Hold the button!"))
+                    .EditorEndOnHold(showDropper: true),
+                // Letting go mid-drop: the drop waits and Dr. Iris repeats her reminder.
+                Step<HoldStillStep>("EyeDrop", "11. The drop").EditorInit(new StoryLine(),
+                    Dr("p11_again", "Make sure to keep your head back and eyes open.", "Head back, eyes open."), new StoryLine()),
+                Step<BlinkStep>("Blink", "12. Blink").EditorInit(
+                    Dr("p12_did", "You did it! Now blink! The drops need to spread around.", "You did it! Now blink!"), null, 3),
+                Step<ExamStep>("LookInside", "13. A look inside your eye").EditorInit(
+                    Dr("p13_look", "Amazing! Now I'll just take a quick look into your eye.", "Amazing! Now a quick look."),
+                    Dr("p13_great", "Fantastic! Your eyes look great!", "Your eyes look great!")),
+                Step<RewardStep>("Reward", "14. Brave eyes").EditorInit("Brave Eyes!"),
             };
+            foreach (var step in steps) EditorUtility.SetDirty(step);
 
             var procedure = LoadOrCreate<ProcedureDefinition>(DataDir + "/EyeDrops/EyeDropsProcedure.asset");
             procedure.EditorInit("Eye Drops", steps);
             EditorUtility.SetDirty(procedure);
+            AssetDatabase.SaveAssets();
             return procedure;
+        }
+
+        /// <summary>
+        /// Writes the recording script: every line with its file name. Recording a line and saving it
+        /// as Audio/Narration/&lt;id&gt;.wav, then running POC → Rebuild All, wires it in.
+        /// </summary>
+        static void WriteNarrationScript(ProcedureDefinition procedure)
+        {
+            EnsureFolder(NarrationDir);
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("# Eye Drops narration script");
+            sb.AppendLine();
+            sb.AppendLine("Generated by `PocBuilder` (POC → Rebuild All). Do not edit by hand: change the lines in `PocBuilder.BuildEyeDropsProcedure`.");
+            sb.AppendLine();
+            sb.AppendLine("To add a recording, save it in this folder as `<id>.wav` (or `.ogg` / `.mp3`) and run **POC → Rebuild All**.");
+            sb.AppendLine("Lines without a recording are timed silently, with their caption on screen.");
+            sb.AppendLine();
+            sb.AppendLine("| Panel | id | Speaker | Narration (spoken) | Caption | Recorded |");
+            sb.AppendLine("| --- | --- | --- | --- | --- | --- |");
+            foreach (var step in procedure.Steps)
+            foreach (var line in step.Lines)
+                sb.AppendLine($"| {step.Title} | `{line.id}` | {line.speaker} | {line.narration} | {line.caption} | {(line.clip != null ? "yes" : "no")} |");
+            File.WriteAllText(NarrationDir + "/NarrationScript.md", sb.ToString());
+            AssetDatabase.ImportAsset(NarrationDir + "/NarrationScript.md");
+
+            // The same lines for Tools/VoiceGen/generate_voices.py (outside Assets, so Unity ignores it).
+            var json = new System.Text.StringBuilder("[\n");
+            var all = procedure.Steps.SelectMany(st => st.Lines).ToList();
+            for (var i = 0; i < all.Count; i++)
+                json.Append($"  {{\"id\": \"{all[i].id}\", \"speaker\": \"{all[i].speaker}\", \"text\": \"{all[i].narration.Replace("\"", "\\\"")}\"}}{(i < all.Count - 1 ? "," : "")}\n");
+            json.Append("]\n");
+            Directory.CreateDirectory("Tools/VoiceGen");
+            File.WriteAllText("Tools/VoiceGen/lines.json", json.ToString());
+        }
+
+        /// <summary>The CC0 sound effects (copied from the 2D PoC), in <see cref="SfxId"/> order.</summary>
+        static void BuildSoundLibrary()
+        {
+            var files = new (string file, float volume)[]
+            {
+                ("tap", 0.5f), ("coin", 0.8f), ("cheer", 0.8f), ("blink", 0.6f), ("shiver", 0.7f), ("correct", 0.9f),
+                ("try_again", 0.7f), ("reward", 0.9f), ("purchase", 0.9f), ("drop_fall", 0.8f), ("pop_1", 0.6f), ("sparkle", 0.7f),
+            };
+            var clips = files.Select(f => AssetDatabase.LoadAssetAtPath<AudioClip>($"{SfxDir}/{f.file}.wav")).ToArray();
+            for (var i = 0; i < clips.Length; i++)
+                if (clips[i] == null) Debug.LogError($"PocBuilder: missing sound {SfxDir}/{files[i].file}.wav");
+            var library = LoadOrCreate<SoundLibrary>(Root + "/Resources/SoundLibrary.asset");
+            library.EditorInit(clips, files.Select(f => f.volume).ToArray());
+            EditorUtility.SetDirty(library);
         }
 
         // ------------------------------------------------------------------ shared scene pieces
@@ -347,8 +428,43 @@ namespace Hindsight.Ophthalmology.EditorTools
             var stand = Anchor(anchors, "DoctorStandPoint", new Vector3(1.3f, 0f, 1.3f), new Vector3(1.4f, 0f, -2f)); // faces the door side, clear of the chair
             var exam = Anchor(anchors, "DoctorExamPoint", headFlat + new Vector3(0.3f, 0f, 1.25f), headFlat);
             var dropPoint = Anchor(anchors, "DoctorDropPoint", headFlat + new Vector3(0.5f, 0f, 0.12f), headFlat);
+            // Beside and a little behind Sam's head, so the front-right camera sees both faces.
+            Anchor(anchors, "DoctorSamPoint", headFlat + new Vector3(0.85f, 0f, 0.15f), headFlat);
+            // Where a seated child's eyes are; facing the footrest (+Z).
+            var chairEyes = Anchor(anchors, "ChairEyes", head, head + Vector3.forward);
+            chairEyes.position = head;
+            // Where a seated child's hips go, facing the footrest and leaning back with the backrest
+            // (measured from the chair's top profile with POC → Debug Captures).
+            var seat = new GameObject("SamSeat").transform;
+            seat.SetParent(anchors, false);
+            seat.SetPositionAndRotation(new Vector3(head.x, SeatHeight, SeatZ), Quaternion.Euler(-SeatRecline, 0f, 0f));
+            var samWait = Anchor(anchors, "SamWaitPoint", new Vector3(1.25f, 0f, -2.2f), new Vector3(0.3f, 0f, -0.6f));
+            // At the drops chart on the east wall (it spans z 0.1 to 1.7): Dr. Iris on its right, Sam on its left,
+            // both turned half toward the chart and half toward the camera.
+            var chartCam = new Vector3(-0.35f, 1.2f, 0.75f);
+            Anchor(anchors, "DoctorChartPoint", new Vector3(2.6f, 0f, -0.45f), new Vector3(0.4f, 0f, 1.3f));
+            Anchor(anchors, "SamChartPoint", new Vector3(2.55f, 0f, 1.95f), new Vector3(0.4f, 0f, 0.3f));
+            // Sam's way out: round the chair to the door.
+            Anchor(anchors, "SamExitWay", new Vector3(1.4f, 0f, 0.55f), new Vector3(1.6f, 0f, -2.6f));
+            Anchor(anchors, "SamExitPoint", new Vector3(1.6f, 0f, -2.6f), new Vector3(1.6f, 0f, -4f));
+            var approachPos = new Vector3(head.x - 2.1f, 1.5f, head.z + 1.1f);
+            // Just past the chair's footrest, so nothing hides the kid from the approach camera.
+            var kidStand = Anchor(anchors, "KidStandPoint", new Vector3(0.15f, 0f, 1.55f), approachPos);
+            var rewardPos = stand.position + stand.forward * 2.3f + Vector3.up * 1.15f;
+            Anchor(anchors, "KidRewardPoint", stand.position + stand.right * 0.8f + stand.forward * 0.15f, rewardPos);
 
             var doctor = Place(PrefabBuilder.DoctorPath, "Doctor", stand.position, stand.rotation, world);
+
+            // ---- Sam (the peer model) waits by the door; the player's own kid appears for "your turn".
+            var sam = Place(PrefabBuilder.KidPath, "Sam", samWait.position, samWait.rotation, world);
+            sam.GetComponent<Interactable>().EditorInit("Sam", sam.transform.Find("Highlight").gameObject);
+            var playerKid = Place(PrefabBuilder.KidPath, "PlayerKid", kidStand.position, kidStand.rotation, world);
+            playerKid.GetComponent<Interactable>().EditorInit("PlayerKid", playerKid.transform.Find("Highlight").gameObject);
+
+            // ---- Things to discover: the eye chart and the drops on the tray glow and play a fact when tapped.
+            var chart = room.transform.Find("Shell/EyeChart");
+            chart.gameObject.AddComponent<BoxCollider>().size = new Vector3(0.72f, 1.02f, 0.06f);
+            chart.gameObject.AddComponent<Interactable>().EditorInit("EyeChart", Sparkle(chart, new Vector3(0f, 0.68f, -0.05f), 0.12f));
 
             // ---- Camera shots
             var shotsRoot = new GameObject("Shots").transform;
@@ -362,8 +478,17 @@ namespace Hindsight.Ophthalmology.EditorTools
             Shot(shotsRoot, "DoctorGreeting", greetPos, Look(greetPos, stand.position + Vector3.up * 0.55f), 50f);
             var explainPos = stand.position + Quaternion.Euler(0, -25f, 0) * stand.forward * 2.3f + Vector3.up * 0.95f;
             Shot(shotsRoot, "DoctorExplain", explainPos, Look(explainPos, stand.position + Vector3.up * 0.55f + stand.right * 0.45f), 50f);
-            var approachPos = new Vector3(head.x - 2.1f, 1.5f, head.z + 1.1f);
-            Shot(shotsRoot, "ChairApproach", approachPos, Look(approachPos, chair.transform.position + new Vector3(0f, 0.75f, 0.2f)), 50f);
+            Shot(shotsRoot, "ChairApproach", approachPos, Look(approachPos, chair.transform.position + new Vector3(-0.25f, 0.7f, 0.35f)), 50f);
+            var samWaitShot = new Vector3(0.35f, 1.0f, -0.8f);
+            Shot(shotsRoot, "SamWaiting", samWaitShot, Look(samWaitShot, samWait.position + Vector3.up * 0.55f), 50f);
+            // From the front-left, so the doctor (on Sam's right) never stands between the camera and Sam.
+            var samChairShot = head + new Vector3(-1.15f, 0.3f, 1.5f);
+            Shot(shotsRoot, "SamChair", samChairShot, Look(samChairShot, head + new Vector3(0.1f, -0.25f, 0.25f)), 48f);
+            // The chart: the camera pans from Sam at the door over to the east wall.
+            Shot(shotsRoot, "ChartTalk", chartCam, Look(chartCam, new Vector3(2.9f, 0.95f, 0.75f)), 50f);
+            // Sam leaving: looking from beside the chair over to the door.
+            var doorCam = new Vector3(-0.7f, 1.45f, 1.7f);
+            Shot(shotsRoot, "DoorView", doorCam, Look(doorCam, new Vector3(1.4f, 0.75f, -2.6f)), 50f);
 
             var fpRot = Look(head, new Vector3(head.x + 0.2f, 1.35f, head.z + 2f));
             Shot(shotsRoot, "FirstPerson", head, fpRot, 60f);
@@ -371,8 +496,12 @@ namespace Hindsight.Ophthalmology.EditorTools
             Shot(shotsRoot, "FirstPersonTiltBack", head, tiltRot, 60f);
             var examRot = Look(head, exam.position + Vector3.up * 1.1f); // the doctor is 1.5 m and leans in
             Shot(shotsRoot, "ExamCloseFP", head, examRot, 55f);
-            var rewardPos = stand.position + stand.forward * 2.3f + Vector3.up * 1.15f;
-            var rewardShot = Shot(shotsRoot, "Reward", rewardPos, Look(rewardPos, stand.position + Vector3.up * 1.1f + stand.right * 0.75f), 50f);
+            var rewardShot = Shot(shotsRoot, "Reward", rewardPos, Look(rewardPos, stand.position + Vector3.up * 0.95f + stand.right * 0.6f), 50f);
+
+            // ---- A smiley sun painted on the ceiling to look at while the drop goes in
+            var tiltDir = tiltRot * Vector3.forward;
+            var sunPos = head + tiltDir * ((PrefabBuilder.RoomHeight - 0.004f - head.y) / tiltDir.y);
+            BuildCeilingSun(world, sunPos, tiltRot * Vector3.up);
 
             // ---- Eye close-up "stage", far from the room so it never shows up in other shots
             var stage = new GameObject("EyeCloseupStage").transform;
@@ -405,6 +534,8 @@ namespace Hindsight.Ophthalmology.EditorTools
             rest.position = new Vector3(trayBounds.center.x, trayBounds.max.y + 0.087f, trayBounds.center.z);
             rest.rotation = Quaternion.Euler(180f, 0f, 0f);
             var bottle = Place(PrefabBuilder.BottlePath, "EyeDropBottle", rest.position, rest.rotation, dropRigGo.transform);
+            bottle.AddComponent<SphereCollider>().radius = 0.09f; // generous for small fingers
+            bottle.AddComponent<Interactable>().EditorInit("Bottle", Sparkle(bottle.transform, new Vector3(0f, -0.16f, 0f), 0.05f));
             var drop = Primitive(PrimitiveType.Sphere, "Drop", dropRigGo.transform, Vector3.zero, Vector3.one * 0.011f,
                 Lit("Drop", new Color(0.6f, 0.85f, 1f), 0.95f, new Color(0.3f, 0.5f, 0.8f)));
             var dropTarget = new GameObject("DropTarget").transform;
@@ -429,6 +560,15 @@ namespace Hindsight.Ophthalmology.EditorTools
             var scopeRig = scopeRigGo.AddComponent<OphthalmoscopeRig>();
             scopeRig.EditorInit(scope.transform, scope.GetComponentInChildren<Light>(), points);
 
+            // ---- The light that glints in Sam's eye when Dr. Iris looks in
+            var glint = new GameObject("ExamGlint").AddComponent<Light>();
+            glint.transform.SetParent(world, false);
+            glint.type = LightType.Point;
+            glint.color = new Color(1f, 0.95f, 0.8f);
+            glint.range = 0.35f;
+            glint.intensity = 1.2f;
+            glint.shadows = LightShadows.None;
+
             // ---- Confetti for the reward shot
             var confetti = MakeConfetti(rewardShot.transform);
 
@@ -440,18 +580,103 @@ namespace Hindsight.Ophthalmology.EditorTools
 
             // ---- UI
             var canvas = MakeCanvas();
-            var ui = BuildLevelUi(canvas.transform, confetti);
+            var portraits = new[] { PortraitTexture("Speaker_Doctor"), PortraitTexture("Speaker_Sam") };
+            var ui = BuildLevelUi(canvas.transform, confetti, new Texture[] { portraits[0], portraits[1], null });
+            BuildSpeakerStudio(ui.Narrator, portraits);
 
             // ---- Procedure wiring
             var systems = new GameObject("Procedure");
             var context = systems.AddComponent<ExamRoomContext>();
-            context.EditorInit(level, anchors, director, doctor.GetComponent<DoctorActor>(), eye.GetComponent<EyeCloseupRig>(),
-                dropRig, scopeRig, ui.Dialogue, ui.Quiz, ui.Buttons, ui.Effects, ui.Reward);
+            context.EditorInit(level, anchors, director, doctor.GetComponent<DoctorActor>(), sam.GetComponent<KidActor>(),
+                playerKid.GetComponent<KidActor>(), eye.GetComponent<EyeCloseupRig>(), dropRig, scopeRig,
+                room.GetComponentInChildren<TeachingChart>(), glint, ui.Captions,
+                ui.Buttons, ui.Effects, ui.Reward);
             var runner = systems.AddComponent<ProcedureRunner>();
             runner.EditorInit(procedure, context);
-            ui.Hud.EditorInit(runner, ui.HudLabel, ui.HudDots, ui.HudDot, ui.HudHome);
+            ui.Hud.EditorInit(runner, ui.HudDots, ui.HudDot, ui.HudHome, ui.HudGear, ui.Settings);
 
             SaveScene(EyeDropsScenePath);
+        }
+
+        /// <summary>A small glowing diamond that shows while an object can be tapped.</summary>
+        static GameObject Sparkle(Transform parent, Vector3 localPos, float size)
+        {
+            var go = new GameObject("Highlight");
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = localPos;
+            var glow = Lit("Highlight", new Color(1f, 0.85f, 0.2f), 0.5f, new Color(1f, 0.75f, 0.1f) * 1.5f);
+            var d = Primitive(PrimitiveType.Cube, "Diamond", go.transform, Vector3.zero, Vector3.one, glow);
+            d.transform.localRotation = Quaternion.Euler(45, 0, 45);
+            d.transform.localScale = new Vector3(size / parent.lossyScale.x, size / parent.lossyScale.y, size / parent.lossyScale.z);
+            go.AddComponent<Bobber>();
+            go.SetActive(false);
+            return go;
+        }
+
+        /// <summary>
+        /// A smiley sun with clouds and a rainbow, painted on the ceiling (a flat unlit picture facing
+        /// down, turned so it reads upright in the tilt-back view).
+        /// </summary>
+        static void BuildCeilingSun(Transform parent, Vector3 pos, Vector3 viewUp)
+        {
+            var picture = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            picture.name = "CeilingSun";
+            Object.DestroyImmediate(picture.GetComponent<Collider>());
+            picture.transform.SetParent(parent, false);
+            var up = Vector3.ProjectOnPlane(viewUp, Vector3.up).normalized;
+            // A quad shows its face along -Z: point +Z up so the picture faces down into the room.
+            picture.transform.SetPositionAndRotation(pos, Quaternion.LookRotation(Vector3.up, up));
+            picture.transform.localScale = Vector3.one * 1.3f;
+            picture.GetComponent<Renderer>().sharedMaterial = CeilingArt.Material();
+        }
+
+        static RenderTexture PortraitTexture(string name)
+        {
+            var path = $"{Root}/Art/UI/{name}.renderTexture";
+            var rt = AssetDatabase.LoadAssetAtPath<RenderTexture>(path);
+            if (rt != null) return rt;
+            rt = new RenderTexture(384, 384, 24) { name = name, antiAliasing = 4 };
+            AssetDatabase.CreateAsset(rt, path);
+            return rt;
+        }
+
+        /// <summary>
+        /// Copies of the doctor and Sam far from the room, each filmed head-and-shoulders into a render
+        /// texture for the caption bubble (<see cref="SpeakerPortraits"/> makes them talk).
+        /// </summary>
+        static void BuildSpeakerStudio(NarrationPlayer narrator, RenderTexture[] textures)
+        {
+            var root = new GameObject("SpeakerStudio").transform;
+            root.position = new Vector3(-60f, 0f, 0f);
+            Primitive(PrimitiveType.Cube, "Backdrop", root, new Vector3(1.5f, 1.5f, -1.2f), new Vector3(6f, 4f, 0.1f), Lit("PortraitBackdrop", UiKit.Hex("#E1F1FF")));
+            var doctor = Place(PrefabBuilder.DoctorPath, "DoctorPortrait", root.position, Quaternion.identity, root);
+            var sam = Place(PrefabBuilder.KidPath, "SamPortrait", root.position + new Vector3(3f, 0f, 0f), Quaternion.identity, root);
+            sam.GetComponent<Interactable>().EditorInit("SamPortrait", null);
+            var actors = new[] { doctor, sam };
+            for (var i = 0; i < actors.Length; i++)
+            {
+                var centre = actors[i].GetComponentsInChildren<Transform>(true).First(t => t.name == "HeadCenter").position;
+                var camGo = new GameObject(actors[i].name + "Camera");
+                camGo.transform.SetParent(root, true);
+                // The models face +Z: film from in front, a little below eye level, so the face fills the circle.
+                var distance = i == 0 ? 1.75f : 1.1f; // the doctor's head is about half as big again as Sam's
+                var camPos = centre + new Vector3(0f, -0.04f, distance);
+                camGo.transform.SetPositionAndRotation(camPos, Look(camPos, centre + Vector3.down * 0.06f));
+                var cam = camGo.AddComponent<Camera>();
+                cam.fieldOfView = 24f;
+                cam.clearFlags = CameraClearFlags.SolidColor;
+                cam.backgroundColor = UiKit.Hex("#E1F1FF");
+                cam.targetTexture = textures[i];
+                cam.nearClipPlane = 0.05f;
+                cam.farClipPlane = 4f;
+                var light = new GameObject(actors[i].name + "Light").AddComponent<Light>();
+                light.transform.SetParent(root, true);
+                light.transform.position = centre + new Vector3(-0.4f, 0.5f, 1f);
+                light.type = LightType.Point;
+                light.range = 3f;
+                light.intensity = 1.4f;
+            }
+            root.gameObject.AddComponent<SpeakerPortraits>().EditorInit(narrator, doctor.GetComponent<DoctorActor>(), sam.GetComponent<KidActor>());
         }
 
         static ParticleSystem MakeConfetti(Transform rewardCamera)

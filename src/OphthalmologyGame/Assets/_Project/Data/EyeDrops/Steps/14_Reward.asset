@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeb9f8aa726644545b8ef14a57ba3eb3, type: 3}
   m_Name: 14_Reward
   m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.RewardStep
-  title: Reward
+  title: 14. Brave eyes
   shotId: Reward
   doctorAnchorId: DoctorStandPoint
-  rewardTitle: Eye Drop Champion!
-  rewardBody: You held still, kept your eyes open, and blinked like a pro.
+  kidAnchorId: KidRewardPoint
+  title: Brave Eyes!
+  line:
+    id: 
+    speaker: 0
+    narration: 
+    caption: 
+    clip: {fileID: 0}

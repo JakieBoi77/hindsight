@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b7f1a121df532e4d85c2ac9f7f256cc, type: 3}
+  m_Name: 03_Chart
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.ChartStep
+  title: 3. What the drops do
+  shotId: ChartTalk
+  doctorAnchorId: DoctorChartPoint
+  samAnchorId: SamChartPoint
+  line:
+    id: p03_chart
+    speaker: 0
+    narration: In order to see into your eye, I'll need to use some special eye drops. The drops make your pupil nice and big, so that I can see all the way inside.
+    caption: Drops make your pupil big
+    clip: {fileID: 8300000, guid: 7282bf2c4337c5041af679ef68f04ea3, type: 3}
+  cueWords:
+  - special
+  - big
+  - see

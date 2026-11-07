@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9d48d63fe46c4e4683829195dca0be0, type: 3}
+  m_Name: 11_EyeDrop
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.HoldStillStep
+  title: 11. The drop
+  shotId: FirstPersonTiltBack
+  doctorAnchorId: DoctorDropPoint
+  comingLine:
+    id: 
+    speaker: 0
+    narration: 
+    caption: 
+    clip: {fileID: 0}
+  retryLine:
+    id: p11_again
+    speaker: 0
+    narration: Make sure to keep your head back and eyes open.
+    caption: Head back, eyes open.
+    clip: {fileID: 8300000, guid: e3ece0c4e824501469e5d358a1b52fdb, type: 3}
+  landLine:
+    id: 
+    speaker: 0
+    narration: 
+    caption: 
+    clip: {fileID: 0}
+  dropSeconds: 1.8
+  blurAfterDrop: 0.8

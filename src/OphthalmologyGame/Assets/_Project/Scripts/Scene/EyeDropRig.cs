@@ -1,12 +1,11 @@
-using System;
 using System.Collections;
 using UnityEngine;
 
 namespace Hindsight.Ophthalmology.SceneObjects
 {
     /// <summary>
-    /// The eye-drop bottle held over the player's eye and the drop that falls from it.
-    /// Positioned (by the scene builder) over the first-person "tilt back" camera.
+    /// The eye-drop bottle and the drop that falls from it: over the player's eye in the first-person
+    /// "tilt back" view, over Sam's eye when Sam goes first, and resting on the tool tray otherwise.
     /// </summary>
     public sealed class EyeDropRig : MonoBehaviour
     {
@@ -16,6 +15,8 @@ namespace Hindsight.Ophthalmology.SceneObjects
         [SerializeField] Transform dropTarget;
         [SerializeField] Transform restPoint; // where the bottle sits on the tool tray
         [SerializeField] Transform holdPoint; // over the player's eye
+
+        Vector3 fallFrom;
 
         void Awake() => ShowAtRest();
 
@@ -31,32 +32,49 @@ namespace Hindsight.Ophthalmology.SceneObjects
             if (drop != null) drop.gameObject.SetActive(false);
         }
 
-        /// <summary>
-        /// Lets one drop fall. Returns early (and reports a miss) if <paramref name="stillOk"/> turns false.
-        /// </summary>
-        public IEnumerator Fall(float seconds, Func<bool> stillOk, Action<bool> onDone, Action<float> onProgress = null)
+        /// <summary>Starts a drop at the bottle tip. Move it with <see cref="SetDrop"/>; it only falls while the child holds still.</summary>
+        public void BeginDrop()
         {
-            if (drop == null || dropStart == null || dropTarget == null)
-            {
-                onDone?.Invoke(true);
-                yield break;
-            }
+            if (drop == null || dropStart == null) return;
+            fallFrom = dropStart.position;
+            drop.position = fallFrom;
             drop.gameObject.SetActive(true);
+        }
+
+        /// <summary>Places the drop part way to the eye (0 = at the tip, 1 = landed), accelerating like gravity.</summary>
+        public void SetDrop(float k)
+        {
+            if (drop == null || dropTarget == null) return;
+            drop.position = Vector3.Lerp(fallFrom, dropTarget.position, k * k);
+        }
+
+        public void EndDrop()
+        {
+            if (drop != null) drop.gameObject.SetActive(false);
+        }
+
+        /// <summary>Holds the bottle over someone else's eye (Sam's) and lets one drop fall onto it.</summary>
+        public IEnumerator FallOnto(Vector3 eye, float seconds = 1.2f)
+        {
+            if (bottle == null) yield break;
+            bottle.SetPositionAndRotation(eye + Vector3.up * 0.2f, Quaternion.identity); // the bottle is modelled tip-down
+            yield return Wait(0.5f);
+            BeginDrop();
+            var to = eye + Vector3.up * 0.01f;
             for (var t = 0f; t < seconds; t += Time.deltaTime)
             {
-                if (!stillOk())
-                {
-                    drop.gameObject.SetActive(false);
-                    onDone?.Invoke(false);
-                    yield break;
-                }
                 var k = t / seconds;
-                onProgress?.Invoke(k);
-                drop.position = Vector3.Lerp(dropStart.position, dropTarget.position, k * k); // accelerate like gravity
+                if (drop != null) drop.position = Vector3.Lerp(fallFrom, to, k * k);
                 yield return null;
             }
-            drop.gameObject.SetActive(false);
-            onDone?.Invoke(true);
+            EndDrop();
+            yield return Wait(0.4f);
+            ShowAtRest();
+        }
+
+        static IEnumerator Wait(float seconds)
+        {
+            for (var t = 0f; t < seconds; t += Time.deltaTime) yield return null;
         }
 
 #if UNITY_EDITOR

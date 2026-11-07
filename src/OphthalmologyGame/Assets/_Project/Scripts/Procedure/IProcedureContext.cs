@@ -1,3 +1,4 @@
+using System.Collections;
 using Hindsight.Ophthalmology.Core;
 using Hindsight.Ophthalmology.SceneObjects;
 using Hindsight.Ophthalmology.UI;
@@ -13,17 +14,22 @@ namespace Hindsight.Ophthalmology.Procedure
 
         ShotDirector Shots { get; }
         DoctorActor Doctor { get; }
+        KidActor Sam { get; }
+        KidActor PlayerKid { get; }
         EyeCloseupRig EyeCloseup { get; }
         EyeDropRig EyeDrop { get; }
         OphthalmoscopeRig Ophthalmoscope { get; }
+        TeachingChart Chart { get; }
 
-        DialogueView Dialogue { get; }
-        QuizView Quiz { get; }
+        CaptionView Captions { get; }
         ActionButtonsView Buttons { get; }
         ScreenEffectsView Effects { get; }
         RewardView Reward { get; }
 
         Transform GetAnchor(string id);
         Interactable GetInteractable(string id);
+
+        /// <summary>Plays a stage beat to completion (instant for setup beats).</summary>
+        IEnumerator PlayBeat(StoryBeat beat);
     }
 }

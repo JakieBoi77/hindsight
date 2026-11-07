@@ -14,17 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.ProcedureDefinition
   displayName: Eye Drops
   steps:
-  - {fileID: 11400000, guid: 4bc7a9cbd8430d14db3b0ff28a000453, type: 2}
-  - {fileID: 11400000, guid: 9db0679cfa70a6c438e037f869204a68, type: 2}
-  - {fileID: 11400000, guid: b4ed1c35c5e39974fa57f6b4a066bdfe, type: 2}
-  - {fileID: 11400000, guid: ee5a42b737dbf954f90a0071ba207867, type: 2}
-  - {fileID: 11400000, guid: daa1a48efca2d574f9f442cd2494644f, type: 2}
-  - {fileID: 11400000, guid: 1fc7268e305d83f48af5cdf59be3f798, type: 2}
-  - {fileID: 11400000, guid: 4334a1bdb4ac7384785a84662f22670f, type: 2}
-  - {fileID: 11400000, guid: 80ca376c11d006b47b5f6ab0a31459a0, type: 2}
-  - {fileID: 11400000, guid: 570abd4c121fdb243b5a9697f8cb6ea0, type: 2}
-  - {fileID: 11400000, guid: aa271af9bee1c6241a54340941cb0811, type: 2}
-  - {fileID: 11400000, guid: 6d1e7b4876f0776478b6e43db01cf076, type: 2}
-  - {fileID: 11400000, guid: 4256b5447a57be44e815be339f12cd77, type: 2}
-  - {fileID: 11400000, guid: 16212ea7252c6a740925ccc1f7534e10, type: 2}
-  - {fileID: 11400000, guid: 04f8adaab4fa95c49b18ed41f8bebd6e, type: 2}
+  - {fileID: 11400000, guid: c9d09220311250d4b9fabd5d0c2e91f5, type: 2}
+  - {fileID: 11400000, guid: 84e30646ad2b57642aee3326baf52528, type: 2}
+  - {fileID: 11400000, guid: e2713e4ab126c3a429150813fb60df74, type: 2}
+  - {fileID: 11400000, guid: 776a93b78558e744889462acd599936a, type: 2}
+  - {fileID: 11400000, guid: a85a3718edd8630429ca4c89a9e5f944, type: 2}
+  - {fileID: 11400000, guid: 7708476bc434ba04bb8e2694a84a722f, type: 2}
+  - {fileID: 11400000, guid: be9b240e79dd6bd44a3168d5977945eb, type: 2}
+  - {fileID: 11400000, guid: 09ae7432b9f34e6449ed4cf134903a4e, type: 2}
+  - {fileID: 11400000, guid: 3ab78f44667af6b4cad7dfe8b3b3a313, type: 2}
+  - {fileID: 11400000, guid: 525e6c501e28e2540b492019de276c84, type: 2}
+  - {fileID: 11400000, guid: d3ccffcd31620254092177cd28398f52, type: 2}
+  - {fileID: 11400000, guid: ad28c4b619932b743845aadad3763291, type: 2}
+  - {fileID: 11400000, guid: a77c7959a2f663248b5bb3d978a3d36d, type: 2}
+  - {fileID: 11400000, guid: 343a61744a600114faf615a3d84293b8, type: 2}

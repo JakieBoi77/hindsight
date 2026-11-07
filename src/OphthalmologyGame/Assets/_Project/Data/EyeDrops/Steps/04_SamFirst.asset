@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea164e4133db57343b8761fa6b1896b5, type: 3}
+  m_Name: 04_SamFirst
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.PanelStep
+  title: 4. Sam goes first
+  shotId: ChartTalk
+  setupBeat: 0
+  doctorAnchorId: 
+  teleportDoctor: 0
+  doctorPose: 1
+  doctorProp: 0
+  beat: 0
+  beatBeforeLine: 0
+  line:
+    id: p04_first
+    speaker: 0
+    narration: Sam, you're up first. Hop into the chair so we can see how it's done.
+    caption: Sam goes first. Hop in!
+    clip: {fileID: 8300000, guid: 33c436fb198ca2e41a92a6211e8d7f14, type: 3}
+  followUpLine:
+    id: p04_willdo
+    speaker: 1
+    narration: Will do!
+    caption: Will do!
+    clip: {fileID: 8300000, guid: 79039b0e6b0848d47830e27dd00b2482, type: 3}
+  discoverId: 
+  discoverLine:
+    id: 
+    speaker: 0
+    narration: 
+    caption: 
+    clip: {fileID: 0}
+  endOn: 0
+  dropperWithButton: 0
+  afterBeat: 10

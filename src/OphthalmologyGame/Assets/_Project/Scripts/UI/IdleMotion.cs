@@ -34,6 +34,13 @@ namespace Hindsight.Ophthalmology.UI
 
         void Update()
         {
+            if (Core.GameServices.Settings.reduceMotion)
+            {
+                rect.localScale = Vector3.one;
+                rect.anchoredPosition = basePosition;
+                rect.localRotation = Quaternion.identity;
+                return;
+            }
             var s = Mathf.Sin(Time.unscaledTime * cyclesPerSecond * Mathf.PI * 2f);
             switch (kind)
             {

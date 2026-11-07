@@ -22,7 +22,7 @@ namespace Hindsight.Ophthalmology.UI
 
         public void Bind(LevelDefinition level)
         {
-            var unlocked = LevelProgress.IsUnlocked(level) && level.IsPlayable;
+            var unlocked = GameServices.IsUnlocked(level) && level.IsPlayable;
             title.text = level.DisplayName;
             blurb.text = unlocked ? level.Blurb : "Coming soon!";
             icon.sprite = level.Icon;
@@ -30,7 +30,7 @@ namespace Hindsight.Ophthalmology.UI
             icon.color = unlocked ? Color.white : lockedIconTint;
             face.color = unlocked ? Color.white : lockedFace;
             lockBadge.SetActive(!unlocked);
-            doneBadge.SetActive(unlocked && LevelProgress.IsCompleted(level));
+            doneBadge.SetActive(unlocked && GameServices.IsCompleted(level));
             button.interactable = unlocked;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => GameFlow.LoadLevel(level));

@@ -61,6 +61,12 @@ namespace Hindsight.Ophthalmology.EditorTools
         /// <summary>Generates (or loads) the shape sprites and the font. Call once before building UI.</summary>
         public static void Prepare()
         {
+            // SVG icons are rasterised on the GPU when imported. Under -nographics they import blank
+            // (grey squares in the game), so refuse to pretend, and re-import them when a GPU is present.
+            if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
+                Debug.LogError("UiKit: no graphics device (-nographics?). SVG icons cannot be rasterised; run the builder without -nographics.");
+            else
+                AssetDatabase.ImportAsset(IconDir, ImportAssetOptions.ImportRecursive | ImportAssetOptions.ForceUpdate | ImportAssetOptions.ForceSynchronousImport);
             EnsureFolder(GeneratedDir);
             Rounded = MakeSprite("rounded", 256, (x, y) => RoundedBoxSdf(x, y, 128, 128, 126, 126, 96), border: 110);
             Circle = MakeSprite("circle", 512, (x, y) => Vector2.Distance(new Vector2(x, y), new Vector2(256, 256)) - 252);

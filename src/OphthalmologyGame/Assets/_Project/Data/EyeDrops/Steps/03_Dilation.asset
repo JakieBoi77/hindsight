@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52469986209da9449812977890e23a04, type: 3}
+  m_Name: 03_Dilation
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.ShowCloseupStep
+  title: What drops do
+  closeupShotId: EyeCloseup
+  returnShotId: DoctorExplain
+  speaker: Dr. Iris
+  beforeLine: This is your pupil before the drops. It's small, like a tiny window.
+  afterLine: After the drops, it gets nice and big - now I can see all the way inside!
+  dilateSeconds: 2.5

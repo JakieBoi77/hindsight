@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb7d665b7a894c14e8f5fd5fda2de095, type: 3}
+  m_Name: AirPuff
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Core.LevelDefinition
+  levelId: air-puff
+  displayName: Puff of Air
+  icon: {fileID: 3286163911610860551, guid: 95deb88c664c1e146925df3ddd9c2f03, type: 3}
+  blurb: A tiny puff checks your eye pressure.
+  sceneName: 
+  unlockedByDefault: 0
+  unlocksOnComplete: {fileID: 11400000, guid: ef30a2a0dd0f0db498fb9a2e2838ee79, type: 2}

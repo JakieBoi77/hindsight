@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d158315af756b4e4d83096945fd2e07a, type: 3}
+  m_Name: 01_Greeting
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.DialogueStep
+  title: Say hello
+  shotId: DoctorGreeting
+  doctorAnchorId: 
+  teleportDoctor: 0
+  doctorPose: 2
+  doctorProp: 0
+  speaker: Dr. Iris
+  lines:
+  - Hi there! I'm Dr. Iris, your eye doctor.
+  - Welcome to my clinic! Today I'm going to take a super close look at your eyes.

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9d48d63fe46c4e4683829195dca0be0, type: 3}
+  m_Name: 10_EyeDrop
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.HoldStillStep
+  title: The eye drop
+  shotId: FirstPersonTiltBack
+  doctorAnchorId: DoctorDropPoint
+  speaker: Dr. Iris
+  holdLabel: 'Hold to keep
+
+    your eye open!'
+  startPrompt: Press and HOLD the big button. That keeps your eye open!
+  dropComing: Here comes the drop... keep holding...
+  missedLine: Oops, you blinked! The drop missed. That's okay - let's try one more time.
+  successLine: Got it! Brrr, a little cold, right? You held super still!
+  dropSeconds: 1.6
+  blurAfterDrop: 0.8

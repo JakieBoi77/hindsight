@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 624e8945fcc0c4c4581b268810958251, type: 3}
+  m_Name: LevelCatalog
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Core.LevelCatalog
+  levels:
+  - {fileID: 11400000, guid: 4edf5bfe13e21d6439f84fb9bf83a12a, type: 2}
+  - {fileID: 11400000, guid: 0535ead73c7bc0b4e8bfa67e0f290e41, type: 2}
+  - {fileID: 11400000, guid: cf6e93807ce2e104a9ee5284dc2f3eda, type: 2}
+  - {fileID: 11400000, guid: ef30a2a0dd0f0db498fb9a2e2838ee79, type: 2}
+  - {fileID: 11400000, guid: 7ba995a905ae1944fb1a63b4a906b693, type: 2}
+  - {fileID: 11400000, guid: 914bb5a32a3c0aa4f93061283d4aafd9, type: 2}

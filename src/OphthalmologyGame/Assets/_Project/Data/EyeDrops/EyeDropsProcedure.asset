@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5d8820ae622ae448b538a8573c409c9, type: 3}
+  m_Name: EyeDropsProcedure
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.ProcedureDefinition
+  displayName: Eye Drops
+  steps:
+  - {fileID: 11400000, guid: 4bc7a9cbd8430d14db3b0ff28a000453, type: 2}
+  - {fileID: 11400000, guid: 9db0679cfa70a6c438e037f869204a68, type: 2}
+  - {fileID: 11400000, guid: b4ed1c35c5e39974fa57f6b4a066bdfe, type: 2}
+  - {fileID: 11400000, guid: ee5a42b737dbf954f90a0071ba207867, type: 2}
+  - {fileID: 11400000, guid: daa1a48efca2d574f9f442cd2494644f, type: 2}
+  - {fileID: 11400000, guid: 1fc7268e305d83f48af5cdf59be3f798, type: 2}
+  - {fileID: 11400000, guid: 4334a1bdb4ac7384785a84662f22670f, type: 2}
+  - {fileID: 11400000, guid: 80ca376c11d006b47b5f6ab0a31459a0, type: 2}
+  - {fileID: 11400000, guid: 570abd4c121fdb243b5a9697f8cb6ea0, type: 2}
+  - {fileID: 11400000, guid: aa271af9bee1c6241a54340941cb0811, type: 2}
+  - {fileID: 11400000, guid: 6d1e7b4876f0776478b6e43db01cf076, type: 2}
+  - {fileID: 11400000, guid: 4256b5447a57be44e815be339f12cd77, type: 2}
+  - {fileID: 11400000, guid: 16212ea7252c6a740925ccc1f7534e10, type: 2}
+  - {fileID: 11400000, guid: 04f8adaab4fa95c49b18ed41f8bebd6e, type: 2}

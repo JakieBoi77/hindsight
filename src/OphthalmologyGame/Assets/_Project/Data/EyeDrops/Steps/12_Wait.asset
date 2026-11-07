@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d158315af756b4e4d83096945fd2e07a, type: 3}
+  m_Name: 12_Wait
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.DialogueStep
+  title: Let the drops work
+  shotId: FirstPerson
+  doctorAnchorId: DoctorExamPoint
+  teleportDoctor: 1
+  doctorPose: 1
+  doctorProp: 0
+  speaker: Dr. Iris
+  lines:
+  - The drops take a little while to work, so let's wait together...
+  - ...and done! Your pupils are nice and big now.

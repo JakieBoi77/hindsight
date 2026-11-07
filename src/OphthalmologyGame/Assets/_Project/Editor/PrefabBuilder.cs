@@ -20,7 +20,10 @@ namespace Hindsight.Ophthalmology.EditorTools
         const string DoctorAtlasSource = "Assets/ThirdParty/KayKit/rogue_texture.png";
         const string DoctorAtlas = MaterialsDir + "/DoctorAtlas.png";
         const string ChairModel = "Assets/ThirdParty/PolyPizza/ExamChair.glb";
+        const string KidModel = "Assets/ThirdParty/KayKit/KidBase_Mage.glb";
+        const float KidHeight = 1.0f;
 
+        public const string KidPath = PrefabsDir + "/Kid.prefab";
         public const string RoomPath = PrefabsDir + "/ExamRoom.prefab";
         public const string ChairPath = PrefabsDir + "/ExamChair.prefab";
         public const string DoctorPath = PrefabsDir + "/Doctor.prefab";
@@ -40,6 +43,7 @@ namespace Hindsight.Ophthalmology.EditorTools
             BuildOphthalmoscope();
             BuildDoctor(); // holds the bottle and the light, so it is built after them
             BuildEyeModel();
+            BuildKid();
         }
 
         static void Save(GameObject go, string path)
@@ -104,7 +108,7 @@ namespace Hindsight.Ophthalmology.EditorTools
 
             BuildDoor(shell);
             BuildEyeChart(shell);
-            BuildPoster(shell);
+            BuildDropsChart(shell);
 
             var props = new GameObject("Props").transform;
             props.SetParent(room.transform, false);
@@ -184,41 +188,73 @@ namespace Hindsight.Ophthalmology.EditorTools
             tmp.text = "<size=200%><b>E</b></size>\n<size=130%>F P</size>\nT O Z\n<size=80%>L P E D</size>\n<size=60%>P E C F D</size>\n<size=45%>E D F C Z P</size>\n<size=35%>F E L O P Z D</size>";
         }
 
-        static void BuildPoster(Transform parent)
+        /// <summary>
+        /// The drops chart on the east wall (where the eye poster was): a board with three picture
+        /// panels (<see cref="ChartArt"/>) that light up as Dr. Iris explains them (<see cref="TeachingChart"/>).
+        /// </summary>
+        static void BuildDropsChart(Transform parent)
         {
-            var paper = Lit("PosterPaper", new Color(1f, 0.96f, 0.85f));
-            var sclera = Lit("EyeWhite", Color.white, 0.6f);
-            var iris = Lit("EyeIris", new Color(0.25f, 0.55f, 0.85f), 0.6f);
-            var pupil = Lit("EyePupil", new Color(0.03f, 0.03f, 0.05f), 0.8f);
+            const float width = 1.6f;
+            var height = width * ChartArt.Height / ChartArt.Width;
+            var tex = ChartArt.Texture();
+            var chart = new GameObject("DropsChart").transform;
+            chart.SetParent(parent, false);
+            chart.localPosition = new Vector3(RoomHalf - 0.02f, 1.3f, 0.9f);
+            chart.localRotation = Quaternion.Euler(0, 90, 0); // a quad shows its face along -Z: into the room (-X)
 
-            var poster = new GameObject("EyePoster").transform;
-            poster.SetParent(parent, false);
-            poster.localPosition = new Vector3(RoomHalf - 0.02f, 1.6f, 0.9f);
-            poster.localRotation = Quaternion.Euler(0, 90, 0); // local -Z faces into the room (-X)
-            Primitive(PrimitiveType.Cube, "Paper", poster, Vector3.zero, new Vector3(0.8f, 1f, 0.01f), paper);
-            Primitive(PrimitiveType.Sphere, "Eye", poster, new Vector3(0, 0.05f, -0.01f), new Vector3(0.5f, 0.3f, 0.02f), sclera);
-            Primitive(PrimitiveType.Cylinder, "Iris", poster, new Vector3(0, 0.05f, -0.025f), new Vector3(0.24f, 0.004f, 0.24f), iris)
-                .transform.localRotation = Quaternion.Euler(90, 0, 0);
-            Primitive(PrimitiveType.Cylinder, "Pupil", poster, new Vector3(0, 0.05f, -0.032f), new Vector3(0.1f, 0.004f, 0.1f), pupil)
-                .transform.localRotation = Quaternion.Euler(90, 0, 0);
+            Primitive(PrimitiveType.Cube, "Frame", chart, new Vector3(0, 0, 0.012f), new Vector3(width + 0.06f, height + 0.06f, 0.02f), Lit("ChartFrame", new Color(0.2f, 0.3f, 0.45f)));
+            Quad("Board", chart, Vector3.zero, new Vector2(width, height), PictureMaterial("ChartBoard", tex, new Rect(0, 0, 1, 1)));
 
-            var title = new GameObject("Title");
-            title.transform.SetParent(poster, false);
-            title.transform.localPosition = new Vector3(0, 0.36f, -0.01f);
-            var tmp = title.AddComponent<TextMeshPro>();
-            tmp.font = TmpFont;
-            tmp.rectTransform.sizeDelta = new Vector2(0.75f, 0.2f);
-            tmp.alignment = TextAlignmentOptions.Center;
-            tmp.fontSize = 0.9f;
-            tmp.color = new Color(0.15f, 0.3f, 0.5f);
-            tmp.text = "<b>Your Amazing Eyes!</b>";
+            var glow = Lit("ChartGlow", new Color(1f, 0.8f, 0.2f), 0.2f, new Color(1f, 0.75f, 0.1f) * 2f);
+            var panels = new Transform[3];
+            var glows = new Renderer[3];
+            for (var i = 0; i < 3; i++)
+            {
+                var r = ChartArt.PanelRect(i);
+                var uv = new Rect((float)r.x / ChartArt.Width, (float)r.y / ChartArt.Height, (float)r.width / ChartArt.Width, (float)r.height / ChartArt.Height);
+                var centre = new Vector3((uv.center.x - 0.5f) * width, (uv.center.y - 0.5f) * height, 0f);
+                var size = new Vector2(uv.width * width, uv.height * height);
+                glows[i] = Quad($"Glow{i + 1}", chart, centre + new Vector3(0, 0, -0.003f), size * 1.1f, glow).GetComponent<Renderer>();
+                glows[i].enabled = false;
+                panels[i] = Quad($"Panel{i + 1}", chart, centre + new Vector3(0, 0, -0.006f), size, PictureMaterial($"ChartPanel{i + 1}", tex, uv)).transform;
+            }
+            chart.gameObject.AddComponent<TeachingChart>().EditorInit(panels, glows);
+        }
 
-            var caption = Object.Instantiate(title, poster);
-            caption.name = "Caption";
-            caption.transform.localPosition = new Vector3(0, -0.32f, -0.01f);
-            var cap = caption.GetComponent<TextMeshPro>();
-            cap.fontSize = 0.55f;
-            cap.text = "The pupil is the window\ninto your eye";
+        static GameObject Quad(string name, Transform parent, Vector3 localPos, Vector2 size, Material mat)
+        {
+            var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            q.name = name;
+            Object.DestroyImmediate(q.GetComponent<Collider>());
+            q.transform.SetParent(parent, false);
+            q.transform.localPosition = localPos;
+            q.transform.localScale = new Vector3(size.x, size.y, 1f);
+            var r = q.GetComponent<Renderer>();
+            r.sharedMaterial = mat;
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            return q;
+        }
+
+        /// <summary>A lit material showing part of a picture (<paramref name="uv"/>), slightly self-lit so it reads on the wall.</summary>
+        static Material PictureMaterial(string name, Texture2D tex, Rect uv)
+        {
+            var path = $"{MaterialsDir}/{name}.mat";
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (mat == null)
+            {
+                mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                AssetDatabase.CreateAsset(mat, path);
+            }
+            mat.SetTexture("_BaseMap", tex);
+            mat.SetTextureScale("_BaseMap", uv.size);
+            mat.SetTextureOffset("_BaseMap", uv.position);
+            mat.SetColor("_BaseColor", Color.white);
+            mat.SetFloat("_Smoothness", 0.1f);
+            mat.EnableKeyword("_EMISSION");
+            mat.SetTexture("_EmissionMap", tex);
+            mat.SetColor("_EmissionColor", Color.white * 0.25f);
+            EditorUtility.SetDirty(mat);
+            return mat;
         }
 
         // ---------------- Exam chair ----------------
@@ -380,9 +416,22 @@ namespace Hindsight.Ophthalmology.EditorTools
             var anim = visual.GetComponentInChildren<Animation>();
             if (anim != null) anim.playAutomatically = false;
 
+            AddWave(root, visual.transform, head, headMesh);
             root.AddComponent<DoctorActor>().EditorInit(head, chest, FindDeep(visual.transform, "upperarm.r"),
                 FindDeep(visual.transform, "lowerarm.r"), mouth, drops, light);
             Save(root, DoctorPath);
+        }
+
+        /// <summary>Adds the IK wave: a head-centre marker on the head bone and the right arm chain.</summary>
+        static void AddWave(GameObject root, Transform visual, Transform head, SkinnedMeshRenderer headMesh)
+        {
+            if (head == null || headMesh == null) return;
+            var hb = headMesh.bounds;
+            var centre = new GameObject("HeadCenter").transform;
+            centre.SetParent(head, false);
+            centre.position = hb.center;
+            root.AddComponent<WaveIK>().EditorInit(FindDeep(visual, "upperarm.r"), FindDeep(visual, "lowerarm.r"),
+                FindDeep(visual, "hand.r"), centre, Mathf.Max(hb.extents.x, hb.extents.z));
         }
 
         /// <summary>
@@ -572,8 +621,446 @@ namespace Hindsight.Ophthalmology.EditorTools
             var pupilGo = Primitive(PrimitiveType.Cylinder, "Pupil", irisGo.transform, new Vector3(0, -1.5f, 0), new Vector3(0.3f, 1f, 0.3f), pupil);
             Primitive(PrimitiveType.Sphere, "Shine", visual, new Vector3(-0.07f, 0.08f, -0.515f), new Vector3(0.05f, 0.05f, 0.01f), shine);
 
+            // The pupil is something to tap: a generous collider over the iris and a glowing ring while it waits.
+            var tap = new GameObject("PupilTap");
+            tap.transform.SetParent(root.transform, false);
+            tap.transform.localPosition = new Vector3(0, 0, -0.5f);
+            tap.AddComponent<SphereCollider>().radius = 0.3f;
+            // A halo just around the pupil (between the iris and the pupil), so the iris stays visible.
+            var glow = Primitive(PrimitiveType.Cylinder, "Glow", tap.transform, new Vector3(0, 0, -0.0115f), new Vector3(0.2f, 0.001f, 0.2f),
+                Lit("PupilGlow", new Color(1f, 0.85f, 0.2f, 1f), 0.5f, new Color(1f, 0.75f, 0.1f) * 1.2f));
+            glow.transform.localRotation = Quaternion.Euler(90, 0, 0);
+            glow.AddComponent<PulseScale>();
+            tap.AddComponent<Interactable>().EditorInit("Pupil", glow);
+
             root.AddComponent<EyeCloseupRig>().EditorInit(pupilGo.transform);
             Save(root, EyeModelPath);
         }
+
+        // ---------------- Kid (Sam and the player's own character) ----------------
+
+        /// <summary>A KayKit Adventurers character. They all share one skeleton, so their meshes can be rebound to the kid's (the Mage's).</summary>
+        sealed class Donor
+        {
+            public string Model;
+            public string Atlas;
+        }
+
+        static readonly Dictionary<string, Donor> Donors = new()
+        {
+            ["Mage"] = new Donor { Model = KidModel, Atlas = "Assets/ThirdParty/KayKit/mage_texture.png" },
+            ["Rogue"] = new Donor { Model = DoctorModel, Atlas = DoctorAtlasSource },
+            ["Knight"] = new Donor { Model = "Assets/ThirdParty/KayKit/Outfit_Knight.glb", Atlas = "Assets/ThirdParty/KayKit/knight_texture.png" },
+            ["Barbarian"] = new Donor { Model = "Assets/ThirdParty/KayKit/Outfit_Barbarian.glb", Atlas = "Assets/ThirdParty/KayKit/barbarian_texture.png" },
+        };
+
+        /// <summary>
+        /// One way of painting a donor's atlas: which swatches take which colour. Cells are (col, row)
+        /// from the top-left of the 8x4 grid, read from the meshes' UVs. Across the pack (3,2) is the
+        /// boots and (7,1) the trousers (on the Mage also the undershirt, so trousers keep a fixed colour).
+        /// The "Casual" paints turn the same meshes into everyday clothes: belts, straps and books take the
+        /// shirt colour so they disappear, gloves become hands, and trousers are jeans.
+        /// </summary>
+        sealed class PaintStyle
+        {
+            public string Name;
+            public string Donor;
+            public KidActor.Cell[] Cells;
+        }
+
+        static KidActor.Cell C(int col, int row, KidRegion region) => new() { col = col, row = row, region = region };
+
+        static readonly PaintStyle[] Paints =
+        {
+            new()
+            {
+                Name = "Mage", Donor = "Mage",
+                Cells = new[] { C(0, 0, KidRegion.Skin), C(7, 2, KidRegion.Skin), C(1, 0, KidRegion.Hair), C(0, 1, KidRegion.Shirt), C(1, 1, KidRegion.Shirt), C(3, 2, KidRegion.Shoes) },
+            },
+            new()
+            {
+                Name = "MageCasual", Donor = "Mage",
+                Cells = new[]
+                {
+                    C(0, 0, KidRegion.Skin), C(7, 2, KidRegion.Skin), C(0, 1, KidRegion.Shirt), C(5, 0, KidRegion.Shirt), C(4, 0, KidRegion.Shirt),
+                    C(2, 2, KidRegion.Shirt), C(7, 1, KidRegion.Jeans), C(3, 2, KidRegion.Shoes),
+                },
+            },
+            new()
+            {
+                Name = "Rogue", Donor = "Rogue",
+                Cells = new[] { C(0, 0, KidRegion.Skin), C(1, 0, KidRegion.Hair), C(0, 1, KidRegion.Shirt), C(1, 1, KidRegion.Shirt), C(3, 2, KidRegion.Shoes) },
+            },
+            new()
+            {
+                Name = "RogueCasual", Donor = "Rogue",
+                Cells = new[]
+                {
+                    C(0, 0, KidRegion.Skin), C(5, 2, KidRegion.Skin), C(0, 1, KidRegion.Shirt), C(5, 0, KidRegion.Shirt), C(6, 0, KidRegion.Shirt),
+                    C(3, 0, KidRegion.Shirt), C(1, 1, KidRegion.White), C(7, 1, KidRegion.Jeans), C(3, 2, KidRegion.Shoes),
+                },
+            },
+            new()
+            {
+                Name = "Knight", Donor = "Knight",
+                Cells = new[] { C(0, 0, KidRegion.Skin), C(1, 0, KidRegion.Hair), C(0, 1, KidRegion.Shirt) },
+            },
+            new()
+            {
+                Name = "KnightCasual", Donor = "Knight",
+                Cells = new[]
+                {
+                    C(0, 0, KidRegion.Skin), C(3, 0, KidRegion.Shirt), C(7, 0, KidRegion.Shirt), C(2, 1, KidRegion.Shirt), C(6, 0, KidRegion.Shirt),
+                    C(4, 0, KidRegion.Shirt), C(0, 1, KidRegion.White), C(1, 1, KidRegion.White),
+                },
+            },
+            new()
+            {
+                Name = "Barbarian", Donor = "Barbarian",
+                Cells = new[] { C(0, 0, KidRegion.Skin), C(1, 0, KidRegion.Hair), C(0, 1, KidRegion.Shirt), C(1, 1, KidRegion.Shirt), C(3, 2, KidRegion.Shoes) },
+            },
+        };
+
+        /// <summary>An outfit: the paint (and so the donor) of its body, arms and legs.</summary>
+        static readonly (string id, string body, string arms, string legs)[] Outfits =
+        {
+            ("tee", "RogueCasual", "RogueCasual", "RogueCasual"),
+            ("raincoat", "MageCasual", "MageCasual", "MageCasual"),
+            ("jacket", "KnightCasual", "KnightCasual", "RogueCasual"),
+            ("explorer", "Mage", "Mage", "Mage"),
+            ("adventurer", "Rogue", "Rogue", "Rogue"),
+            ("viking", "Barbarian", "Barbarian", "Barbarian"),
+            ("knight", "Knight", "Knight", "Knight"),
+        };
+
+        /// <summary>Heads (hairstyles), hats and capes from the pack: mesh, paint, item name. The barbarian's head has a beard, so it is left out.</summary>
+        static readonly (string mesh, string paint, string item)[] Wearables =
+        {
+            ("Mage_Head", "Mage", "HairStyle_short"), ("Rogue_Head", "Rogue", "HairStyle_long"), ("Knight_Head", "Knight", "HairStyle_tidy"),
+            ("Mage_Hat", "Mage", "Hat_wizard"), ("Knight_Helmet", "Knight", "Hat_knight"), ("Barbarian_Hat", "Barbarian", "Hat_bear"),
+            ("Mage_Cape", "Mage", "Cape_wizard"), ("Rogue_Cape", "Rogue", "Cape_travel"), ("Knight_Cape", "Knight", "Cape_hero"),
+            ("Barbarian_Cape", "Barbarian", "Cape_fur"),
+        };
+
+        /// <summary>The hairstyle each hat was made for (the others are fitted to it).</summary>
+        static string HatHome(string hat) => hat == "knight" ? "tidy" : "short";
+
+        static readonly string[] BodyParts = { "Body", "ArmLeft", "ArmRight", "LegLeft", "LegRight" };
+
+        static void BuildKid()
+        {
+            var root = new GameObject("Kid");
+            EnsureLegacyAnimation(KidModel);
+            var visual = InstantiateModel(KidModel, root.transform);
+            visual.name = "Visual";
+            PrefabUtility.UnpackPrefabInstance(visual, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+            var meshParent = FindDeep(visual.transform, "Mage_Body").parent;
+            var items = new List<GameObject>();
+
+            var mats = new Dictionary<string, Material>();
+            var paintables = new List<KidActor.Paintable>();
+            foreach (var paint in Paints)
+            {
+                var mat = KidMaterial(paint);
+                mats[paint.Name] = mat;
+                paintables.Add(new KidActor.Paintable { material = mat, shade = (Texture2D)mat.GetTexture("_BaseMap"), cells = paint.Cells });
+            }
+
+            // Every piece is copied from a donor model at bind pose and rebound to the kid's skeleton by bone name.
+            var donors = new Dictionary<string, GameObject>();
+            void Take(string paintName, string meshName, string newName)
+            {
+                var paint = Paints.First(p => p.Name == paintName);
+                if (!donors.TryGetValue(paint.Donor, out var donor))
+                {
+                    donor = InstantiateModel(Donors[paint.Donor].Model, null);
+                    PrefabUtility.UnpackPrefabInstance(donor, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+                    donors[paint.Donor] = donor;
+                }
+                var part = FindDeep(donor.transform, meshName);
+                if (part == null)
+                {
+                    Debug.LogWarning($"PrefabBuilder: {paint.Donor} has no {meshName}");
+                    return;
+                }
+                var copy = Object.Instantiate(part.gameObject, part.parent);
+                copy.name = newName;
+                var smr = copy.GetComponent<SkinnedMeshRenderer>();
+                if (smr != null)
+                {
+                    smr.bones = smr.bones.Select(b => b == null ? null : FindDeep(visual.transform, b.name)).ToArray();
+                    if (smr.rootBone != null) smr.rootBone = FindDeep(visual.transform, smr.rootBone.name);
+                    copy.transform.SetParent(meshParent, true);
+                }
+                else
+                {
+                    // Rigid pieces (hats, capes) ride a bone: same bone, same local pose on the kid.
+                    copy.transform.SetParent(FindDeep(visual.transform, part.parent.name), false);
+                }
+                foreach (var r in copy.GetComponentsInChildren<Renderer>(true))
+                    r.sharedMaterials = Enumerable.Repeat(mats[paintName], r.sharedMaterials.Length).ToArray();
+                items.Add(copy);
+            }
+
+            string PrefixOf(string paintName) => Paints.First(p => p.Name == paintName).Donor;
+            foreach (var (id, body, arms, legs) in Outfits)
+            {
+                Take(body, $"{PrefixOf(body)}_Body", $"Outfit_{id}_Body");
+                Take(arms, $"{PrefixOf(arms)}_ArmLeft", $"Outfit_{id}_ArmLeft");
+                Take(arms, $"{PrefixOf(arms)}_ArmRight", $"Outfit_{id}_ArmRight");
+                Take(legs, $"{PrefixOf(legs)}_LegLeft", $"Outfit_{id}_LegLeft");
+                Take(legs, $"{PrefixOf(legs)}_LegRight", $"Outfit_{id}_LegRight");
+            }
+            foreach (var (mesh, paint, item) in Wearables) Take(paint, mesh, item);
+            foreach (var donor in donors.Values) Object.DestroyImmediate(donor);
+
+            // The Mage's own meshes were copied like the rest; the originals, and the pack's weapons and books, go.
+            foreach (var junk in BodyParts.Select(p => "Mage_" + p).Concat(new[] { "Mage_Head", "Mage_Hat", "Mage_Cape", "2H_Staff", "Spellbook_open", "Spellbook", "1H_Wand" }))
+            {
+                var t = FindDeep(visual.transform, junk);
+                if (t != null) Object.DestroyImmediate(t.gameObject);
+            }
+
+            var b = WorldBounds(visual);
+            ScaleUniform(visual, KidHeight / b.size.y);
+            GroundAndCenter(visual);
+
+            var head = FindDeep(visual.transform, "head");
+            var chest = FindDeep(visual.transform, "chest");
+            var headMesh = FindDeep(visual.transform, "HairStyle_short").GetComponent<SkinnedMeshRenderer>();
+
+            Transform mouth = null, eyes = null;
+            var hatFits = new KidActor.HatFit[0];
+            if (headMesh != null && head != null)
+            {
+                var hb = headMesh.bounds;
+                var probe = Probe(headMesh);
+                if (SurfacePoint(probe, hb, 0.24f, out var mp, out var mn))
+                {
+                    var m = Primitive(PrimitiveType.Sphere, "Mouth", head, Vector3.zero, Vector3.one, Lit("KidMouth", new Color(0.35f, 0.12f, 0.14f), 0.3f));
+                    m.transform.position = mp - mn * 0.004f;
+                    m.transform.rotation = Quaternion.LookRotation(mn, Vector3.up);
+                    SetWorldScale(m.transform, new Vector3(hb.size.x * 0.1f, hb.size.y * 0.035f, 0.01f));
+                    mouth = m.transform;
+                }
+                SurfacePoint(probe, hb, 0.45f, out var ep, out var en);
+                eyes = new GameObject("Eyes").transform;
+                eyes.SetParent(head, false);
+                eyes.position = ep;
+                eyes.rotation = Quaternion.LookRotation(en, Vector3.up);
+                Object.DestroyImmediate(probe.gameObject);
+                BuildHats(head, hb, items);
+                hatFits = FitHats(items, ep.y);
+            }
+
+            // Show the default look in the editor; at runtime KidActor.Apply switches parts.
+            var look = Hindsight.Ophthalmology.Core.Avatar.AvatarLook.Default;
+            foreach (var item in items)
+            {
+                var parts = item.name.Split('_');
+                item.SetActive(System.Enum.TryParse<Hindsight.Ophthalmology.Core.Avatar.Slot>(parts[0], out var slot) && look.Get(slot) == parts[1]);
+            }
+
+            // Tappable (Sam waves when tapped): a capsule around the body and a bobbing diamond above the head.
+            var col = root.AddComponent<CapsuleCollider>();
+            col.center = new Vector3(0, KidHeight * 0.5f, 0);
+            col.height = KidHeight;
+            col.radius = 0.3f;
+            var highlight = new GameObject("Highlight");
+            highlight.transform.SetParent(root.transform, false);
+            highlight.transform.localPosition = new Vector3(0, KidHeight + 0.25f, 0);
+            Primitive(PrimitiveType.Cube, "Diamond", highlight.transform, Vector3.zero, Vector3.one * 0.13f, Lit("Highlight", new Color(1f, 0.85f, 0.2f), 0.5f))
+                .transform.localRotation = Quaternion.Euler(45, 0, 45);
+            highlight.AddComponent<Bobber>();
+            root.AddComponent<Interactable>().EditorInit("Kid", highlight);
+
+            var anim = visual.GetComponentInChildren<Animation>();
+            if (anim != null)
+            {
+                anim.playAutomatically = false;
+                anim.cullingType = AnimationCullingType.AlwaysAnimate;
+            }
+
+            AddWave(root, visual.transform, head, headMesh);
+            root.GetComponent<WaveIK>().EditorShape(0.55f, 0.6f, 0.15f);
+            root.AddComponent<KidActor>().EditorInit(head, chest, FindDeep(visual.transform, "upperarm.r"), FindDeep(visual.transform, "lowerarm.r"),
+                mouth, eyes, FindDeep(visual.transform, "hips"), FindDeep(visual.transform, "spine"),
+                FindDeep(visual.transform, "lowerleg.l"), FindDeep(visual.transform, "lowerleg.r"), paintables.ToArray(), items.ToArray(), hatFits);
+            Save(root, KidPath);
+        }
+
+        /// <summary>
+        /// Fits every hat to every hairstyle. Each hat was made for one head (<see cref="HatHome"/>). For
+        /// another hairstyle it is scaled by how much wider or deeper that hair is around the hat band,
+        /// and moved so the top of the home hair maps onto the top of this hair. Measured on the meshes at bind pose.
+        /// </summary>
+        static KidActor.HatFit[] FitHats(List<GameObject> items, float eyeHeight)
+        {
+            var styles = new Dictionary<string, Bounds>();
+            foreach (var item in items.Where(i => i.name.StartsWith("HairStyle_")))
+            {
+                var smr = item.GetComponent<SkinnedMeshRenderer>();
+                var mesh = new Mesh();
+                smr.BakeMesh(mesh, true);
+                var toWorld = Matrix4x4.TRS(smr.transform.position, smr.transform.rotation, smr.transform.lossyScale);
+                var world = mesh.vertices.Select(v => toWorld.MultiplyPoint3x4(v)).ToArray();
+                var top = world.Max(v => v.y);
+                // Only the hair around and above the hat band (well above the eyes) decides the fit.
+                var band = eyeHeight + 0.35f * (top - eyeHeight);
+                var upper = world.Where(v => v.y > band).ToArray();
+                var box = new Bounds(upper[0], Vector3.zero);
+                foreach (var v in upper) box.Encapsulate(v);
+                styles[item.name.Substring("HairStyle_".Length)] = box;
+                Object.DestroyImmediate(mesh);
+            }
+
+            var fits = new List<KidActor.HatFit>();
+            foreach (var hat in items.Where(i => i.name.StartsWith("Hat_")))
+            {
+                var id = hat.name.Split('_')[1];
+                var home = styles[HatHome(id)];
+                var homeTop = new Vector3(home.center.x, home.max.y, home.center.z);
+                foreach (var (style, box) in styles)
+                {
+                    var scale = Mathf.Clamp(Mathf.Max(box.size.x / home.size.x, box.size.z / home.size.z), 0.92f, 1.4f);
+                    var top = new Vector3(box.center.x, box.max.y, box.center.z);
+                    var world = top + scale * (hat.transform.position - homeTop);
+                    fits.Add(new KidActor.HatFit
+                    {
+                        hat = id,
+                        hairStyle = style,
+                        localPosition = hat.transform.parent.InverseTransformPoint(world),
+                        localScale = hat.transform.localScale * scale,
+                    });
+                    Debug.Log($"PrefabBuilder: hat {id} on {style}: scale {scale:0.00}, raised {(box.max.y - home.max.y) * 100f:0.0} cm");
+                }
+            }
+            return fits.ToArray();
+        }
+
+        /// <summary>The kid material for one paint style, with its grey-shade atlas.</summary>
+        static Material KidMaterial(PaintStyle paint)
+        {
+            var matPath = $"{MaterialsDir}/Kid_{paint.Name}.mat";
+            AssetDatabase.DeleteAsset(matPath);
+            var mat = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "Kid_" + paint.Name };
+            mat.SetTexture("_BaseMap", BuildKidShade(paint));
+            mat.SetColor("_BaseColor", Color.white);
+            mat.SetFloat("_Smoothness", 0.2f);
+            AssetDatabase.CreateAsset(mat, matPath);
+            return mat;
+        }
+
+        /// <summary>
+        /// Copies a donor atlas and turns each recolourable swatch into grey shading (its brightness
+        /// relative to the swatch's brightest pixel), so the runtime tint keeps the gradient. Readable,
+        /// because <see cref="KidActor"/> paints a copy per kid.
+        /// </summary>
+        static Texture2D BuildKidShade(PaintStyle paint)
+        {
+            var atlas = Donors[paint.Donor].Atlas;
+            var outPath = $"{MaterialsDir}/KidShade_{paint.Name}.png";
+            var srcImporter = (TextureImporter)AssetImporter.GetAtPath(atlas);
+            if (!srcImporter.isReadable || srcImporter.textureCompression != TextureImporterCompression.Uncompressed)
+            {
+                srcImporter.isReadable = true;
+                srcImporter.textureCompression = TextureImporterCompression.Uncompressed;
+                srcImporter.mipmapEnabled = false;
+                srcImporter.SaveAndReimport();
+            }
+            var src = AssetDatabase.LoadAssetAtPath<Texture2D>(atlas);
+            var tex = new Texture2D(src.width, src.height, TextureFormat.RGBA32, false);
+            tex.SetPixels(src.GetPixels());
+            int cw = src.width / 8, ch = src.height / 4;
+            foreach (var cell in paint.Cells)
+            {
+                var y0 = src.height - (cell.row + 1) * ch;
+                var max = 0.001f;
+                for (var y = y0; y < y0 + ch; y++)
+                for (var x = cell.col * cw; x < (cell.col + 1) * cw; x++)
+                    max = Mathf.Max(max, tex.GetPixel(x, y).grayscale);
+                for (var y = y0; y < y0 + ch; y++)
+                for (var x = cell.col * cw; x < (cell.col + 1) * cw; x++)
+                {
+                    var g = Mathf.Clamp(tex.GetPixel(x, y).grayscale / max, 0.62f, 1f);
+                    tex.SetPixel(x, y, new Color(g, g, g, 1f));
+                }
+            }
+            File.WriteAllBytes(outPath, tex.EncodeToPNG());
+            Object.DestroyImmediate(tex);
+            AssetDatabase.ImportAsset(outPath, ImportAssetOptions.ForceSynchronousImport);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(outPath);
+            importer.isReadable = true;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.mipmapEnabled = true;
+            importer.SaveAndReimport();
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(outPath);
+        }
+
+        /// <summary>An empty accessory root at a world position, parented to a bone so it moves with it.</summary>
+        static Transform Accessory(string name, Transform bone, Vector3 worldPos, List<GameObject> items)
+        {
+            var go = new GameObject(name);
+            go.transform.position = worldPos;
+            go.transform.SetParent(bone, true);
+            items.Add(go);
+            return go.transform;
+        }
+
+        /// <summary>A primitive placed in world units under an accessory root (keeps world size whatever the bone scale).</summary>
+        static GameObject Part(PrimitiveType type, string name, Transform parent, Vector3 worldOffset, Vector3 worldSize, Material mat, Vector3? euler = null)
+        {
+            var go = Primitive(type, name, parent, Vector3.zero, Vector3.one, mat);
+            go.transform.position = parent.position + worldOffset;
+            go.transform.rotation = Quaternion.Euler(euler ?? Vector3.zero);
+            SetWorldScale(go.transform, worldSize);
+            return go;
+        }
+
+        static void BuildHats(Transform head, Bounds hb, List<GameObject> items)
+        {
+            float w = hb.size.x, h = hb.size.y, d = hb.size.z;
+            var top = new Vector3(hb.center.x, hb.max.y, hb.center.z);
+
+            var cap = Accessory("Hat_cap", head, top, items);
+            var capRed = Lit("HatRed", new Color(0.95f, 0.35f, 0.35f), 0.3f);
+            Part(PrimitiveType.Sphere, "Dome", cap, new Vector3(0, -h * 0.2f, 0), new Vector3(w * 1.02f, h * 0.5f, d * 1.02f), capRed);
+            Part(PrimitiveType.Cube, "Brim", cap, new Vector3(0, -h * 0.22f, d * 0.5f), new Vector3(w * 0.62f, h * 0.035f, d * 0.4f), capRed);
+
+            var beanie = Accessory("Hat_beanie", head, top, items);
+            var knit = Lit("HatBlue", new Color(0.3f, 0.55f, 0.9f), 0.2f);
+            Part(PrimitiveType.Sphere, "Dome", beanie, new Vector3(0, -h * 0.2f, 0), new Vector3(w * 1.04f, h * 0.6f, d * 1.04f), knit);
+            Part(PrimitiveType.Cylinder, "Band", beanie, new Vector3(0, -h * 0.36f, 0), new Vector3(w * 1.08f, h * 0.05f, d * 1.08f), Lit("HatWhite", Color.white, 0.2f));
+            Part(PrimitiveType.Sphere, "Pompom", beanie, new Vector3(0, h * 0.1f, 0), Vector3.one * w * 0.22f, Lit("HatWhite", Color.white, 0.2f));
+
+            // A big bow on the side of the head, tipped toward the front so it shows from the front and the side.
+            var bow = Accessory("Hat_bow", head, top + new Vector3(w * 0.3f, -h * 0.1f, d * 0.12f), items);
+            var pink = Lit("HatPink", new Color(1f, 0.55f, 0.75f), 0.4f);
+            Part(PrimitiveType.Sphere, "LoopL", bow, new Vector3(-w * 0.17f, 0, 0), new Vector3(w * 0.34f, h * 0.25f, d * 0.16f), pink, new Vector3(0, 0, 20f));
+            Part(PrimitiveType.Sphere, "LoopR", bow, new Vector3(w * 0.17f, 0, 0), new Vector3(w * 0.34f, h * 0.25f, d * 0.16f), pink, new Vector3(0, 0, -20f));
+            Part(PrimitiveType.Sphere, "Knot", bow, Vector3.zero, Vector3.one * w * 0.14f, Lit("HatPinkDark", new Color(0.95f, 0.4f, 0.62f), 0.4f));
+            bow.rotation = Quaternion.Euler(0, 0, -25f);
+
+            var party = Accessory("Hat_party", head, top + new Vector3(0, -h * 0.06f, 0), items);
+            var purple = Lit("HatPurple", new Color(0.6f, 0.42f, 0.88f), 0.3f);
+            const int layers = 7;
+            for (var i = 0; i < layers; i++)
+            {
+                var r = Mathf.Lerp(0.6f, 0.08f, i / (layers - 1f)) * w;
+                Part(PrimitiveType.Cylinder, $"Layer{i}", party, new Vector3(0, i * h * 0.075f, 0), new Vector3(r, h * 0.04f, r), purple);
+            }
+            Part(PrimitiveType.Sphere, "Pompom", party, new Vector3(0, layers * h * 0.075f, 0), Vector3.one * w * 0.14f, Lit("HatYellow", new Color(1f, 0.8f, 0.25f), 0.4f));
+
+            var crown = Accessory("Hat_crown", head, top + new Vector3(0, -h * 0.04f, 0), items);
+            var gold = Lit("Gold", new Color(1f, 0.78f, 0.2f), 0.85f, new Color(0.4f, 0.28f, 0f));
+            Part(PrimitiveType.Cylinder, "Band", crown, Vector3.zero, new Vector3(w * 0.66f, h * 0.05f, w * 0.66f), gold);
+            for (var i = 0; i < 6; i++)
+            {
+                var a = i * Mathf.PI * 2f / 6f;
+                var o = new Vector3(Mathf.Sin(a), 0, Mathf.Cos(a)) * w * 0.3f;
+                Part(PrimitiveType.Cube, $"Point{i}", crown, o + new Vector3(0, h * 0.09f, 0), new Vector3(w * 0.09f, h * 0.14f, w * 0.09f), gold, new Vector3(0, i * 60f, 45f));
+            }
+        }
+
     }
 }

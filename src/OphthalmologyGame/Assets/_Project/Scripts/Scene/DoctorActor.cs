@@ -51,6 +51,7 @@ namespace Hindsight.Ophthalmology.SceneObjects
         [SerializeField] float turnSpeed = 300f;
 
         Animation anim;
+        WaveIK wave;
         bool talking;
         float talkWeight;
         float waveWeight;
@@ -169,19 +170,11 @@ namespace Hindsight.Ophthalmology.SceneObjects
             if (waveWeight > 0f) ApplyWave(waveWeight, Mathf.Sin(t * 9f));
         }
 
-        /// <summary>
-        /// Right arm out to the side with the forearm angled up, hand swinging. Chibi arms are short and the
-        /// head is wide: folding the forearm straight up would tuck the hand behind the head, so it stays
-        /// at ~45 degrees and the hand waves beside the cheek.
-        /// </summary>
+        /// <summary>Raises the right hand beside the head (see <see cref="WaveIK"/>).</summary>
         public void ApplyWave(float weight, float swing)
         {
-            if (upperArmR == null || lowerArmR == null) return;
-            var fwd = transform.forward;
-            // Swing forward first (so the hand is in front of the hair), then out to the side.
-            var raise = Quaternion.AngleAxis(120f, fwd) * Quaternion.AngleAxis(-12f, transform.right);
-            upperArmR.rotation = Quaternion.Slerp(upperArmR.rotation, raise * upperArmR.rotation, weight);
-            lowerArmR.rotation = Quaternion.Slerp(lowerArmR.rotation, Quaternion.AngleAxis(35f + 25f * swing, fwd) * lowerArmR.rotation, weight);
+            if (wave == null) wave = GetComponent<WaveIK>();
+            if (wave != null) wave.Apply(weight, swing);
         }
 
         string FindClip(DoctorPose pose)

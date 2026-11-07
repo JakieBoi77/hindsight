@@ -37,3 +37,7 @@ crashlytics-build.properties
 # Test runner output
 results*.xml
 TestResults*.xml
+
+# Voice tool scratch: backup takes and the in-progress take
+/Tools/VoiceGen/takes/
+/Tools/VoiceGen/_take.wav

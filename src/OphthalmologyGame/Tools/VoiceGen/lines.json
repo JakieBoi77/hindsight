@@ -1,0 +1,21 @@
+[
+  {"id": "p01_hello", "speaker": "Doctor", "text": "Hey, I'm Dr. Iris. I'm going to be looking at your eyes today."},
+  {"id": "p02_sam", "speaker": "Doctor", "text": "This is Sam. He is also getting eye drops today. Click on Sam to say hi."},
+  {"id": "p02_hi", "speaker": "Sam", "text": "Hi! I'm Sam, nice to meet you."},
+  {"id": "p03_chart", "speaker": "Doctor", "text": "In order to see into your eye, I'll need to use some special eye drops. The drops make your pupil nice and big, so that I can see all the way inside."},
+  {"id": "p04_first", "speaker": "Doctor", "text": "Sam, you're up first. Hop into the chair so we can see how it's done."},
+  {"id": "p04_willdo", "speaker": "Sam", "text": "Will do!"},
+  {"id": "p05_cold", "speaker": "Doctor", "text": "When I put the drops in, they will be cold and may sting for a little bit. Lots of kids say it's not so bad. You're going to do great!"},
+  {"id": "p06_ooh", "speaker": "Sam", "text": "Oooh, cold!"},
+  {"id": "p06_blink", "speaker": "Doctor", "text": "Make sure to blink to spread the drop around. Then I can take a look inside your eye."},
+  {"id": "p07_good", "speaker": "Doctor", "text": "Looking good, Sam!"},
+  {"id": "p08_yay", "speaker": "Sam", "text": "Yay, that wasn't so bad!"},
+  {"id": "p08_set", "speaker": "Doctor", "text": "You're all set!"},
+  {"id": "p09_turn", "speaker": "Doctor", "text": "Now it's your turn! Click on the chair to have a seat."},
+  {"id": "p10_hold", "speaker": "Doctor", "text": "Make sure to keep your head back and eyes open. Remember, the drops will feel cold and may sting for a little bit."},
+  {"id": "p10_button", "speaker": "Doctor", "text": "Hold the button to keep your eye open!"},
+  {"id": "p11_again", "speaker": "Doctor", "text": "Make sure to keep your head back and eyes open."},
+  {"id": "p12_did", "speaker": "Doctor", "text": "You did it! Now blink! The drops need to spread around."},
+  {"id": "p13_look", "speaker": "Doctor", "text": "Amazing! Now I'll just take a quick look into your eye."},
+  {"id": "p13_great", "speaker": "Doctor", "text": "Fantastic! Your eyes look great!"}
+]

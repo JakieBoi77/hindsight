@@ -27,7 +27,7 @@ namespace Hindsight.Ophthalmology.EditorTools
             ShaderUtil.allowAsyncCompilation = false; // otherwise first renders use placeholder shaders
 
             EditorSceneManager.OpenScene(PocBuilder.EyeDropsScenePath);
-            var doctor = UnityEngine.Object.FindAnyObjectByType<DoctorActor>().transform;
+            var doctor = GameObject.Find("Doctor").transform;
             var anchors = GameObject.Find("Anchors").transform;
             var canvas = UnityEngine.Object.FindAnyObjectByType<Canvas>();
             var scope = GameObject.Find("Ophthalmoscope");

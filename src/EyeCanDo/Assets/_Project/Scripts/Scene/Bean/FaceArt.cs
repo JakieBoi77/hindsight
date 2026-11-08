@@ -1,8 +1,8 @@
 using System;
-using Hindsight.Ophthalmology.Core.Avatar;
+using Hindsight.EyeCanDo.Core.Avatar;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.SceneObjects
+namespace Hindsight.EyeCanDo.SceneObjects
 {
     /// <summary>
     /// Layout of the face atlases (painted by the editor's FaceArtPainter) and where the face patches

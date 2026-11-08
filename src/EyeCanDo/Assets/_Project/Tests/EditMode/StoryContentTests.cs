@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using Hindsight.Ophthalmology.Procedure;
-using Hindsight.Ophthalmology.Procedure.Steps;
+using Hindsight.EyeCanDo.Procedure;
+using Hindsight.EyeCanDo.Procedure.Steps;
 using NUnit.Framework;
 using UnityEditor;
 
-namespace Hindsight.Ophthalmology.Tests
+namespace Hindsight.EyeCanDo.Tests
 {
     /// <summary>
     /// Automated checks from PoCResearch.md ("How we will show it works", layer 1): every line is

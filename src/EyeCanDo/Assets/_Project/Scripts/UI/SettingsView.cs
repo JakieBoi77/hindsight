@@ -1,8 +1,8 @@
-using Hindsight.Ophthalmology.Core;
+using Hindsight.EyeCanDo.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>
     /// Settings for the grown-up (adapted from the 2D PoC): sound and voice volume, captions,

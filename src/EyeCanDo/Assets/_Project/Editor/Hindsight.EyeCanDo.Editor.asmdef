@@ -1,8 +1,8 @@
 {
-    "name": "Hindsight.Ophthalmology.Editor",
-    "rootNamespace": "Hindsight.Ophthalmology.EditorTools",
+    "name": "Hindsight.EyeCanDo.Editor",
+    "rootNamespace": "Hindsight.EyeCanDo.EditorTools",
     "references": [
-        "Hindsight.Ophthalmology",
+        "Hindsight.EyeCanDo",
         "Unity.Cinemachine",
         "Unity.InputSystem",
         "Unity.TextMeshPro",

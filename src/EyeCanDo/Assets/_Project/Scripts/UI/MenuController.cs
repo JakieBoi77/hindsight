@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
-using Hindsight.Ophthalmology.Core;
-using Hindsight.Ophthalmology.SceneObjects;
+using Hindsight.EyeCanDo.Core;
+using Hindsight.EyeCanDo.SceneObjects;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>
     /// The menu scene: title (Play, Settings) → save files → level select (coins, Dress Up) and

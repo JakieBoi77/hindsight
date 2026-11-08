@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using Hindsight.Ophthalmology.Core;
-using Hindsight.Ophthalmology.Procedure;
+using Hindsight.EyeCanDo.Core;
+using Hindsight.EyeCanDo.Procedure;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>Top bar during a level: home, a dot per storyboard panel (done / now / to do), and settings. No words.</summary>
     public sealed class LevelHud : MonoBehaviour

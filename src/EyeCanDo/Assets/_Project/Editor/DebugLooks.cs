@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Hindsight.Ophthalmology.Core.Avatar;
-using Hindsight.Ophthalmology.SceneObjects;
+using Hindsight.EyeCanDo.Core.Avatar;
+using Hindsight.EyeCanDo.SceneObjects;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Hindsight.Ophthalmology.EditorTools
+namespace Hindsight.EyeCanDo.EditorTools
 {
     /// <summary>
     /// Contact sheets of the bean characters into ./Captures/looks, on an empty stage: every outfit

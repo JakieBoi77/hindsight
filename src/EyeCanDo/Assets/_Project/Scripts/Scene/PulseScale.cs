@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.SceneObjects
+namespace Hindsight.EyeCanDo.SceneObjects
 {
     /// <summary>Gently pulses an object's size, for 3D "tap me" glows.</summary>
     public sealed class PulseScale : MonoBehaviour

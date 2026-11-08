@@ -1,8 +1,8 @@
-using Hindsight.Ophthalmology.Core.Avatar;
-using Hindsight.Ophthalmology.SceneObjects;
+using Hindsight.EyeCanDo.Core.Avatar;
+using Hindsight.EyeCanDo.SceneObjects;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>
     /// Three kids, far from the room, each filmed by its own camera into a render texture. The save

@@ -1,11 +1,11 @@
 using System.Collections;
-using Hindsight.Ophthalmology.Core;
-using Hindsight.Ophthalmology.Procedure;
+using Hindsight.EyeCanDo.Core;
+using Hindsight.EyeCanDo.Procedure;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>
     /// The narrated-line bubble at the bottom of the screen: the speaker's live 3D portrait, an optional

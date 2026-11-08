@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Hindsight.Ophthalmology.Core.Avatar;
+using Hindsight.EyeCanDo.Core.Avatar;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.SceneObjects
+namespace Hindsight.EyeCanDo.SceneObjects
 {
     /// <summary>What a scout's legs are doing.</summary>
     public enum BeanMode

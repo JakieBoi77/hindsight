@@ -1,6 +1,6 @@
 using System;
 
-namespace Hindsight.Ophthalmology.Core.Progress
+namespace Hindsight.EyeCanDo.Core.Progress
 {
     /// <summary>
     /// Settings for the whole device, shared by every save file. Kept apart from the save files

@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Procedure.Steps
+namespace Hindsight.EyeCanDo.Procedure.Steps
 {
     /// <summary>Asks the player to tap a 3D object (Sam, the exam chair...), plays a beat, then optionally moves to another shot.</summary>
-    [CreateAssetMenu(menuName = "Ophthalmology/Steps/Tap Target", fileName = "TapTargetStep")]
+    [CreateAssetMenu(menuName = "EyeCanDo/Steps/Tap Target", fileName = "TapTargetStep")]
     public sealed class TapTargetStep : ProcedureStep
     {
         [SerializeField] string shotId = "";

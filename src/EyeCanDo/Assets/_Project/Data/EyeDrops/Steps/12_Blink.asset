@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 61d3856ff2c9ae647a2a1c39dc65bcac, type: 3}
   m_Name: 12_Blink
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.BlinkStep
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.Procedure.Steps.BlinkStep
   title: 12. Blink
   shotId: FirstPerson
   prompt:

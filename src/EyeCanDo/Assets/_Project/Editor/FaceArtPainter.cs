@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.IO;
-using Hindsight.Ophthalmology.Core.Avatar;
-using Hindsight.Ophthalmology.SceneObjects;
+using Hindsight.EyeCanDo.Core.Avatar;
+using Hindsight.EyeCanDo.SceneObjects;
 using UnityEditor;
 using UnityEngine;
-using static Hindsight.Ophthalmology.EditorTools.BuilderUtil;
+using static Hindsight.EyeCanDo.EditorTools.BuilderUtil;
 
-namespace Hindsight.Ophthalmology.EditorTools
+namespace Hindsight.EyeCanDo.EditorTools
 {
     /// <summary>
     /// Paints the scouts' face atlases (layout in <see cref="FaceArt"/>): every eye style open and

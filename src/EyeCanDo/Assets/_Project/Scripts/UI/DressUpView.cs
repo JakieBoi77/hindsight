@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
-using Hindsight.Ophthalmology.Core;
-using Hindsight.Ophthalmology.Core.Avatar;
-using Hindsight.Ophthalmology.SceneObjects;
+using Hindsight.EyeCanDo.Core;
+using Hindsight.EyeCanDo.Core.Avatar;
+using Hindsight.EyeCanDo.SceneObjects;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>
     /// Dress Up (adapted from the 2D PoC): tabs for each part of the kid, a grid of colours or

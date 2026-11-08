@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Hindsight.Ophthalmology.SceneObjects
+namespace Hindsight.EyeCanDo.SceneObjects
 {
     /// <summary>
     /// A tappable 3D object (needs a collider; the camera needs a PhysicsRaycaster).

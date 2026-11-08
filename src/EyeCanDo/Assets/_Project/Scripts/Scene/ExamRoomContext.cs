@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using Hindsight.Ophthalmology.Core;
-using Hindsight.Ophthalmology.Core.Avatar;
-using Hindsight.Ophthalmology.Procedure;
-using Hindsight.Ophthalmology.UI;
+using Hindsight.EyeCanDo.Core;
+using Hindsight.EyeCanDo.Core.Avatar;
+using Hindsight.EyeCanDo.Procedure;
+using Hindsight.EyeCanDo.UI;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.SceneObjects
+namespace Hindsight.EyeCanDo.SceneObjects
 {
     /// <summary>
     /// Scene-side implementation of <see cref="IProcedureContext"/>. Anchors are the children of

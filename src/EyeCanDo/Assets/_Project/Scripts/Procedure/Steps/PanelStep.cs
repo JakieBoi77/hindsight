@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using Hindsight.Ophthalmology.SceneObjects;
+using Hindsight.EyeCanDo.SceneObjects;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Procedure.Steps
+namespace Hindsight.EyeCanDo.Procedure.Steps
 {
     /// <summary>
     /// One storyboard panel: a framed shot, one narrated line, an optional stage beat, an optional
@@ -11,7 +11,7 @@ namespace Hindsight.Ophthalmology.Procedure.Steps
     /// when tapped). The panel ends on Next, or when the hold button is pressed; with a follow-up line,
     /// the hold button only appears once that line starts.
     /// </summary>
-    [CreateAssetMenu(menuName = "Ophthalmology/Steps/Panel", fileName = "PanelStep")]
+    [CreateAssetMenu(menuName = "EyeCanDo/Steps/Panel", fileName = "PanelStep")]
     public sealed class PanelStep : ProcedureStep
     {
         public enum EndOn

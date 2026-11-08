@@ -1,9 +1,9 @@
 using System.Collections;
-using Hindsight.Ophthalmology.Core;
+using Hindsight.EyeCanDo.Core;
 using TMPro;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>The coin purse: shows the current player's coins and counts up when coins arrive.</summary>
     public sealed class CoinCounter : MonoBehaviour

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using static Hindsight.Ophthalmology.EditorTools.BuilderUtil;
+using static Hindsight.EyeCanDo.EditorTools.BuilderUtil;
 
-namespace Hindsight.Ophthalmology.EditorTools
+namespace Hindsight.EyeCanDo.EditorTools
 {
     /// <summary>
     /// Mesh kit for the scout characters. The torso and the big round head are surfaces of revolution

@@ -2,7 +2,7 @@
 
 | Path | What it is |
 |---|---|
-| `EyeCanDo/` | Unity 6 (6000.6.2f1) 3D proof of concept for the ophthalmology clinic game. Targets iOS and Android tablets. |
+| `EyeCanDo/` | Unity 6 (6000.6.2f1) 3D proof of concept for EyeCanDo, the game that gets children ready for an eye-clinic visit. Targets iOS and Android tablets. |
 | `TraceToDesign.md` | Traceability between code and design modules. |
 
 ## EyeCanDo PoC v2
@@ -127,9 +127,9 @@ It is safe to rerun, but it overwrites hand edits to generated files. To change 
 Headless equivalents (run from `src/EyeCanDo`, with `Unity` = the 6000.6.2f1 editor executable). **Do not add `-nographics`.** The SVG icons are rasterised on the GPU, and without one they import as grey squares. The builder logs an error if that happens.
 
 ```sh
-Unity -batchmode -projectPath . -executeMethod Hindsight.Ophthalmology.EditorTools.PocBuilder.BuildAll -quit
+Unity -batchmode -projectPath . -executeMethod Hindsight.EyeCanDo.EditorTools.PocBuilder.BuildAll -quit
 Unity -batchmode -projectPath . -runTests -testPlatform EditMode -testResults results.xml
-Unity -batchmode -projectPath . -buildTarget Android -executeMethod Hindsight.Ophthalmology.EditorTools.PocBuilder.BuildAndroid -quit
+Unity -batchmode -projectPath . -buildTarget Android -executeMethod Hindsight.EyeCanDo.EditorTools.PocBuilder.BuildAndroid -quit
 ```
 
 The EditMode tests include the automated checks from the research plan (`StoryContentTests`):

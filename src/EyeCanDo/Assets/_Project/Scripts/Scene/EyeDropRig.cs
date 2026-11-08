@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.SceneObjects
+namespace Hindsight.EyeCanDo.SceneObjects
 {
     /// <summary>
     /// The eye-drop bottle and the drop that falls from it: over the player's eye in the first-person

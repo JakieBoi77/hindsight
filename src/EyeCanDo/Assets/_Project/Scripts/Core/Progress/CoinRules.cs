@@ -1,6 +1,6 @@
 using System;
 
-namespace Hindsight.Ophthalmology.Core.Progress
+namespace Hindsight.EyeCanDo.Core.Progress
 {
     /// <summary>
     /// How many coins the child earns. A level pays most the first time and a little on replays. Coins are only spent in

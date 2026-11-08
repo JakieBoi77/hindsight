@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 64beeaed2495f364098e1874c4395415, type: 3}
   m_Name: SoundLibrary
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.SoundLibrary
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.SoundLibrary
   clips:
   - {fileID: 8300000, guid: 50248627c0f028640b089a26024dfdfe, type: 3}
   - {fileID: 8300000, guid: b1cd5dca20539dc4ab2df4dec2070867, type: 3}

@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using Hindsight.Ophthalmology.SceneObjects;
-using Hindsight.Ophthalmology.UI;
+using Hindsight.EyeCanDo.SceneObjects;
+using Hindsight.EyeCanDo.UI;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Procedure.Steps
+namespace Hindsight.EyeCanDo.Procedure.Steps
 {
     /// <summary>
     /// The eye drop itself. The player holds the button to keep their eye open while the drop falls.
@@ -12,7 +12,7 @@ namespace Hindsight.Ophthalmology.Procedure.Steps
     /// your head back and eyes open."); holding again carries on.
     /// The drop never misses, so there is no fail state.
     /// </summary>
-    [CreateAssetMenu(menuName = "Ophthalmology/Steps/Hold Still (Eye Drop)", fileName = "HoldStillStep")]
+    [CreateAssetMenu(menuName = "EyeCanDo/Steps/Hold Still (Eye Drop)", fileName = "HoldStillStep")]
     public sealed class HoldStillStep : ProcedureStep
     {
         [SerializeField] string shotId = "FirstPersonTiltBack";

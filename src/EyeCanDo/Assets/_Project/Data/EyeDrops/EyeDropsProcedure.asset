@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e5d8820ae622ae448b538a8573c409c9, type: 3}
   m_Name: EyeDropsProcedure
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.ProcedureDefinition
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.Procedure.ProcedureDefinition
   displayName: Eye Drops
   steps:
   - {fileID: 11400000, guid: c9d09220311250d4b9fabd5d0c2e91f5, type: 2}

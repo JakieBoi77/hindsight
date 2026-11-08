@@ -1,12 +1,12 @@
 using System.Linq;
-using Hindsight.Ophthalmology.Core.Avatar;
-using Hindsight.Ophthalmology.SceneObjects;
+using Hindsight.EyeCanDo.Core.Avatar;
+using Hindsight.EyeCanDo.SceneObjects;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
-using static Hindsight.Ophthalmology.EditorTools.BuilderUtil;
+using static Hindsight.EyeCanDo.EditorTools.BuilderUtil;
 
-namespace Hindsight.Ophthalmology.EditorTools
+namespace Hindsight.EyeCanDo.EditorTools
 {
     /// <summary>
     /// Builds the reusable prefabs. Convention: gameplay components and colliders live on the

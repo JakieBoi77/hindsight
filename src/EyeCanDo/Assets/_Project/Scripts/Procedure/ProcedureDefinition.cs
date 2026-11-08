@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Procedure
+namespace Hindsight.EyeCanDo.Procedure
 {
     /// <summary>An ordered list of steps that make up one clinic visit.</summary>
-    [CreateAssetMenu(menuName = "Ophthalmology/Procedure Definition", fileName = "Procedure")]
+    [CreateAssetMenu(menuName = "EyeCanDo/Procedure Definition", fileName = "Procedure")]
     public sealed class ProcedureDefinition : ScriptableObject
     {
         [SerializeField] string displayName = "";

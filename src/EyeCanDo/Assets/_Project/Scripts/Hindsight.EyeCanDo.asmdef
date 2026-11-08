@@ -1,6 +1,6 @@
 {
-    "name": "Hindsight.Ophthalmology",
-    "rootNamespace": "Hindsight.Ophthalmology",
+    "name": "Hindsight.EyeCanDo",
+    "rootNamespace": "Hindsight.EyeCanDo",
     "references": [
         "Unity.Cinemachine",
         "Unity.InputSystem",

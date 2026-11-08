@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.SceneObjects
+namespace Hindsight.EyeCanDo.SceneObjects
 {
     /// <summary>Bobs and spins an object. Used for "tap me" arrows and rewards.</summary>
     public sealed class Bobber : MonoBehaviour

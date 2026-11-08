@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>Gentle looping motion that draws a child's eye to an element (pulse, bob or sway).</summary>
     public sealed class IdleMotion : MonoBehaviour

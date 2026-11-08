@@ -1,9 +1,9 @@
-using Hindsight.Ophthalmology.Core;
+using Hindsight.EyeCanDo.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>One tile on the level select screen: icon, name, and a lock or "done" badge.</summary>
     public sealed class LevelCardView : MonoBehaviour

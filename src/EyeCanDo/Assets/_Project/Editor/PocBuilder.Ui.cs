@@ -1,18 +1,18 @@
 using System.Linq;
-using Hindsight.Ophthalmology.Core;
-using Hindsight.Ophthalmology.Core.Avatar;
-using Hindsight.Ophthalmology.Core.Progress;
-using Hindsight.Ophthalmology.SceneObjects;
-using Hindsight.Ophthalmology.UI;
+using Hindsight.EyeCanDo.Core;
+using Hindsight.EyeCanDo.Core.Avatar;
+using Hindsight.EyeCanDo.Core.Progress;
+using Hindsight.EyeCanDo.SceneObjects;
+using Hindsight.EyeCanDo.UI;
 using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
-using static Hindsight.Ophthalmology.EditorTools.BuilderUtil;
-using static Hindsight.Ophthalmology.EditorTools.UiKit;
+using static Hindsight.EyeCanDo.EditorTools.BuilderUtil;
+using static Hindsight.EyeCanDo.EditorTools.UiKit;
 
-namespace Hindsight.Ophthalmology.EditorTools
+namespace Hindsight.EyeCanDo.EditorTools
 {
     /// <summary>UI for the level and menu scenes, in the 2D prototype's style (see <see cref="UiKit"/>).</summary>
     public static partial class PocBuilder

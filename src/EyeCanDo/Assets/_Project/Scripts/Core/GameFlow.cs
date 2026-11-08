@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Hindsight.Ophthalmology.Core
+namespace Hindsight.EyeCanDo.Core
 {
     /// <summary>Scene navigation. Keeps scene names in one place.</summary>
     public static class GameFlow

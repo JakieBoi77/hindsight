@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Hindsight.Ophthalmology.Core.Avatar
+namespace Hindsight.EyeCanDo.Core.Avatar
 {
     /// <summary>
     /// Each part of the scout the player can change: colour, eyes, mouth and brows; then headwear and

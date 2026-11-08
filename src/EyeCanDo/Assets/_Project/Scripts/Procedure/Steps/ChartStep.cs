@@ -3,13 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Procedure.Steps
+namespace Hindsight.EyeCanDo.Procedure.Steps
 {
     /// <summary>
     /// Dr. Iris and Sam walk over to the wall chart while the camera pans to it. Then she explains it,
     /// and each picture on the chart lights up as she says its cue word.
     /// </summary>
-    [CreateAssetMenu(menuName = "Ophthalmology/Steps/Chart", fileName = "ChartStep")]
+    [CreateAssetMenu(menuName = "EyeCanDo/Steps/Chart", fileName = "ChartStep")]
     public sealed class ChartStep : ProcedureStep
     {
         [SerializeField] string shotId = "ChartTalk";

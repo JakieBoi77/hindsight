@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hindsight.Ophthalmology.EditorTools
+namespace Hindsight.EyeCanDo.EditorTools
 {
     /// <summary>Small helpers shared by the POC builders: folders, materials, model fitting, uGUI.</summary>
     internal static class BuilderUtil

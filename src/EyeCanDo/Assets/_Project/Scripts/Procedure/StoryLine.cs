@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Procedure
+namespace Hindsight.EyeCanDo.Procedure
 {
     /// <summary>Who says a line. Their portrait is shown in the caption bubble and they talk on stage.</summary>
     public enum Speaker

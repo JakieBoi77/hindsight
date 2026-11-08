@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using Hindsight.Ophthalmology.UI;
+using Hindsight.EyeCanDo.UI;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Procedure.Steps
+namespace Hindsight.EyeCanDo.Procedure.Steps
 {
     /// <summary>Player taps the blink button a few times; each blink clears the blurry vision a little.</summary>
-    [CreateAssetMenu(menuName = "Ophthalmology/Steps/Blink", fileName = "BlinkStep")]
+    [CreateAssetMenu(menuName = "EyeCanDo/Steps/Blink", fileName = "BlinkStep")]
     public sealed class BlinkStep : ProcedureStep
     {
         [SerializeField] string shotId = "FirstPerson";

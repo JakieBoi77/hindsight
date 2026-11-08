@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Procedure
+namespace Hindsight.EyeCanDo.Procedure
 {
     /// <summary>
     /// One storyboard panel of a clinic visit: one framed shot, one narrated beat, at most one action.

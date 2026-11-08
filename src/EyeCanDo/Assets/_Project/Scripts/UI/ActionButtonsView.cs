@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>Big gameplay buttons: "hold to keep your eye open" (with a progress ring) and "blink".</summary>
     public sealed class ActionButtonsView : MonoBehaviour

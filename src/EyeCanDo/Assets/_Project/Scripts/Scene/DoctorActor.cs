@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
-using Hindsight.Ophthalmology.Core.Avatar;
+using Hindsight.EyeCanDo.Core.Avatar;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.SceneObjects
+namespace Hindsight.EyeCanDo.SceneObjects
 {
     public enum DoctorPose
     {

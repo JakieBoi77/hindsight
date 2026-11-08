@@ -1,12 +1,12 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using Hindsight.Ophthalmology.SceneObjects;
+using Hindsight.EyeCanDo.SceneObjects;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.EditorTools
+namespace Hindsight.EyeCanDo.EditorTools
 {
     /// <summary>
     /// Layout checks without Play mode: logs the exam chair's top profile and renders Sam seated and
@@ -55,7 +55,7 @@ namespace Hindsight.Ophthalmology.EditorTools
 
             // ---- Sam seated (and with his head back), from the story camera and from the side.
             var sam = GameObject.Find("Sam").GetComponent<KidActor>();
-            sam.Apply(Hindsight.Ophthalmology.Core.Avatar.AvatarLook.Sam);
+            sam.Apply(Hindsight.EyeCanDo.Core.Avatar.AvatarLook.Sam);
             var anchors = GameObject.Find("Anchors").transform;
             var seat = anchors.Find("SamSeat");
             if (seat != null) sam.SitInSeat(seat);
@@ -70,7 +70,7 @@ namespace Hindsight.Ophthalmology.EditorTools
 
             // ---- Dr. Iris looks into Sam's eye (leaning in, light at her eye), then holds the drops over it.
             var doc = GameObject.Find("Doctor").GetComponent<DoctorActor>();
-            doc.Rig.ApplyLook(Hindsight.Ophthalmology.Core.Avatar.AvatarLook.Doctor);
+            doc.Rig.ApplyLook(Hindsight.EyeCanDo.Core.Avatar.AvatarLook.Doctor);
             doc.SetProp(DoctorProp.None);
             doc.PlaceAt(anchors.Find("DoctorSamPoint"));
             doc.Examine(sam.EyePosition, 0.72f);
@@ -119,7 +119,7 @@ namespace Hindsight.Ophthalmology.EditorTools
 
             // ---- Waves, in the story's shots.
             var doctor = GameObject.Find("Doctor").GetComponent<DoctorActor>();
-            doctor.Rig.ApplyLook(Hindsight.Ophthalmology.Core.Avatar.AvatarLook.Doctor);
+            doctor.Rig.ApplyLook(Hindsight.EyeCanDo.Core.Avatar.AvatarLook.Doctor);
             doctor.transform.SetPositionAndRotation(anchors.Find("DoctorStandPoint").position, anchors.Find("DoctorStandPoint").rotation);
             doctor.Rig.ResetLayers();
             doctor.Rig.Wave(10f);
@@ -137,7 +137,7 @@ namespace Hindsight.Ophthalmology.EditorTools
             var kidGo = Resources.FindObjectsOfTypeAll<KidActor>().First(k => k.name == "PlayerKid" && k.gameObject.scene.IsValid());
             kidGo.gameObject.SetActive(true);
             var kid = kidGo;
-            kid.Apply(Hindsight.Ophthalmology.Core.Avatar.AvatarLook.Default);
+            kid.Apply(Hindsight.EyeCanDo.Core.Avatar.AvatarLook.Default);
             kid.PlaceAt(anchors.Find("KidStandPoint"));
             Render("ChairApproach", outDir, "kid_by_chair");
             Render("FirstPersonTiltBack", outDir, "ceiling_sun");
@@ -147,9 +147,9 @@ namespace Hindsight.Ophthalmology.EditorTools
                 var hc = go.GetComponentsInChildren<Transform>(true).First(t => t.name == "HeadCenter");
                 Debug.Log($"DEBUG {n} root={go.transform.position} headCenter={hc.position} parent={hc.parent.name} bounds={EditorWorldBounds(go)} cam={GameObject.Find(n + "Camera").transform.position}");
             }
-            GameObject.Find("DoctorPortrait").GetComponent<BeanRig>().ApplyLook(Hindsight.Ophthalmology.Core.Avatar.AvatarLook.Doctor);
+            GameObject.Find("DoctorPortrait").GetComponent<BeanRig>().ApplyLook(Hindsight.EyeCanDo.Core.Avatar.AvatarLook.Doctor);
             var samPortrait = GameObject.Find("SamPortrait").GetComponent<BeanRig>();
-            samPortrait.ApplyLook(Hindsight.Ophthalmology.Core.Avatar.AvatarLook.Sam);
+            samPortrait.ApplyLook(Hindsight.EyeCanDo.Core.Avatar.AvatarLook.Sam);
             samPortrait.SetTalking(true);
             samPortrait.Voice = () => 0.6f;
             Advance(samPortrait, 0.3f);

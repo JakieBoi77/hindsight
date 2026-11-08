@@ -1,7 +1,7 @@
-using Hindsight.Ophthalmology.Core;
+using Hindsight.EyeCanDo.Core;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     public enum SfxId
     {

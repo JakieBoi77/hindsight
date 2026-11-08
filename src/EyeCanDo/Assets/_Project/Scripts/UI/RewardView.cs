@@ -1,10 +1,10 @@
 using System.Collections;
-using Hindsight.Ophthalmology.Core;
+using Hindsight.EyeCanDo.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>
     /// End-of-level card: the sticker pops up, the coins it earned fly up into the purse, then Home and

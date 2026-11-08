@@ -1,13 +1,13 @@
 using System;
 using System.IO;
 using System.Linq;
-using Hindsight.Ophthalmology.SceneObjects;
+using Hindsight.EyeCanDo.SceneObjects;
 using Unity.Cinemachine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.EditorTools
+namespace Hindsight.EyeCanDo.EditorTools
 {
     /// <summary>
     /// Renders every camera shot to PNGs in ./Captures so 3D layout can be reviewed without entering
@@ -89,7 +89,7 @@ namespace Hindsight.Ophthalmology.EditorTools
         {
             var rig = doctor.GetComponent<BeanRig>();
             if (rig == null) return;
-            rig.ApplyLook(Hindsight.Ophthalmology.Core.Avatar.AvatarLook.Doctor);
+            rig.ApplyLook(Hindsight.EyeCanDo.Core.Avatar.AvatarLook.Doctor);
             rig.SetMode(BeanMode.Idle);
             rig.ResetLayers();
         }

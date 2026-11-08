@@ -1,7 +1,7 @@
 {
-    "name": "Hindsight.Ophthalmology.Tests.EditMode",
+    "name": "Hindsight.EyeCanDo.Tests.EditMode",
     "references": [
-        "Hindsight.Ophthalmology",
+        "Hindsight.EyeCanDo",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

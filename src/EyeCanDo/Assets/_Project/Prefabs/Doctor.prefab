@@ -2370,7 +2370,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b389a8dea3c57654182d9e56038dc3ca, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.BeanRig
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.BeanRig
   hips: {fileID: 6212135370525621324}
   body: {fileID: 4674076161818873951}
   head: {fileID: 7178294276409201274}
@@ -2427,7 +2427,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 752ea4914c54ce54f9d9ff75e19bf7bb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.DoctorActor
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.DoctorActor
   rig: {fileID: 9032051663717246183}
   propEyeDrops: {fileID: 3839834910689744796}
   propLight: {fileID: 4702537589086861295}

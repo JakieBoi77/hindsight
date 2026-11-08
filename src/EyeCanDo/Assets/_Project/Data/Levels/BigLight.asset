@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bb7d665b7a894c14e8f5fd5fda2de095, type: 3}
   m_Name: BigLight
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Core.LevelDefinition
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.Core.LevelDefinition
   levelId: big-light
   displayName: The Big Light
   icon: {fileID: 3286163911610860551, guid: 1c8290b474bc1fc45bcb065721a074dc, type: 3}

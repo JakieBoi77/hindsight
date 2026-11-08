@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Hindsight.Ophthalmology.Core.Progress
+namespace Hindsight.EyeCanDo.Core.Progress
 {
     /// <summary>
     /// The save files: one per player, each with its own character, coins and progress. Slots are

@@ -1,17 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
-using Hindsight.Ophthalmology.Core;
-using Hindsight.Ophthalmology.SceneObjects;
-using Hindsight.Ophthalmology.UI;
+using Hindsight.EyeCanDo.Core;
+using Hindsight.EyeCanDo.SceneObjects;
+using Hindsight.EyeCanDo.UI;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Procedure.Steps
+namespace Hindsight.EyeCanDo.Procedure.Steps
 {
     /// <summary>
     /// Celebrates with the player's own kid beside the doctor: both dance, the sticker pops up, the
     /// coins fly into the purse, then Home and Play again appear. Nothing to tap until then.
     /// </summary>
-    [CreateAssetMenu(menuName = "Ophthalmology/Steps/Reward", fileName = "RewardStep")]
+    [CreateAssetMenu(menuName = "EyeCanDo/Steps/Reward", fileName = "RewardStep")]
     public sealed class RewardStep : ProcedureStep
     {
         [SerializeField] string shotId = "Reward";

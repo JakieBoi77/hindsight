@@ -16801,7 +16801,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b389a8dea3c57654182d9e56038dc3ca, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.BeanRig
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.BeanRig
   hips: {fileID: 6814760148653581189}
   body: {fileID: 7498561217654475582}
   head: {fileID: 4613527065521384131}
@@ -16998,7 +16998,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9e55a7ec9faef24f81733a97386a588, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.Interactable
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.Interactable
   interactableId: Kid
   highlight: {fileID: 6440390849689517654}
 --- !u!114 &4805055251027352850
@@ -17012,7 +17012,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1ad8b54dc799e4479cc938a86d7a53a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.KidActor
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.KidActor
   rig: {fileID: 149677022690391317}
   walkSpeed: 2.4
   turnSpeed: 800
@@ -25513,7 +25513,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dbfba2738e96d454180375fd303408c7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.Bobber
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.Bobber
   height: 0.08
   speed: 3
   spinDegreesPerSecond: 90

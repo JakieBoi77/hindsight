@@ -1,13 +1,13 @@
 using System;
 using System.IO;
-using Hindsight.Ophthalmology.UI;
+using Hindsight.EyeCanDo.UI;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-using static Hindsight.Ophthalmology.EditorTools.BuilderUtil;
+using static Hindsight.EyeCanDo.EditorTools.BuilderUtil;
 
-namespace Hindsight.Ophthalmology.EditorTools
+namespace Hindsight.EyeCanDo.EditorTools
 {
     /// <summary>
     /// The kid-friendly UI style (borrowed from the 2D prototype): Fredoka font, navy "ink" text,

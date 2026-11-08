@@ -1,9 +1,9 @@
 using System;
 using System.IO;
-using Hindsight.Ophthalmology.Core.Progress;
+using Hindsight.EyeCanDo.Core.Progress;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Core
+namespace Hindsight.EyeCanDo.Core
 {
     /// <summary>
     /// App-wide data, ready before the first scene loads so Play works from any scene: the save

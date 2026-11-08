@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e9d48d63fe46c4e4683829195dca0be0, type: 3}
   m_Name: 11_EyeDrop
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.HoldStillStep
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.Procedure.Steps.HoldStillStep
   title: 11. The drop
   shotId: FirstPersonTiltBack
   doctorAnchorId: DoctorDropPoint

@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Procedure.Steps
+namespace Hindsight.EyeCanDo.Procedure.Steps
 {
     /// <summary>Fades to the giant model eye. The child taps the pupil and watches it grow.</summary>
-    [CreateAssetMenu(menuName = "Ophthalmology/Steps/Show Closeup", fileName = "ShowCloseupStep")]
+    [CreateAssetMenu(menuName = "EyeCanDo/Steps/Show Closeup", fileName = "ShowCloseupStep")]
     public sealed class ShowCloseupStep : ProcedureStep
     {
         [SerializeField] string closeupShotId = "EyeCloseup";

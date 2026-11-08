@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7b7f1a121df532e4d85c2ac9f7f256cc, type: 3}
   m_Name: 03_Chart
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.ChartStep
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.Procedure.Steps.ChartStep
   title: 3. What the drops do
   shotId: ChartTalk
   doctorAnchorId: DoctorChartPoint

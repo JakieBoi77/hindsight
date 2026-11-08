@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Procedure
+namespace Hindsight.EyeCanDo.Procedure
 {
     /// <summary>Plays a <see cref="ProcedureDefinition"/> step by step against a scene context.</summary>
     public sealed class ProcedureRunner : MonoBehaviour

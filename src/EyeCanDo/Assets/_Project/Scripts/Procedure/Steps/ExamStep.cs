@@ -1,17 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
-using Hindsight.Ophthalmology.SceneObjects;
-using Hindsight.Ophthalmology.UI;
+using Hindsight.EyeCanDo.SceneObjects;
+using Hindsight.EyeCanDo.UI;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Procedure.Steps
+namespace Hindsight.EyeCanDo.Procedure.Steps
 {
     /// <summary>
     /// The doctor looks into the eye with a light. She leans in from where she stands, holds the light
     /// up to her own eye and looks at a few spots of the child's eye, and the light flashes. The child
     /// just watches (or, with <see cref="tapToFollow"/>, taps a floating light at each spot instead).
     /// </summary>
-    [CreateAssetMenu(menuName = "Ophthalmology/Steps/Exam", fileName = "ExamStep")]
+    [CreateAssetMenu(menuName = "EyeCanDo/Steps/Exam", fileName = "ExamStep")]
     public sealed class ExamStep : ProcedureStep
     {
         [SerializeField] string shotId = "ExamCloseFP";

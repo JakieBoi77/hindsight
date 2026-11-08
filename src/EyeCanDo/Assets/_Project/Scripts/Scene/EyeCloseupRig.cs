@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.SceneObjects
+namespace Hindsight.EyeCanDo.SceneObjects
 {
     /// <summary>Big model eye used to show what dilation does to the pupil.</summary>
     public sealed class EyeCloseupRig : MonoBehaviour

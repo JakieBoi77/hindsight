@@ -1,6 +1,6 @@
 using System;
 
-namespace Hindsight.Ophthalmology.Core.Avatar
+namespace Hindsight.EyeCanDo.Core.Avatar
 {
     /// <summary>
     /// How a scout feels, shown by their brows (every brow style is drawn in each mood). Story lines

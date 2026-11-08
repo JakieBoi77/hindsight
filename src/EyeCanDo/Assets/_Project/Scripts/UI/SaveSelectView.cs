@@ -1,11 +1,11 @@
 using System;
-using Hindsight.Ophthalmology.Core;
-using Hindsight.Ophthalmology.Core.Progress;
+using Hindsight.EyeCanDo.Core;
+using Hindsight.EyeCanDo.Core.Progress;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>
     /// "Who's playing?": one card per save file (adapted from the 2D PoC). A used save shows its

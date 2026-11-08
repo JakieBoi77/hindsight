@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.SceneObjects
+namespace Hindsight.EyeCanDo.SceneObjects
 {
     /// <summary>
     /// The doctor's light, shown in front of the first-person camera. It hops between a few

@@ -198,7 +198,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9e55a7ec9faef24f81733a97386a588, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.Interactable
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.Interactable
   interactableId: Ophthalmoscope
   highlight: {fileID: 0}
 --- !u!1 &5412431112191237179

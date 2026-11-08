@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Hindsight.Ophthalmology.Core;
-using Hindsight.Ophthalmology.Procedure;
+using Hindsight.EyeCanDo.Core;
+using Hindsight.EyeCanDo.Procedure;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>
     /// Plays narration. A line with a recorded clip plays it and waits for it to end; a line

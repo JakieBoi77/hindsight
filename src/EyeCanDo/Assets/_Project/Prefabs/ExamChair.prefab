@@ -68,7 +68,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9e55a7ec9faef24f81733a97386a588, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.Interactable
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.Interactable
   interactableId: ExamChair
   highlight: {fileID: 4313876163849962981}
 --- !u!1 &4313876163849962981
@@ -115,7 +115,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dbfba2738e96d454180375fd303408c7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.Bobber
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.Bobber
   height: 0.08
   speed: 3
   spinDegreesPerSecond: 90

@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Hindsight.Ophthalmology.Core;
-using Hindsight.Ophthalmology.SceneObjects;
-using Hindsight.Ophthalmology.UI;
+using Hindsight.EyeCanDo.Core;
+using Hindsight.EyeCanDo.SceneObjects;
+using Hindsight.EyeCanDo.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Hindsight.Ophthalmology.DevTools
+namespace Hindsight.EyeCanDo.DevTools
 {
     /// <summary>
     /// Smoke test: when the player is launched with "-autopilot &lt;dir&gt;" it plays like a child would:

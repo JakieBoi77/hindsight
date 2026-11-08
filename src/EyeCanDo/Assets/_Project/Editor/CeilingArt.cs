@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-using static Hindsight.Ophthalmology.EditorTools.BuilderUtil;
+using static Hindsight.EyeCanDo.EditorTools.BuilderUtil;
 
-namespace Hindsight.Ophthalmology.EditorTools
+namespace Hindsight.EyeCanDo.EditorTools
 {
     /// <summary>
     /// Paints the ceiling picture the child looks at while the drop goes in: a smiley sun with rays, a

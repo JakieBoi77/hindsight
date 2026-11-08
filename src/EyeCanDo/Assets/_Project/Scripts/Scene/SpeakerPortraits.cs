@@ -1,9 +1,9 @@
-using Hindsight.Ophthalmology.Core.Avatar;
-using Hindsight.Ophthalmology.Procedure;
-using Hindsight.Ophthalmology.UI;
+using Hindsight.EyeCanDo.Core.Avatar;
+using Hindsight.EyeCanDo.Procedure;
+using Hindsight.EyeCanDo.UI;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.SceneObjects
+namespace Hindsight.EyeCanDo.SceneObjects
 {
     /// <summary>
     /// A small studio far from the room with a copy of each speaking character, filmed head-and-shoulders

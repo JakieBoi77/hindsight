@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using Hindsight.Ophthalmology.Procedure;
+using Hindsight.EyeCanDo.Procedure;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Tests
+namespace Hindsight.EyeCanDo.Tests
 {
     public sealed class ProcedureRunnerTests
     {

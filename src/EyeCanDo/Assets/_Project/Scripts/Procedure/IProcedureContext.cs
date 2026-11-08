@@ -1,10 +1,10 @@
 using System.Collections;
-using Hindsight.Ophthalmology.Core;
-using Hindsight.Ophthalmology.SceneObjects;
-using Hindsight.Ophthalmology.UI;
+using Hindsight.EyeCanDo.Core;
+using Hindsight.EyeCanDo.SceneObjects;
+using Hindsight.EyeCanDo.UI;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Procedure
+namespace Hindsight.EyeCanDo.Procedure
 {
     /// <summary>Everything a step is allowed to touch in the scene.</summary>
     public interface IProcedureContext

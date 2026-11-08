@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea164e4133db57343b8761fa6b1896b5, type: 3}
   m_Name: 06_DropOnSam
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.PanelStep
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.Procedure.Steps.PanelStep
   title: 6. Sam's drop
   shotId: SamChair
   setupBeat: 0

@@ -635,7 +635,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -998,7 +998,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a00ab4b2afbe117499dcf01009c94666, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.TeachingChart
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.TeachingChart
 --- !u!114 &89458815
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1010,7 +1010,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9e55a7ec9faef24f81733a97386a588, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.Interactable
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.Interactable
   interactableId: EyeChart
   highlight: {fileID: 2135841183}
 --- !u!65 &89458816
@@ -1082,7 +1082,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b43f66c173090e947bf138612d921d63, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.IdleMotion
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.IdleMotion
   kind: 0
   amplitude: 0.06
   cyclesPerSecond: 1.1
@@ -1683,7 +1683,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7d8edab969b0694a81a12d3b4853783, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.OnOffButton
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.OnOffButton
   button: {fileID: 218181121}
   face: {fileID: 1738534616}
   depth: {fileID: 218181122}
@@ -1704,7 +1704,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -1971,7 +1971,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dbfba2738e96d454180375fd303408c7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.Bobber
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.Bobber
   height: 0.08
   speed: 3
   spinDegreesPerSecond: 90
@@ -2527,7 +2527,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b43f66c173090e947bf138612d921d63, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.IdleMotion
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.IdleMotion
   kind: 0
   amplitude: 0.04
   cyclesPerSecond: 0.9
@@ -2734,7 +2734,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -3101,7 +3101,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7d8edab969b0694a81a12d3b4853783, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.OnOffButton
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.OnOffButton
   button: {fileID: 370958686}
   face: {fileID: 261689192}
   depth: {fileID: 370958687}
@@ -3122,7 +3122,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -6125,7 +6125,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b43f66c173090e947bf138612d921d63, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.IdleMotion
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.IdleMotion
   kind: 0
   amplitude: 0.05
   cyclesPerSecond: 1
@@ -6813,7 +6813,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bf6db2a877ed2bb49a245d78087ccca9, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.ProcedureRunner
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.Procedure.ProcedureRunner
   procedure: {fileID: 11400000, guid: d14b1632c14fe654ea51dda7cf4be65c, type: 2}
   contextBehaviour: {fileID: 514115055}
   playOnStart: 1
@@ -6828,7 +6828,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1aa4b321725df974ebad019b2b5d09d5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.ExamRoomContext
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.ExamRoomContext
   level: {fileID: 11400000, guid: 4edf5bfe13e21d6439f84fb9bf83a12a, type: 2}
   anchorsRoot: {fileID: 1723099780}
   shots: {fileID: 735702541}
@@ -7411,7 +7411,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d6db6b46b13c9ca459a736006280f446, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.NarrationPlayer
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.NarrationPlayer
 --- !u!82 &584080015
 AudioSource:
   m_ObjectHideFlags: 0
@@ -7571,7 +7571,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b62ac651344836245bf786ce74b5faad, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.OphthalmoscopeRig
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.OphthalmoscopeRig
   tool: {fileID: 622280661}
   beam: {fileID: 622280662}
   lookPoints:
@@ -8523,7 +8523,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -8807,7 +8807,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9e55a7ec9faef24f81733a97386a588, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.Interactable
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.Interactable
   interactableId: Bottle
   highlight: {fileID: 247384239}
 --- !u!135 &688976923
@@ -9223,7 +9223,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 885352a5b88ff8b4699774af91cb0c27, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.ShotDirector
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.ShotDirector
   brain: {fileID: 941767462}
   initialShot: RoomWide
 --- !u!4 &735702542
@@ -9555,7 +9555,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ac6c27cd6bc759e4681d8913a85c2ce3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.SpeakerPortraits
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.SpeakerPortraits
   narrator: {fileID: 584080014}
   doctor: {fileID: 857677101}
   sam: {fileID: 853506392}
@@ -9656,7 +9656,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1ad8b54dc799e4479cc938a86d7a53a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.KidActor
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.KidActor
 --- !u!4 &853506393 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6758924937949145023, guid: 4c5d2afa054df6e4396b144e7fdc1ca1, type: 3}
@@ -9729,7 +9729,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 752ea4914c54ce54f9d9ff75e19bf7bb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.DoctorActor
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.DoctorActor
 --- !u!4 &857677102 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5387106854600167406, guid: fb6b14cec19478c44b5056b8eed47b60, type: 3}
@@ -9886,7 +9886,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1ad8b54dc799e4479cc938a86d7a53a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.KidActor
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.KidActor
 --- !u!1 &882373239
 GameObject:
   m_ObjectHideFlags: 0
@@ -10075,7 +10075,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -10412,7 +10412,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -11726,7 +11726,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -12000,7 +12000,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -12645,7 +12645,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cfda65d36e686a2449b752221b06409a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.SettingsView
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.SettingsView
   panel: {fileID: 1227614615}
   soundSlider: {fileID: 1029173944}
   voiceSlider: {fileID: 1329241485}
@@ -12821,7 +12821,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7d8edab969b0694a81a12d3b4853783, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.OnOffButton
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.OnOffButton
   button: {fileID: 1240887253}
   face: {fileID: 696112952}
   depth: {fileID: 1240887254}
@@ -12842,7 +12842,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -13057,7 +13057,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eefe9b9dc4e431a40b4c65846ea02b43, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ConfirmDialog
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ConfirmDialog
   panel: {fileID: 1268508611}
   titleLabel: {fileID: 632424148}
   bodyLabel: {fileID: 882373241}
@@ -13155,7 +13155,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7d8edab969b0694a81a12d3b4853783, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.OnOffButton
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.OnOffButton
   button: {fileID: 1287686018}
   face: {fileID: 84816958}
   depth: {fileID: 1287686019}
@@ -13176,7 +13176,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -13758,7 +13758,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b8d65f57980e20b46a613bce1ed32c9e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.LevelHud
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.LevelHud
   runner: {fileID: 514115054}
   dotsRoot: {fileID: 915675485}
   dotTemplate: {fileID: 503187412}
@@ -14350,7 +14350,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -14644,7 +14644,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -16536,7 +16536,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c885f7c27f6422e43a973742dd25ec8a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.EyeDropRig
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.EyeDropRig
   bottle: {fileID: 688976919}
   drop: {fileID: 747573157}
   dropStart: {fileID: 688976920}
@@ -16727,7 +16727,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 752ea4914c54ce54f9d9ff75e19bf7bb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.DoctorActor
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.DoctorActor
 --- !u!1 &1723099779
 GameObject:
   m_ObjectHideFlags: 0
@@ -17084,7 +17084,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4d883439abf6e943880048c2da4a851, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.EyeCloseupRig
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.EyeCloseupRig
 --- !u!4 &1780261968 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6635093608333802790, guid: 6fc43aff00b7a9847934caee3f916e3c, type: 3}
@@ -17142,7 +17142,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1624dfa0fde6caf488a1258f70ed391c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ScreenEffectsView
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ScreenEffectsView
   upperLid: {fileID: 1956945330}
   lowerLid: {fileID: 1711937175}
   blur: {fileID: 1022614622}
@@ -17231,7 +17231,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -17474,7 +17474,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -17592,7 +17592,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bd019ce5539b3eb48874e38d4cdc99bb, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.RewardView
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.RewardView
   panel: {fileID: 1374475090}
   sticker: {fileID: 1339699416}
   stickerButton: {fileID: 1339699413}
@@ -17644,7 +17644,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f9d51b383deff7046aec57983a5b0505, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.CaptionView
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.CaptionView
   panel: {fileID: 1109221543}
   bubble: {fileID: 1346257667}
   portrait: {fileID: 6082207}
@@ -18000,7 +18000,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b43f66c173090e947bf138612d921d63, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.IdleMotion
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.IdleMotion
   kind: 0
   amplitude: 0.05
   cyclesPerSecond: 1.2
@@ -18094,7 +18094,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3531287bdcd3c534d9c59d59cd4f4969, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.CoinCounter
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.CoinCounter
   label: {fileID: 915128029}
 --- !u!1001 &2062723732
 PrefabInstance:
@@ -18172,7 +18172,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1ad8b54dc799e4479cc938a86d7a53a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.KidActor
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.KidActor
 --- !u!1 &2076364822
 GameObject:
   m_ObjectHideFlags: 0
@@ -18225,7 +18225,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 89354e165d17a744f865a7d1b54bc819, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.HoldButton
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.HoldButton
 --- !u!114 &2076364825
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18237,7 +18237,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0392d007303c04447a41f87d1c657602, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ButtonFeedback
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ButtonFeedback
   pressedScale: 0.92
   speed: 18
   tapSound: 1
@@ -18372,7 +18372,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20a05b3ff9ef7a645931f8ea05da6bbf, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.UI.ActionButtonsView
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.UI.ActionButtonsView
   holdButton: {fileID: 2076364824}
   holdLabel: {fileID: 1584623519}
   holdRing: {fileID: 1049118582}
@@ -18771,7 +18771,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dbfba2738e96d454180375fd303408c7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.Bobber
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.Bobber
   height: 0.08
   speed: 3
   spinDegreesPerSecond: 90

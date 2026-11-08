@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.SceneObjects
+namespace Hindsight.EyeCanDo.SceneObjects
 {
     /// <summary>
     /// The wall chart Dr. Iris explains the drops with: two picture panels (a drop goes in, the pupil

@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Hindsight.Ophthalmology.Core.Progress
+namespace Hindsight.EyeCanDo.Core.Progress
 {
     /// <summary>
     /// Loads and saves one piece of data as a JSON file. Saving writes a temporary file and then

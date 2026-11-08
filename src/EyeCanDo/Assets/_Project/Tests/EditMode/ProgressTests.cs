@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Hindsight.Ophthalmology.Core.Avatar;
-using Hindsight.Ophthalmology.Core.Progress;
+using Hindsight.EyeCanDo.Core.Avatar;
+using Hindsight.EyeCanDo.Core.Progress;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Tests
+namespace Hindsight.EyeCanDo.Tests
 {
     /// <summary>Save files, settings, coins and the dress-up shop (ported and trimmed from the 2D PoC).</summary>
     public sealed class ProgressTests

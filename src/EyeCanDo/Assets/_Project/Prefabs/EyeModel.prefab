@@ -247,7 +247,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c9e55a7ec9faef24f81733a97386a588, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.Interactable
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.Interactable
   interactableId: Pupil
   highlight: {fileID: 3481308819727051896}
 --- !u!1 &3481308819727051896
@@ -352,7 +352,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4a2278471b80ecf4a969fe603045a7e3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.PulseScale
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.PulseScale
   amount: 0.12
   cyclesPerSecond: 1.2
 --- !u!1 &3978000647206019854
@@ -705,7 +705,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4d883439abf6e943880048c2da4a851, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.SceneObjects.EyeCloseupRig
+  m_EditorClassIdentifier: Hindsight.EyeCanDo::Hindsight.EyeCanDo.SceneObjects.EyeCloseupRig
   pupil: {fileID: 4001309278950266537}
   normalSize: 0.3
   dilatedSize: 0.75

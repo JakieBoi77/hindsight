@@ -1,9 +1,9 @@
 using UnityEngine;
 
-namespace Hindsight.Ophthalmology.Core
+namespace Hindsight.EyeCanDo.Core
 {
     /// <summary>One clinic visit the player can pick from the level select screen.</summary>
-    [CreateAssetMenu(menuName = "Ophthalmology/Level Definition", fileName = "Level")]
+    [CreateAssetMenu(menuName = "EyeCanDo/Level Definition", fileName = "Level")]
     public sealed class LevelDefinition : ScriptableObject
     {
         [SerializeField] string levelId = "eye-drops";

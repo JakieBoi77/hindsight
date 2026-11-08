@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>A chunky switch: green with a tick and "On", or grey and "Off" (the state never depends on colour alone).</summary>
     public sealed class OnOffButton : MonoBehaviour

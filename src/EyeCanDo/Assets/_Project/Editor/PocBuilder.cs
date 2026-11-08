@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Hindsight.Ophthalmology.Core;
-using Hindsight.Ophthalmology.Core.Avatar;
-using Hindsight.Ophthalmology.Procedure;
-using Hindsight.Ophthalmology.Procedure.Steps;
-using Hindsight.Ophthalmology.SceneObjects;
-using Hindsight.Ophthalmology.UI;
+using Hindsight.EyeCanDo.Core;
+using Hindsight.EyeCanDo.Core.Avatar;
+using Hindsight.EyeCanDo.Procedure;
+using Hindsight.EyeCanDo.Procedure.Steps;
+using Hindsight.EyeCanDo.SceneObjects;
+using Hindsight.EyeCanDo.UI;
 using TMPro;
 using Unity.Cinemachine;
 using UnityEditor;
@@ -19,13 +19,13 @@ using UnityEngine.InputSystem.UI;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
-using static Hindsight.Ophthalmology.EditorTools.BuilderUtil;
+using static Hindsight.EyeCanDo.EditorTools.BuilderUtil;
 
-namespace Hindsight.Ophthalmology.EditorTools
+namespace Hindsight.EyeCanDo.EditorTools
 {
     /// <summary>
     /// Generates the whole POC (settings, data, prefabs, scenes) from code so it can be rebuilt
-    /// headless: Unity -batchmode -projectPath . -executeMethod Hindsight.Ophthalmology.EditorTools.PocBuilder.BuildAll -quit
+    /// headless: Unity -batchmode -projectPath . -executeMethod Hindsight.EyeCanDo.EditorTools.PocBuilder.BuildAll -quit
     /// </summary>
     public static partial class PocBuilder
     {
@@ -109,8 +109,8 @@ namespace Hindsight.Ophthalmology.EditorTools
         {
             PlayerSettings.companyName = "Hindsight";
             PlayerSettings.productName = "EyeCanDo";
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.hindsight.ophthalmologygame");
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "com.hindsight.ophthalmologygame");
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.hindsight.eyecando");
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "com.hindsight.eyecando");
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToLandscapeLeft = true;
             PlayerSettings.allowedAutorotateToLandscapeRight = true;

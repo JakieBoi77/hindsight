@@ -170,9 +170,9 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Android: com.hindsight.ophthalmologygame
+    Android: com.hindsight.eyecando
     Standalone: com.Unity-Technologies.com.unity.template.urp-blank
-    iPhone: com.hindsight.ophthalmologygame
+    iPhone: com.hindsight.eyecando
   buildNumber:
     Standalone: 0
     VisionOS: 0

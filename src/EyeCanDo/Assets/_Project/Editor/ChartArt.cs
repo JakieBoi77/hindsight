@@ -2,10 +2,10 @@ using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-using static Hindsight.Ophthalmology.EditorTools.BuilderUtil;
-using static Hindsight.Ophthalmology.EditorTools.CeilingArt;
+using static Hindsight.EyeCanDo.EditorTools.BuilderUtil;
+using static Hindsight.EyeCanDo.EditorTools.CeilingArt;
 
-namespace Hindsight.Ophthalmology.EditorTools
+namespace Hindsight.EyeCanDo.EditorTools
 {
     /// <summary>
     /// Paints the wall chart Dr. Iris uses to explain the drops: two big picture panels with an arrow

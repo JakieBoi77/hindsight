@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Hindsight.Ophthalmology.Core.Avatar;
+using Hindsight.EyeCanDo.Core.Avatar;
 
-namespace Hindsight.Ophthalmology.Core.Progress
+namespace Hindsight.EyeCanDo.Core.Progress
 {
     /// <summary>
     /// One player's save file. Only gameplay data: no names or other identifying information.

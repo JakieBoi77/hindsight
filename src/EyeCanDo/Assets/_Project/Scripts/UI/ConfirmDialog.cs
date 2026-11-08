@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Hindsight.Ophthalmology.UI
+namespace Hindsight.EyeCanDo.UI
 {
     /// <summary>A yes/no question on a dimmed backdrop (delete a save, reset the game). Saying no changes nothing.</summary>
     public sealed class ConfirmDialog : MonoBehaviour

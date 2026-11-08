@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hindsight.Ophthalmology.Core.Avatar;
-using Hindsight.Ophthalmology.SceneObjects;
+using Hindsight.EyeCanDo.Core.Avatar;
+using Hindsight.EyeCanDo.SceneObjects;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
-using static Hindsight.Ophthalmology.EditorTools.BuilderUtil;
-using static Hindsight.Ophthalmology.EditorTools.BeanMeshes;
+using static Hindsight.EyeCanDo.EditorTools.BuilderUtil;
+using static Hindsight.EyeCanDo.EditorTools.BeanMeshes;
 
-namespace Hindsight.Ophthalmology.EditorTools
+namespace Hindsight.EyeCanDo.EditorTools
 {
     /// <summary>
     /// Builds a scout character (<see cref="BeanRig"/>) and its wardrobe from generated meshes, in the

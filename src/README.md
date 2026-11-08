@@ -2,10 +2,10 @@
 
 | Path | What it is |
 |---|---|
-| `OphthalmologyGame/` | Unity 6 (6000.6.2f1) 3D proof of concept for the ophthalmology clinic game. Targets iOS and Android tablets. |
+| `EyeCanDo/` | Unity 6 (6000.6.2f1) 3D proof of concept for the ophthalmology clinic game. Targets iOS and Android tablets. |
 | `TraceToDesign.md` | Traceability between code and design modules. |
 
-## Ophthalmology Game PoC v2
+## EyeCanDo PoC v2
 
 This version rebuilds the 3D Eye Drops level as a **narrated storyboard with few words**, following [PoCResearch.md](../PoCResearch.md). It also adds the save files, coins, dress-up shop and settings from the 2D cosmetics PoC.
 
@@ -15,7 +15,7 @@ Title → **save files** → level select (coins, **Dress up**) → **Eye Drops*
 |---|---|---|
 | 1 | Dr. Iris says hi | Watch (she waves) |
 | 2 | Meet Sam, who is getting drops too | Tap Sam: he cheers and says "Hi! I'm Sam, nice to meet you." |
-| 3 | Dr. Iris and Sam walk to the drops chart; each picture lights up as she explains it (drops go in, the pupil gets big, she can see inside) | Watch |
+| 3 | Dr. Iris and Sam walk to the drops chart; each picture lights up as she explains it (two big pictures: a drop goes into the eye, then the pupil is big) | Watch |
 | 4 | "Sam, you're up first." Sam: "Will do!" and walks to the chair | Watch |
 | 5 | Sam in the chair, head back: the drops are cold and may sting | Watch |
 | 6 | The drop lands. Sam: "Oooh, cold!" Dr. Iris: blink to spread it. Sam blinks | Watch |
@@ -31,19 +31,24 @@ Title → **save files** → level select (coins, **Dress up**) → **Eye Drops*
 - **Voiced lines.** Every line is spoken, and Dr. Iris and Sam have their own voices (see Voices). Each line has:
   - a caption of 8 words or fewer, which can be turned off;
   - a replay button;
-  - the speaker's portrait: a live render of their 3D model, mouth moving.
+  - the speaker's portrait: a live render of their 3D character, mouth moving with the voice.
 
   There are no quizzes and nothing can be failed.
-- **Saves, coins and dress-up.** Three save slots, each with its own kid, coins, sticker and clothes. The level pays 40 coins the first time and 5 on replays. Dress up has:
-  - **Free everyday clothes** for a trip to the doctor: T-shirt and jeans, raincoat, jacket.
-  - **Dressing-up clothes to buy** (20 to 70 coins): outfits (Explorer, Adventurer, Viking, Knight armour), hats (cap, beanie, bow, party hat, wizard hat, bear hat, knight helmet, crown) and capes (travel, fur, wizard, hero).
-  - **Free looks:** hairstyles (short, long, tidy), and every colour for skin, hair, shirt and shoes. Every hat fits every hairstyle.
-  - **Spin the kid round** by dragging across them, to see the back.
+- **Scout characters.** Everyone is a round, friendly scout (the genre of games like PEAK, with our own designs): a big round head with big eyes, brows and rosy cheeks, a sturdy chest, chunky arms with mitten fists and short legs in socks and hiking boots. They come in bright colours, not skin tones, and stand with their elbows out, ready to go. Dr. Iris is a grown-up purple scout (1.7 times a kid) in a white coat and head mirror; Sam is a blue scout in a red cap.
+- **Saves, coins and dress-up.** Three save slots, each with its own scout, coins, sticker and clothes. The level pays 40 coins the first time and 5 on replays. Dress up has a tab per slot:
+  - **Colour:** twelve bright colours.
+  - **Eyes (18) and Mouth (19):** from big shiny eyes to sleepy, squinting, crying, anime and fierce ones; mouths from a smile to fangs and a toothy grin. Every mouth has its own talking shapes.
+  - **Brows (11, all free):** thin, soft, arched, straight, short, angled, tapered, thick, bushy, dots and a unibrow (or none). Each is drawn in six moods (neutral, happy, worried, angry, surprised, focused), so brows show how a scout feels: every story line says how its speaker feels, and Dr. Iris looks focused while she examines or holds the drops.
+  - **Hats:** cap, beanie, sprout and bandana are free; 21 more cost 20 to 80 (beret, ninja headband, visor, sailor, medic, straw, sun hat, pith helmet, propeller (it spins), chef, mushroom, wolf ears, frog, cowboy, gnome, wizard, jester, antlers, laurel, knight helmet, crown).
+  - **Fits:** **Default** (the everyday sky-blue camp shirt with collar, pocket and buttons, navy shorts and white socks) is free; 14 more cost 30 to 90 (sailor, tropical, climber, ice puffer, cowboy, aviator, gnome, toga, mummy, skele onesie, jester, fairy, knight, astronaut).
+  - **Old saves** keep their coins, stickers and the hats still sold; outfits, hats, capes, sashes and face accessories (glasses and the like) that no longer exist are refunded in coins, and anyone wearing a removed fit goes back to Default.
+  - **Spin the scout round** by dragging across them, to see the back. The grid scrolls.
+- **Coins in development.** In the editor and development builds every save is topped up to 1000 coins (`CoinRules.DevCoins`) so the whole shop can be tried. Release builds start at zero and earn coins only from levels.
 - **Settings** (title, or the gear in a level, which pauses): sound volume, voice volume, captions, big text, move on by itself, less motion. **Reset game** asks twice.
 
 ### Open and run
 
-1. In Unity Hub choose **Add → Add project from disk** and pick `src/OphthalmologyGame` (editor 6000.6.2f1, with the Android and/or iOS modules).
+1. In Unity Hub choose **Add → Add project from disk** and pick `src/EyeCanDo` (editor 6000.6.2f1, with the Android and/or iOS modules).
 2. Open `Assets/_Project/Scenes/Menu.unity` and press Play. For a tablet-shaped view, switch the Game view to **Simulator** and pick an iPad or Android tablet.
 
 Saves go to `Application.persistentDataPath/saves/save_1.json` to `save_3.json`, and settings to `settings.json` beside them.
@@ -69,15 +74,18 @@ Assets/_Project/
   Scripts/Procedure/        ProcedureDefinition, ProcedureStep, StoryLine (narration + caption + clip), ProcedureRunner
   Scripts/Procedure/Steps/  Panel, TapTarget, Chart, HoldStill, Blink, Exam, Reward (+ ShowCloseup, unused)
   Scripts/Scene/            ExamRoomContext (stage beats), ShotDirector, DoctorActor, KidActor (Sam + the player's kid),
-                            TeachingChart, WaveIK, SpeakerPortraits, rigs
+                            TeachingChart, SpeakerPortraits, rigs
+  Scripts/Scene/Bean/       BeanRig (looks, procedural animation and IK, lip sync), FaceArt (face atlas layout)
   Scripts/UI/               captions + NarrationPlayer, reward (coins fly to the purse), HUD, settings, confirm dialog,
                             saves, dress up + KidSpinner, menu, Sfx
   Scripts/DevTools/         PocAutoPilot (smoke test, only active with -autopilot)
-  Editor/                   PocBuilder (+ .Ui) / PrefabBuilder / UiKit / CeilingArt / ChartArt (generate everything),
+  Editor/                   PocBuilder (+ .Ui) / PrefabBuilder / BeanBuilder + BeanMeshes / FaceArtPainter / UiKit /
+                            CeilingArt / ChartArt (generate everything),
                             ShotCapture, DebugCapture, DebugLooks
   Audio/Narration/          one WAV per line (generated voices for now) + NarrationScript.md
   Audio/Sfx/                CC0 sound effects copied from the 2D PoC
   Data/                     level + step assets (generated: edit the lines in PocBuilder.BuildEyeDropsProcedure)
+  Models/Bean/              generated meshes for the scouts (torso, head, clothes, hats, face patches)
   Prefabs/                  ExamRoom, ExamChair, Doctor, Kid, EyeDropBottle, Ophthalmoscope, EyeModel
   Resources/                SoundLibrary
   Scenes/                   Menu, EyeDrops
@@ -93,14 +101,16 @@ Tools/VoiceGen/             generate_voices.py (Chatterbox + director), voices/ 
   - an optional beat after the lines (`SamWalkToChair`, `SamLeave`);
   - an optional glowing thing to discover.
 - **The drops chart.** `ChartStep` walks Dr. Iris and Sam over while the camera pans, then lights each picture of the chart (`TeachingChart`) as she says its cue word. The time of each word is taken from its place in the line and the length of the recording. `ChartArt` paints the pictures.
-- **Kids.** `Kid.prefab` is the KayKit Mage at child scale. Sam and the player's kid use the same prefab with different `AvatarLook`s.
-  - **Colours** are painted at runtime into a per-kid copy of each atlas, and given to the renderers through a property block. (Per-kid material copies that differed only in their texture were drawn with each other's texture.)
-  - **Outfits, hairstyles, hats and capes** come from all the KayKit Adventurers characters (Mage, Rogue, Knight, Barbarian). They share one skeleton, so the builder copies their bodies, arms, legs, heads, helmets and capes onto the kid's. Each is a child object named `<Slot>_<id>[_<part>]` (`Outfit_tee_Body`, `HairStyle_long`, `Hat_crown`, `Cape_hero`), and `KidActor.Apply` switches them on and off.
-  - **Everyday outfits** are the same meshes painted differently (`PaintStyle` in `PrefabBuilder`): belts, straps and books take the shirt colour so they disappear, gloves become hands, trousers are jeans. The jacket mixes the knight's top with the T-shirt's jeans.
-  - **Hats fit every hairstyle.** Each hat was made for one head. For the other hairstyles the builder measures the hair above the hat band and stores a raised and scaled pose per hat and hairstyle (`HatFit`).
-  - **POC → Debug Looks** renders every outfit (front and back), every hat on every hairstyle (front and side) and the animation frames into `Captures/looks`.
-  - **Sitting:** `KidActor.SitInSeat` puts the hips on the `SamSeat` anchor, leans the upper body back against the reclined backrest and lays the shins along the leg rest. **POC → Debug Captures** logs the chair's profile and renders the seat from the side.
-- **Waving.** Dr. Iris waves with two-bone IK (`WaveIK`): her hand goes up beside her head and her forearm swings outward, never toward the head. The kids' arms are shorter than their heads are wide, so a procedural wave folds their hand onto the head. They greet with the pack's hand-animated Cheer clip instead. Runtime frame bursts in the autopilot (`anim_*` screenshots) are how the animation was checked.
+- **Scout characters** are built in code (`BeanBuilder`, meshes from `BeanMeshes`); there is no external character art. `Kid.prefab` (1 m) is Sam and the player's kid, with different `AvatarLook`s; `Doctor.prefab` is a grown-up scout at 1.7 m with longer arms.
+  - **Shape.** The torso and the head are surfaces of revolution whose side profiles are superellipses (`BeanMeshes.Shape`). Clothes and hats are shells offset from those profiles, so they hug the body.
+  - **Face.** Curved patches on the head show cells of three atlases painted by `FaceArtPainter` (layout in `FaceArt`): eyes (each open and shut, with whites and a shine), rosy cheeks, mouths (each in four shapes from closed to wide open), brows (each style in every mood, in a fourth atlas) and the face accessory, drawn over the eyes and brows so glasses line up. The skin glows faintly in its own colour so it stays bright in the room's light.
+  - **Switching looks.** Hats and fits are child objects named `<Slot>_<id>[_<part>]` (`Hat_crown`, `Outfit_sailor_Body`, `Outfit_sailor_ArmL`), and `BeanRig.ApplyLook` switches them on and off. The skin colour reaches the renderers through property blocks; clothes keep their own colours.
+  - **Animation** is all procedural (`BeanRig`): every joint is built unrotated, and each frame the pose is written from scratch. A base (idle breathing, sway and looking around, walking, sitting) has layers on top: waving, cheering (arms up, two hops), dancing, reaching, talking (nods), head back, shivering, squashing and blinking. Then world-space layers: a **focus** (the body leans and the head turns toward a point) and **hand goals** (two-bone arm IK to a target, or up to the character's own eye).
+  - **The doctor at work.** Looking into an eye (`DoctorActor.Examine`), Dr. Iris leans in, raises the light to her own eye and looks from spot to spot: over Sam in the chair, and in first person, where she starts from the end of the leg rest and leans in. For drops (`DoctorActor.HoldBottle`) she leans over and holds the bottle above the eye with her nearer hand; `ExamRoomContext` does this whenever the bottle is held up over an eye.
+  - **Lip sync.** `NarrationPlayer.VoiceLevel` reads how loud the recording is at the playing position (from the clip's samples, so the volume setting doesn't matter; narration imports as Decompress On Load). The speaker's mouth picks one of its four shapes from that loudness, and the copies in the portraits do the same. Lines without a recording babble.
+  - **Sitting:** `KidActor.SitInSeat` rests the bottom of the torso on the `SamSeat` anchor (on the cushion), lays the legs along the leg rest and leans the scout back against the backrest; "head back" tips the head, so the eyes end up at the chair's `ChairEyes` anchor where the drop lands.
+  - **Walking** is 2.4 m/s for the kids and 2.6 m/s for Dr. Iris, so the walks to the chart and the door take a couple of seconds.
+  - **POC → Debug Looks** renders contact sheets into `Captures/looks`: every fit (front and back), hat (front and side), eye style (open and shut), mouth at each talking shape, face accessory and colour, filmstrips of each animation, and the doctor's poses. **POC → Debug Captures** renders the scene: Sam seated, Dr. Iris examining him and holding the drops over him, and both first-person views; it logs how far her hand is from the bottle.
 - **Speaker portraits.** `SpeakerStudio` in the EyeDrops scene holds copies of Dr. Iris and Sam, filmed into render textures. The copies talk when their character speaks.
 - **Camera shots** are the `CinemachineCamera` children of `Shots` in the EyeDrops scene. Steps refer to them by name.
 - **UI style** comes from the 2D prototype (`UiKit`).
@@ -114,7 +124,7 @@ Tools/VoiceGen/             generate_voices.py (Chatterbox + director), voices/ 
 
 It is safe to rerun, but it overwrites hand edits to generated files. To change dialogue for good, edit `PocBuilder.BuildEyeDropsProcedure` and regenerate the voices.
 
-Headless equivalents (run from `src/OphthalmologyGame`, with `Unity` = the 6000.6.2f1 editor executable). **Do not add `-nographics`.** The SVG icons are rasterised on the GPU, and without one they import as grey squares. The builder logs an error if that happens.
+Headless equivalents (run from `src/EyeCanDo`, with `Unity` = the 6000.6.2f1 editor executable). **Do not add `-nographics`.** The SVG icons are rasterised on the GPU, and without one they import as grey squares. The builder logs an error if that happens.
 
 ```sh
 Unity -batchmode -projectPath . -executeMethod Hindsight.Ophthalmology.EditorTools.PocBuilder.BuildAll -quit
@@ -132,31 +142,23 @@ The EditMode tests include the automated checks from the research plan (`StoryCo
 
 ### Smoke test
 
-**POC → Build Windows (smoke test)**, then run `Builds/Windows/OphthalmologyGame.exe -screen-fullscreen 0 -autopilot <folder>`. It:
+**POC → Build Windows (smoke test)**, then run `Builds/Windows/EyeCanDo.exe -screen-fullscreen 0 -autopilot <folder>`. It:
 1. Picks Save 1 and plays the level: it taps Sam and the chair, and lets go once while the drop falls. It saves frame bursts of the chart, Sam walking, dancing and leaving, and the coins flying in.
-2. Opens Dress up, spins the kid round and buys a hat.
-3. Saves a screenshot of every state into `<folder>`, keeping its save data in `<folder>/data`.
-4. Exits with code 0 if nothing logged an error and Save 1 ends with a sticker and a bought item.
+2. Opens Dress up, spins the scout round, picks new eyes, a new mouth and a face accessory, and buys a hat.
+3. Logs how often each mouth shape showed while Dr. Iris and Sam talked; a mouth using fewer than 3 shapes fails the run.
+   The smoke-test build is a release build, so it starts with no coins and buys a hat with the coins the level pays.
+4. Saves a screenshot of every state into `<folder>`, keeping its save data in `<folder>/data`.
+5. Exits with code 0 if nothing logged an error and Save 1 ends with a sticker and a bought item.
 
 ### Known PoC shortcuts
 
 - **Generated voices.** The narration is text-to-speech (see Voices), not recorded actors. It was checked automatically for words, shouting, pace and (for Sam) how childlike it sounds, and should still be listened to.
 - **The storyboard grew.** The research plan asked for 12 panels; the agreed storyboard has 14, and its spoken lines are longer than the plan's (the captions still follow the 8-word rule). The script says "Click"; "Tap" may suit tablets better.
-- **Mixed art.** It comes from free packs, so styles don't fully match.
-  - The doctor is the KayKit "Rogue" with her tunic recoloured into a white coat.
-  - The kids are built on the KayKit "Mage" skeleton, wearing parts of all four characters. Their faces keep the pack's stern eyebrows.
-  - The barbarian's head has a beard, so it isn't offered as a hairstyle.
-- **Simple accessories.** The cap, beanie, bow, party hat and crown are built from primitive shapes. The other hats and all the capes come from the pack.
-- **Everyday clothes from fantasy meshes.** The T-shirt, raincoat and jacket are the pack's adventurer meshes repainted, so a belt or a strap still shows as a shape.
-- **Text-only shop cards.** Dress-up item cards show the item's name, not a picture. Trying an item on shows it on the kid.
-- **Procedural animation.** The pack has no wave, talk or dance clips, so these are code layers on top of the pack's clips:
-  - waving
-  - talking
-  - lying back in the chair
-  - tilting back
-  - shivering
-  - blinking
-  - the dance (the pack's cheer, with a bounce and a wiggle)
+- **Mixed art.** The room and chair come from free packs; the characters are made in code, in the same genre as PEAK's scouts but designed for this game (not copied from it).
+- **Simple clothes.** Fits and hats are built from shells, rings and primitive shapes, so details are chunky.
+- **Some text shop cards.** Eye, mouth and face-accessory cards show their drawing and colour cards a swatch; fit and hat cards show the item's name. Trying an item on shows it on the scout.
+- **Procedural animation.** Every move is code, not hand-keyed animation, so moves are simple: walking, waving, cheering, dancing, sitting, head back, shivering, blinking, talking, leaning in to examine and holding the drops.
+- **Loudness, not phonemes.** The mouth opens as wide as the voice is loud; it doesn't shape individual sounds.
 - **Cuts instead of climbing in.** Sam and the player get into and out of the chair during a quick fade, not with an animation.
 - **Fake blur.** The "blur" after the drops is a white haze overlay.
 - **No parental gate.** Settings are not behind one yet.

@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea164e4133db57343b8761fa6b1896b5, type: 3}
+  m_Name: 01_Hello
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.PanelStep
+  title: 1. Dr. Iris says hi
+  shotId: DoctorGreeting
+  setupBeat: 0
+  doctorAnchorId: 
+  teleportDoctor: 0
+  doctorPose: 1
+  doctorProp: 0
+  beat: 1
+  beatBeforeLine: 0
+  line:
+    id: p01_hello
+    speaker: 0
+    narration: Hey, I'm Dr. Iris. I'm going to be looking at your eyes today.
+    caption: Hi! I'm Dr. Iris.
+    clip: {fileID: 8300000, guid: fcb6ac6e944ca0a45bcd0200a2b535b1, type: 3}
+    mood: 1
+  followUpLine:
+    id: 
+    speaker: 0
+    narration: 
+    caption: 
+    clip: {fileID: 0}
+    mood: -1
+  discoverId: 
+  discoverLine:
+    id: 
+    speaker: 0
+    narration: 
+    caption: 
+    clip: {fileID: 0}
+    mood: -1
+  endOn: 0
+  dropperWithButton: 0
+  afterBeat: 0

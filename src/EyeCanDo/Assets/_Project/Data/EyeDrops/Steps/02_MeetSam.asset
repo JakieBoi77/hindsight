@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3360c0d9ddf973047addfa83ab20f783, type: 3}
+  m_Name: 02_MeetSam
+  m_EditorClassIdentifier: Hindsight.Ophthalmology::Hindsight.Ophthalmology.Procedure.Steps.TapTargetStep
+  title: 2. Meet Sam
+  shotId: SamWaiting
+  setupBeat: 0
+  interactableId: Sam
+  line:
+    id: p02_sam
+    speaker: 0
+    narration: This is Sam. He is also getting eye drops today. Click on Sam to say hi.
+    caption: This is Sam. Click to say hi!
+    clip: {fileID: 8300000, guid: d0172e0e7fd0a2c49a02b71ba4742e9f, type: 3}
+    mood: 1
+  tapBeat: 3
+  tapLine:
+    id: p02_hi
+    speaker: 1
+    narration: Hi! I'm Sam, nice to meet you.
+    caption: Hi! I'm Sam. Nice to meet you!
+    clip: {fileID: 8300000, guid: 3b71742a764649a43a1d5e57483e866f, type: 3}
+    mood: 1
+  afterSetupBeat: 0
+  afterShotId: 

@@ -46,6 +46,14 @@ Title → **save files** → level select (coins, **Dress up**) → **Eye Drops*
 - **Coins in development.** In the editor and development builds every save is topped up to 1000 coins (`CoinRules.DevCoins`) so the whole shop can be tried. Release builds start at zero and earn coins only from levels.
 - **Settings** (title, or the gear in a level, which pauses): sound volume, voice volume, captions, big text, move on by itself, less motion. **Reset game** asks twice.
 
+### Studio splash
+
+The game starts in `Scenes/Splash.unity`, about 3 seconds long. The logo, a lamp's lens holding an H whose crossbar is a little beam, sits unlit in the dark. A switch clicks, the lens lights up and throws a beam to the right, and the view shifts across as the rest of the name (INDSIGHT) shows as dark letters in the light, as if it had been standing there in shadow. Then the menu fades in. A tap skips it, and with **less motion** on the lit logo simply fades in and out, without sound.
+
+- The logo and the backdrop (glow and beam) are drawn by two shaders (`Shaders/SplashMark`, `Shaders/SplashBackdrop`); `StudioSplash` animates them and the letters as a function of time. **POC → Rebuild Splash** rebuilds the scene.
+- The sound is original, made by `Tools/SplashGen/make_splash_audio.py` (Python, no packages needed): a light switch clicking and a whoosh as the beam passes, no notes. Its cue times match the timeline in `StudioSplash.cs`: change them together and rerun the script.
+- `Builds/Windows/EyeCanDo.exe -splashrecord <folder>` saves every frame as PNGs (60 a second), for making a preview video.
+
 ### Open and run
 
 1. In Unity Hub choose **Add → Add project from disk** and pick `src/EyeCanDo` (editor 6000.6.2f1, with the Android and/or iOS modules).

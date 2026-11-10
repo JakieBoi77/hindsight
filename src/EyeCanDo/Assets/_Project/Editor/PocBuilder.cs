@@ -64,11 +64,8 @@ namespace Hindsight.EyeCanDo.EditorTools
             WriteNarrationScript(procedure);
             BuildEyeDropsScene(eyeDrops, procedure);
             BuildMenuScene(catalog);
-            EditorBuildSettings.scenes = new[]
-            {
-                new EditorBuildSettingsScene(MenuScenePath, true),
-                new EditorBuildSettingsScene(EyeDropsScenePath, true),
-            };
+            BuildSplashScene();
+            EditorBuildSettings.scenes = BuildScenePaths.Select(path => new EditorBuildSettingsScene(path, true)).ToArray();
             AssetDatabase.SaveAssets();
             EditorSceneManager.OpenScene(MenuScenePath);
             Debug.Log("PocBuilder: build complete.");
@@ -79,7 +76,7 @@ namespace Hindsight.EyeCanDo.EditorTools
         {
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
-                scenes = new[] { MenuScenePath, EyeDropsScenePath },
+                scenes = BuildScenePaths,
                 locationPathName = "Builds/Android/EyeCanDo.apk",
                 target = BuildTarget.Android,
                 options = BuildOptions.None,
@@ -94,7 +91,7 @@ namespace Hindsight.EyeCanDo.EditorTools
         {
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
-                scenes = new[] { MenuScenePath, EyeDropsScenePath },
+                scenes = BuildScenePaths,
                 locationPathName = "Builds/Windows/EyeCanDo.exe",
                 target = BuildTarget.StandaloneWindows64,
                 options = BuildOptions.None,

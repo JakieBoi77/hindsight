@@ -48,6 +48,14 @@ namespace Hindsight.EyeCanDo.DevTools
 
         IEnumerator Start()
         {
+            // The game opens on the studio splash (pictured once its beam is out); the menu follows by itself.
+            bool InMenu() => UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == GameFlow.MenuScene;
+            if (!InMenu())
+            {
+                yield return new WaitForSeconds(2f);
+                yield return Shot("splash");
+            }
+            yield return new WaitUntil(InMenu);
             yield return new WaitForSeconds(2f);
             yield return Shot("menu_title");
             yield return Burst("anim_title_doctor", 6, 0.2f);

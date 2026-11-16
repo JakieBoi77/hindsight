@@ -340,7 +340,7 @@ Hardware-Hiding Module & \misref{HH}{1} Hardware-Hiding Module \\
 & \misref{PlayerData}{5} Player Data Module \\
 & \misref{Prefs}{6} Preferences Module \\
 & \misref{Levels}{7} Level Catalogue Module \\
-& M8 Accessory Catalogue Module \\
+& \misref{Accessories}{8} Accessory Catalogue Module \\
 & M9 Procedure Content Module \\
 & M10 Procedure Runner Module \\
 & M11 Narration Module \\
@@ -2671,6 +2671,254 @@ or remove coins or owned accessories.
 RewardT uses the Accessory Catalogue's ItemT, as expected by the Player
 Data interface. This requires M7 to use M8. The MG's current Uses Relation
 omits this dependency and needs to include it.
+
+% =====================================================================
+\newpage
+\section{MIS of Accessory Catalogue Module} \label{mis:Accessories}
+
+\subsection{Module}
+
+AccessoryCatalogue (\misref{Accessories}{8})
+
+This module defines the characters and cosmetic accessories available in
+the game, their categories, and their prices. It provides the item
+definitions used for character selection, purchases, level rewards, and
+the default character. The same catalogue is used by every player and
+preparation level.
+
+\subsection{Uses}
+
+None.
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+None. The characters, accessories, accessory categories, and prices are
+defined by the content packaged with the application.
+
+\subsubsection{Exported Types}
+
+\begin{itemize}
+\item $\T{CategoryT}$: either the distinguished value $\V{Character}$,
+  which identifies a complete selectable character, or a non-empty String
+  identifying an accessory category, such as ``Hat'' or ``Glasses''.
+  The string ``Character'' is reserved and cannot name an accessory
+  category. The available categories are those represented in items();
+  the type can also represent category names from earlier releases.
+\item $\T{ItemT}$: the definition of one character or accessory,
+  \[\begin{array}{l}
+  \text{tuple of } (\T{category} : \text{CategoryT},\
+  \T{id} : \text{String},\ \T{name} : \text{String},\\
+  \phantom{\text{tuple of } (}\T{picture} : \text{ImageT},\
+  \T{price} : \N \cup \{\V{none}\}).
+  \end{array}\]
+  $\T{id}$ identifies the item within its category, $\T{name}$ is its
+  displayed name, and $\T{picture}$ is its catalogue illustration. An
+  item is identified across releases by its category and identifier,
+  independently of its name, picture, price, or position in the catalogue.
+\end{itemize}
+
+For an accessory, $\T{price}$ is its cost in coins. A value of 0 is a
+free purchase, while $\V{none}$ means that the accessory cannot be
+bought and is available through a level reward. An accessory with a price
+may also be given as a reward. Characters have $\T{price} = \V{none}$
+and are freely available for selection without a purchase
+(\srsitemref{FR_ChooseCharacter}{FR34},
+\srsitemref{FR_Shop}{FR36}). A price does not indicate whether a player
+owns or wears the item; that information belongs to the Wardrobe Module
+(\misref{Wardrobe}{4}).
+
+\subsubsection{Exported Access Programs}
+
+\begin{accessprogs}
+init & -- & -- & AlreadyInitialized\\
+items & -- & set of ItemT & --\\
+inCategory & $c$ : CategoryT & seq of ItemT & --\\
+shopItems & -- & seq of ItemT & --\\
+default & $c$ : CategoryT & ItemT $\cup \{\V{none}\}$ & --\\
+defaultLook & -- & set of ItemT & --\\
+\end{accessprogs}
+
+\subsection{Semantics}
+
+The catalogue is fixed after initialization for the running process.
+Query results are independent values: changing a returned item, sequence,
+or set does not change the catalogue. No query selects a character,
+grants an accessory, charges coins, or changes saved player data.
+
+\subsubsection{State Variables}
+
+\begin{itemize}
+\item $\T{all}$ : seq of ItemT, initially $\langle\rangle$, the
+  characters and accessories in the catalogue's display order.
+\item $\T{defaultCharacter}$ : ItemT $\cup \{\V{none}\}$, initially
+  $\V{none}$, the character displayed when a player has not selected one.
+\item $\T{ready}$ : $\B$, initially $\false$, whether initialization
+  has finished.
+\end{itemize}
+
+\subsubsection{Environment Variables}
+
+None. The definitions and illustrations are included with the application.
+Screen and character modules display the returned items.
+
+\subsubsection{State Invariant}
+
+Before initialization, $\T{all} = \langle\rangle$,
+$\T{defaultCharacter} = \V{none}$, and $\T{ready} = \false$.
+When $\T{ready}$ is $\true$:
+
+\begin{itemize}
+\item $\T{all}$ contains at least one character. Every entry has a
+  non-empty identifier and displayed name, and an illustration included
+  with the application. No two entries have the same category and
+  identifier.
+\item $\T{defaultCharacter}$ is an entry of $\T{all}$ whose category
+  is $\V{Character}$. Every character has $\T{price} = \V{none}$.
+\item Every accessory has a non-empty category name other than
+  ``Character''. Its price is a natural number of coins or $\V{none}$.
+  An unequipped category is represented by the absence of an item from
+  the player's look; there is no accessory entry representing ``nothing
+  worn''.
+\end{itemize}
+
+\subsubsection{Assumptions}
+
+\begin{itemize}
+\item init() is called before any query. Initialization finishes before
+  another call begins.
+\item The packaged catalogue is checked against the state invariant
+  before release. Its illustrations and the corresponding character and
+  accessory assets are available locally. The catalogue does not change
+  while the application runs (\srsitemref{NFR_Offline}{NFR19}).
+\item A retained category and identifier pair continues to identify the
+  same character or accessory across releases. A removed pair is not
+  reused for a different item, so saved ownership or equipment cannot be
+  assigned to a different accessory.
+\end{itemize}
+
+\subsubsection{Access Routine Semantics}
+
+\begin{samepage}
+\noindent init():
+\begin{itemize}
+\item transition: set $\T{all}$ to the character and accessory definitions
+  packaged with the application, in their defined display order. Set
+  $\T{defaultCharacter}$ to the designated character in that catalogue
+  and $\T{ready} := \true$. Initialization does not choose a character
+  for a player or give them any accessories.
+\item exception: $\exc := (\T{ready} \Rightarrow
+  \text{AlreadyInitialized})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent items():
+\begin{itemize}
+\item output: $\out :=$ the set containing every entry of $\T{all}$,
+  and no other values. This includes all characters, priced accessories,
+  and accessories available only as rewards. The set has no display
+  order; callers that need the order within a category use inCategory().
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent inCategory($c$):
+\begin{itemize}
+\item output: $\out :=$ the sequence of entries in $\T{all}$ whose
+  category is $c$, preserving their order in $\T{all}$. For
+  $c = \V{Character}$, this contains every selectable character.
+  If no entry has category $c$, return $\langle\rangle$.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent shopItems():
+\begin{itemize}
+\item output: $\out :=$ the sequence of entries in $\T{all}$ whose
+  category is not $\V{Character}$ and whose price is not $\V{none}$,
+  preserving their order in $\T{all}$. This includes every priced
+  accessory, including those with a price of 0. It includes owned items
+  and items a player cannot yet afford, since the shop must show their
+  price and ownership status (\srsitemref{FR_Shop}{FR36}). If there are
+  no priced accessories, return $\langle\rangle$.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent default($c$):
+\begin{itemize}
+\item output: $\out := (c = \V{Character} \Rightarrow
+  \T{defaultCharacter} \mid c \neq \V{Character} \Rightarrow
+  \V{none})$. Accessory categories have no default equipped item,
+  including when they contain a zero-price accessory. A category absent
+  from the catalogue also returns $\V{none}$.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent defaultLook():
+\begin{itemize}
+\item output: $\out := \{\T{defaultCharacter}\}$, a set containing the
+  default character and no accessories. This supplies the display when
+  no character has been selected, without recording a selection or
+  adding an item to the player's inventory
+  (\srsitemref{FR_ChooseCharacter}{FR34}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\subsubsection{Local Functions}
+
+None.
+
+\newpage
+\subsubsection{Considerations}
+
+The same characters and accessories are available throughout Vision
+Testing, Eye-Drop Preparation, Slit-Lamp Preparation, and any additional
+levels. The catalogue contents, accessory categories, prices, and default
+character can change between releases without changing these access
+programs (\srsitemref{LC_Characters}{LC5},
+\srsitemref{LC_Rewards}{LC4}). Wardrobe alignment matches saved items by
+category and identifier, so changes to a name, picture, price, or display
+order do not remove ownership of a retained item.
+
+Character entries describe complete selectable characters. The catalogue
+must include variation in skin tone, hair texture and style, body type,
+and gender expression, including characters with accessibility and
+medical devices such as glasses, an eye patch, or a wheelchair. The
+accessories must also represent a range of cultures and religions
+(\srsitemref{FR_DiverseCharacters}{FR35}). These are content requirements
+checked during review, including the inclusivity review of
+\srsitemref{NFR_Inclusivity}{NFR31}; the interface does not prescribe a
+fixed list of features or accessory categories.
+
+The default look uses the same representation, a set of items, as the
+Wardrobe and Character Rig interfaces. It provides a display when no
+character has been chosen. When a player already has equipped accessories,
+the display retains them and uses only the default character to fill an
+absent character selection.
+
+The Dress-Up Screen's existing $\T{shop}$ input contains every character
+and accessory. That combined screen needs the full catalogue; shopItems()
+supplies only the accessories that can be bought. A zero-price accessory
+still needs the purchase or reward ownership update before it can be
+equipped, and an accessory with no price must not offer a buy control.
+Wardrobe and Player Data handle those changes, while the catalogue
+supplies the definitions. All prices use in-game coins
+(\srsitemref{FR_NoRealMoney}{FR40}).
 
 % =====================================================================
 % M14 to M26 (Jake Finlay). The Uses of each module follow the Uses

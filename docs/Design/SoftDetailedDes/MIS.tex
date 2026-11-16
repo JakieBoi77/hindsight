@@ -233,7 +233,8 @@ $(c_1 \Rightarrow r_1 \mid c_2 \Rightarrow r_2)$ & Conditional rule: the result
 is $r_1$ when condition $c_1$ holds, and $r_2$ when $c_2$ holds. There may be
 any number of cases.\\
 $\wedge$, $\vee$, $\neg$ & and, or, not\\
-$=$, $<$, $\leq$, $\geq$ & equal, less than, at most, at least\\
+$=$, $\neq$, $<$, $\leq$, $\geq$ & equal, not equal, less than, at most,
+at least\\
 $x \in S$, $x \notin S$ & $x$ is, or is not, an element of the set $S$\\
 $S \subseteq U$, $S \not\subseteq U$ & every element of $S$ is also in $U$,
 or at least one is not\\
@@ -332,7 +333,7 @@ Hardware-Hiding Module & \misref{HH}{1} Hardware-Hiding Module \\
 \multirow{18}{0.31\textwidth}{Behaviour-Hiding Module}
 & \misref{Control}{2} Application Control Module \\
 & \misref{Progress}{3} Journey Progress Module \\
-& M4 Wardrobe Module \\
+& \misref{Wardrobe}{4} Wardrobe Module \\
 & M5 Player Data Module \\
 & M6 Preferences Module \\
 & M7 Level Catalogue Module \\
@@ -1296,6 +1297,292 @@ align() supports changes to the available procedures
 meaning for retained levels. Removing a level or changing its point value
 between releases can change the calculated scoreboard totals; alignment
 preserves the coin balance and does not award rewards for those changes.
+
+% =====================================================================
+\newpage
+\section{MIS of Wardrobe Module} \label{mis:Wardrobe}
+
+\subsection{Template Module}
+
+WardrobeT (\misref{Wardrobe}{4})
+
+This module manages one player's character selection and accessories. It
+records which accessories the player owns and which ones are worn, checks
+purchases against the player's coin balance, and accepts accessories given
+as level rewards. The same wardrobe is used throughout the journey.
+
+\subsection{Uses}
+
+Journey Progress Module (\misref{Progress}{3}), for ProgressT and its coins
+and spend access programs. Accessory Catalogue Module (M8), for ItemT,
+CategoryT, and the available characters and accessories.
+
+An ItemT has a category, an identifier, a name, a picture, and a price. The
+catalogue distinguishes the $\V{Character}$ category from accessory
+categories. Characters are available without purchase. An accessory's price
+is a natural number of coins or $\V{none}$ when it cannot be bought, as
+defined in the SRS data dictionary. A price of 0 is a free purchase; an
+absent price allows an item to be given only as a reward. An item is
+identified across catalogue versions by its category and identifier.
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+None. Characters, accessory categories, and prices come from the Accessory
+Catalogue Module.
+
+\subsubsection{Exported Types}
+
+WardrobeT = ?: the character selection and accessory inventory of one
+player. Each player has a separate instance.
+
+\subsubsection{Exported Access Programs}
+
+\begin{accessprogs}
+new WardrobeT & -- & WardrobeT & --\\
+owns & $i$ : ItemT & $\B$ & --\\
+look & -- & set of ItemT & --\\
+buy & $i$ : ItemT, $p$ : ProgressT & -- & AlreadyOwned, NotForSale, InsufficientCoins\\
+shortfall & $i$ : ItemT, $p$ : ProgressT & $\N$ & NotForSale\\
+grant & $i$ : ItemT & -- & --\\
+wear & $i$ : ItemT & -- & NotOwned\\
+remove & $c$ : CategoryT & -- & --\\
+align & -- & -- & --\\
+\end{accessprogs}
+
+\begin{samepage}
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+
+\begin{itemize}
+\item $\T{owned}$ : set of ItemT, the accessories bought with coins or
+  received as rewards. Characters are freely available and are not stored
+  in this set.
+\item $\T{worn}$ : set of ItemT, the selected character, if any, and the
+  accessories currently equipped. An absent character means that no
+  character has been selected. An absent accessory category means that
+  nothing is worn in that category.
+\end{itemize}
+\end{samepage}
+
+\subsubsection{Environment Variables}
+
+None. The Player Data Module (M5) handles saving and restoring the wardrobe.
+Screen and character modules display the look returned by this module.
+
+\subsubsection{State Invariant}
+
+\begin{itemize}
+\item $\T{owned}$ contains only accessories. It has no two entries with the
+  same category and identifier.
+\item $\T{worn}$ contains at most one item of each category, including at
+  most one selected character. Every accessory in $\T{worn}$ is also in
+  $\T{owned}$ (\srsitemref{FR_Equip}{FR39}).
+\end{itemize}
+
+After construction or align(), every stored item is an entry in the current
+catalogue. This remains true during play with an unchanged catalogue. A
+valid saved wardrobe from an earlier catalogue may contain older entries;
+align() updates them before the wardrobe is used.
+
+\subsubsection{Assumptions}
+
+\begin{itemize}
+\item AccessoryCatalogue.init() has been called before constructing or
+  aligning a wardrobe. The catalogue includes a default character, has
+  unique category and identifier pairs, and does not change while the
+  application runs. A retained pair identifies the same character or
+  accessory across releases.
+\item Item and category arguments come from the current catalogue. A
+  priced accessory has a non-negative integer price. Characters can be
+  chosen independently of the player's progress and owned accessories.
+\item Player Data validates a restored instance and calls align() before
+  any other access program is used on it. Missing, unreadable, or invalid
+  data is handled by Player Data through the persistence modules
+  (\srsitemref{FR_CorruptData}{FR30}).
+\item $p$ is the progress of the player who owns this wardrobe. Player
+  Data processes that player's changes one at a time and saves the combined
+  wardrobe and progress after a purchase or reward, before processing the
+  next input (\srsitemref{FR_PersistState}{FR28}).
+\end{itemize}
+
+\subsubsection{Access Routine Semantics}
+
+\begin{samepage}
+\noindent new WardrobeT():
+\begin{itemize}
+\item transition: $\T{owned}, \T{worn} := \{\}, \{\}$. No accessory is
+  owned or equipped, and no character is selected. The default character
+  is displayed until a character is chosen
+  (\srsitemref{FR_ChooseCharacter}{FR34}).
+\item output: $\out := \T{self}$
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent owns($i$):
+\begin{itemize}
+\item output: $\out := i.\T{category} = \V{Character} \vee
+  i \in \T{owned}$. For a character, this means it is available to choose;
+  it does not mean that the player has selected it. A zero-price accessory
+  is owned only after it has been bought or granted.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent look():
+\begin{itemize}
+\item output: $\out := \T{worn}$. This is the set of items accepted as
+  LookT by the Character Rig Module (\misref{Rig}{23}). When it contains
+  no character, the display uses the catalogue's default character without
+  recording a selection or adding any owned accessories.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent buy($i$, $p$):
+\begin{itemize}
+\item transition: call $p$.spend($i.\T{price}$) and set
+  $\T{owned} := \T{owned} \cup \{i\}$. These changes form one purchase.
+  The worn look, level statuses, and journey points are unchanged. Buying
+  an item whose price equals the balance leaves 0 coins. A zero-price
+  purchase adds the accessory without reducing the balance
+  (\srsitemref{FR_Purchase}{FR37}).
+\item exception: check the following conditions in order. If owns($i$) is
+  $\true$, $\exc := \text{AlreadyOwned}$. Otherwise, if
+  $i.\T{price} = \V{none}$, $\exc := \text{NotForSale}$. Otherwise,
+  if $i.\T{price} > p.\text{coins}()$,
+  $\exc := \text{InsufficientCoins}$. A refused purchase changes neither
+  the wardrobe nor $p$ (\srsitemref{FR_PurchaseRefused}{FR38}).
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent shortfall($i$, $p$):
+\begin{itemize}
+\item output: $\out := 0$ when owns($i$) is $\true$. Otherwise,
+  $\out := \max(0, i.\T{price} - p.\text{coins}())$, the extra coins
+  needed to buy the item (\srsitemref{FR_PurchaseRefused}{FR38}).
+\item exception: $\exc := (\neg\text{owns}(i) \wedge
+  i.\T{price} = \V{none} \Rightarrow \text{NotForSale})$. A reward-only
+  item has no purchase price from which to calculate a shortfall.
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent grant($i$):
+\begin{itemize}
+\item transition: when $i$ is an accessory, set
+  $\T{owned} := \T{owned} \cup \{i\}$. A character is already available,
+  so granting it has no effect. Granting an already owned accessory also
+  has no effect. No coins are charged, and the worn look is unchanged. A
+  reward may grant an accessory whether or not it has a shop price
+  (\srsitemref{FR_FirstReward}{FR31}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent wear($i$):
+\begin{itemize}
+\item transition:
+  \[
+  \T{worn} := \{j \in \T{worn} \mid
+  j.\T{category} \neq i.\T{category}\} \cup \{i\}.
+  \]
+  The item replaces the previously worn item of its category. All other
+  categories and $\T{owned}$ are unchanged. Choosing a character changes
+  only the character selection, keeping the equipped accessories. Wearing
+  an accessory keeps the selected character. Neither action changes coins
+  or progress, and wearing the same item again has no effect
+  (\srsitemref{FR_ChooseCharacter}{FR34},
+  \srsitemref{FR_Equip}{FR39}).
+\item exception: $\exc := (\neg\text{owns}(i) \Rightarrow
+  \text{NotOwned})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent remove($c$):
+\begin{itemize}
+\item transition:
+  $\T{worn} := \{j \in \T{worn} \mid j.\T{category} \neq c\}$.
+  Nothing is worn in category $c$ afterwards. The removed accessory stays
+  owned and can be worn again; other categories, coins, and progress are
+  unchanged. Removing $\V{Character}$ clears the selection and restores
+  the default display. Removing an empty category has no effect
+  (\srsitemref{FR_Equip}{FR39},
+  \srsitemref{FR_ChooseCharacter}{FR34}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent align():
+\begin{itemize}
+\item transition: match the saved items to AccessoryCatalogue.items() by
+  category and identifier. Replace each retained entry with its current
+  catalogue entry, including its current name, picture, and price.
+  $\T{owned}$ keeps exactly the previously owned accessories that still
+  exist. $\T{worn}$ keeps the previous character if it still exists and
+  each previously worn accessory that remains owned. Remove entries that
+  are no longer in the catalogue. New categories start empty; if the
+  selected character was removed, the default character is displayed.
+
+  Matching by identifier preserves ownership when a price or picture
+  changes. Alignment does not charge coins, give refunds, grant new items,
+  or change progress. It has no effect when the saved entries already
+  match the catalogue.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\subsubsection{Local Functions}
+
+None.
+
+\subsubsection{Considerations}
+
+The wardrobe is shared by Vision Testing, Eye-Drop Preparation, Slit-Lamp
+Preparation, and any additional levels. No procedure, reward item, price,
+or accessory category is fixed in this module. Coins earned in the game
+are the only currency used for purchases
+(\srsitemref{FR_NoRealMoney}{FR40}). align() supports changes to the
+catalogue and prices between releases
+(\srsitemref{LC_Characters}{LC5}, \srsitemref{LC_Rewards}{LC4}).
+
+The Player Data Module decides whether a completed level should give its
+accessory, using the first-completion check of Journey Progress. grant()
+records ownership but does not decide whether a level has earned a reward
+(\srsitemref{FR_NoDuplicateReward}{FR32}). A journey reset replaces the
+wardrobe with a new WardrobeT, clearing both inventory and character
+selection (\srsitemref{FR_ResetJourney}{FR45}).
+
+Previews belong to the Dress-Up Screen and Character Rig modules. They
+display a temporary look without calling wear(), so cancelling a preview
+does not change the saved wardrobe. A confirmed selection, purchase, or
+equipment change is saved through Player Data before the next input.
+
+buy() deducts coins through ProgressT, so a caller must not deduct that
+purchase again. The existing Dress-Up Screen interface returns spending
+when the screen closes, and Application Control applies that amount then.
+Those callers need to pass each confirmed purchase through Player Data
+with this wardrobe and its ProgressT, and remove the later deduction, to
+save each purchase together (\srsitemref{FR_PersistState}{FR28}).
 
 % =====================================================================
 % M14 to M26 (Jake Finlay). The Uses of each module follow the Uses

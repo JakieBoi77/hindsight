@@ -239,6 +239,11 @@ $S \subseteq U$, $S \not\subseteq U$ & every element of $S$ is also in $U$,
 or at least one is not\\
 $S \cup U$ & the set of the elements of $S$ and of $U$\\
 $\{\}$ & the empty set\\
+$\{x \in S \mid P(x)\}$ & the elements $x$ of $S$ for which condition
+$P(x)$ is true\\
+$|S|$ & the number of elements in set $S$\\
+$\sum_{x \in S} f(x)$ & the sum of $f(x)$ for every element $x$ of $S$;
+the sum is 0 when $S$ is empty\\
 $\{a \mapsto b,\ c \mapsto d\}$ & the function that gives $b$ for $a$ and $d$
 for $c$\\
 $f(a)$ & the value of function $f$ for $a$\\
@@ -326,7 +331,7 @@ Hardware-Hiding Module & \misref{HH}{1} Hardware-Hiding Module \\
 \midrule
 \multirow{18}{0.31\textwidth}{Behaviour-Hiding Module}
 & \misref{Control}{2} Application Control Module \\
-& M3 Journey Progress Module \\
+& \misref{Progress}{3} Journey Progress Module \\
 & M4 Wardrobe Module \\
 & M5 Player Data Module \\
 & M6 Preferences Module \\
@@ -970,6 +975,327 @@ Navigation history and the current exercise are kept only for the running
 process. After the application closes, startup restores saved player data
 and follows the acknowledgement check again. A level chosen after relaunch
 starts from its beginning (\srsitemref{FR_RestartAfterExit}{FR25}).
+
+% =====================================================================
+\newpage
+\section{MIS of Journey Progress Module} \label{mis:Progress}
+
+\subsection{Template Module}
+
+ProgressT (\misref{Progress}{3})
+
+This module manages one player's completion status for each preparation level
+and their coin balance. It also calculates the journey points and completion
+counts used by the scoreboard. Progress is recorded for a whole preparation
+level, rather than for the individual exercises within it.
+
+\subsection{Uses}
+
+Level Catalogue Module (M7), for LevelIdT and each level's reward definition.
+LevelIdT identifies a preparation level by its catalogue name, independently
+of its position in the journey. The catalogue supplies the set of available
+identifiers and the points and coins awarded for each level.
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+None. The available levels and their rewards come from the Level Catalogue
+Module.
+
+\subsubsection{Exported Types}
+
+\begin{itemize}
+\item $\T{StatusT} = \{\V{NotStarted}, \V{InProgress}, \V{Completed}\}$:
+  the level statuses defined in the SRS
+  (\srsitemref{def_Status}{D1}). $\V{NotStarted}$ means the level has not
+  been started, $\V{InProgress}$ means it has been started but not completed,
+  and $\V{Completed}$ means it has been completed at least once since the
+  last journey reset.
+\item ProgressT = ?: the journey progress of one player. Each player has a
+  separate instance.
+\end{itemize}
+
+\subsubsection{Exported Access Programs}
+
+\begin{accessprogs}
+new ProgressT & -- & ProgressT & --\\
+status & $l$ : LevelIdT & StatusT & UnknownLevel\\
+coins & -- & $\N$ & --\\
+start & $l$ : LevelIdT & -- & UnknownLevel\\
+finish & $l$ : LevelIdT & -- & UnknownLevel\\
+spend & $n$ : $\N$ & -- & InsufficientCoins\\
+reset & -- & -- & --\\
+align & -- & -- & --\\
+pointsEarned & $l$ : LevelIdT & $\N$ & UnknownLevel\\
+totalPoints & -- & $\N$ & --\\
+completedCount & -- & $\N$ & --\\
+levelCount & -- & $\N$ & --\\
+\end{accessprogs}
+
+\subsection{Semantics}
+
+The state and the start, finish, and reset operations follow the SRS formal
+model (\srsitemref{def_Player}{D2}, \srsitemref{def_Ops}{D4}). Leaving a level
+has no effect on this state, so there is no separate exit access program.
+The caller leaves the current status and balance unchanged when a level is
+abandoned (\srsitemref{FR_ExitKeepsData}{FR24}).
+
+\subsubsection{State Variables}
+
+\begin{itemize}
+\item $\T{levelStatus}$ : LevelIdT $\rightharpoonup$ StatusT, the status
+  recorded for each level represented in this player's progress.
+\item $\T{balance}$ : $\N$, the player's current coin balance.
+\end{itemize}
+
+Journey points and completion counts are calculated from these values and
+the catalogue. They are not stored as separate state variables
+(\srsitemref{def_Scoreboard}{D3}).
+
+\subsubsection{Environment Variables}
+
+None. The Player Data Module (M5) handles saving and restoring progress.
+
+\subsubsection{State Invariant}
+
+The domain of $\T{levelStatus}$ is finite and non-empty, every entry has
+exactly one value from StatusT, and $\T{balance} \geq 0$.
+
+After construction, reset(), or align(),
+\[
+\T{dom}(\T{levelStatus}) = \text{LevelCatalogue.ids}().
+\]
+The other access programs do not add or remove entries, so this equality
+holds throughout play with an unchanged catalogue. A valid saved instance
+from an earlier catalogue may contain different identifiers; align() brings
+it into agreement before it is used.
+
+\subsubsection{Assumptions}
+
+\begin{itemize}
+\item The Level Catalogue Module is initialized before constructing or
+  aligning progress. Its identifier set is finite and non-empty, and each
+  level's points and coin reward are natural numbers. The catalogue and
+  reward definitions do not change while the application runs.
+\item Player Data validates a restored instance and calls align() before
+  any other access program is used on it. Missing, unreadable, or invalid
+  data is handled by Player Data through the persistence modules
+  (\srsitemref{FR_CorruptData}{FR30}).
+\item Player Data serializes updates for one player, including the
+  first-completion check, the progress change, any accessory grant, and
+  saving the resulting player state. A caller reports completion only when
+  the preparation level has reached its end.
+\end{itemize}
+
+\subsubsection{Access Routine Semantics}
+
+\begin{samepage}
+\noindent new ProgressT():
+\begin{itemize}
+\item transition: $\T{levelStatus}, \T{balance} := \T{fresh}(), 0$.
+  Every current catalogue level starts as $\V{NotStarted}$, giving the new
+  player state of \srsitemref{def_Player}{D2}.
+\item output: $\out := \T{self}$
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent status($l$):
+\begin{itemize}
+\item output: $\out := \T{levelStatus}(l)$
+\item exception: $\exc := (l \notin \T{dom}(\T{levelStatus}) \Rightarrow
+  \text{UnknownLevel})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent coins():
+\begin{itemize}
+\item output: $\out := \T{balance}$
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent start($l$):
+\begin{itemize}
+\item transition: when $\T{levelStatus}(l)$ is $\V{NotStarted}$ or
+  $\V{InProgress}$, set $\T{levelStatus}(l) := \V{InProgress}$. A
+  $\V{Completed}$ level stays $\V{Completed}$. The balance and every other
+  level's status are unchanged. There is no restriction based on other
+  levels, journey points, or rewards
+  (\srsitemref{FR_StartLevel}{FR4}, \srsitemref{FR_Replay}{FR5}).
+\item exception: $\exc := (l \notin \T{dom}(\T{levelStatus}) \Rightarrow
+  \text{UnknownLevel})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent finish($l$):
+\begin{itemize}
+\item transition: when $\T{levelStatus}(l) = \V{InProgress}$,
+  \[
+  \T{levelStatus}(l), \T{balance} := \V{Completed},\
+  \T{balance} + \T{coinReward}(l).
+  \]
+  This also makes the level's points count towards totalPoints(). If the
+  level is $\V{NotStarted}$ or $\V{Completed}$, nothing changes, as required
+  by the guard in \srsitemref{def_Ops}{D4}. Other levels are unchanged.
+  A level with a zero coin reward still becomes $\V{Completed}$. Repeating
+  finish on a completed level gives no further points or coins
+  (\srsitemref{FR_FirstReward}{FR31},
+  \srsitemref{FR_NoDuplicateReward}{FR32}).
+\item exception: $\exc := (l \notin \T{dom}(\T{levelStatus}) \Rightarrow
+  \text{UnknownLevel})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent spend($n$):
+\begin{itemize}
+\item transition: $\T{balance} := \T{balance} - n$. Level statuses and
+  journey points are unchanged. Spending 0 has no effect; spending the
+  available balance leaves 0 coins
+  (\srsitemref{FR_Purchase}{FR37}).
+\item exception: $\exc := (n > \T{balance} \Rightarrow
+  \text{InsufficientCoins})$. The balance stays unchanged when the player
+  cannot afford the amount (\srsitemref{FR_PurchaseRefused}{FR38}).
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent reset():
+\begin{itemize}
+\item transition: $\T{levelStatus}, \T{balance} := \T{fresh}(), 0$.
+  Every current level becomes $\V{NotStarted}$, and the calculated journey
+  points and completion count become 0. This is the progress part of the
+  journey reset (\srsitemref{FR_ResetJourney}{FR45}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent align():
+\begin{itemize}
+\item transition: replace $\T{levelStatus}$ with a map containing exactly
+  the current catalogue identifiers. Keep the previous status for each
+  identifier that is still present, use $\V{NotStarted}$ for each new
+  identifier, and remove entries for identifiers no longer in the catalogue.
+  Keep $\T{balance}$ unchanged. Alignment gives no rewards and has no effect
+  when the identifiers already match.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent pointsEarned($l$):
+\begin{itemize}
+\item output: $\out := \T{points}(l)$ when
+  $\T{levelStatus}(l) = \V{Completed}$, and 0 otherwise. This is the
+  earned-points value for one scoreboard row
+  (\srsitemref{FR_Scoreboard}{FR33}).
+\item exception: $\exc := (l \notin \T{dom}(\T{levelStatus}) \Rightarrow
+  \text{UnknownLevel})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent totalPoints():
+\begin{itemize}
+\item output:
+  $\displaystyle \out := \sum_{l \in \T{completed}()} \T{points}(l)$,
+  the points for completed levels only (\srsitemref{def_Scoreboard}{D3}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent completedCount():
+\begin{itemize}
+\item output: $\out := |\T{completed}()|$, the number of completed levels
+  (\srsitemref{def_Scoreboard}{D3}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent levelCount():
+\begin{itemize}
+\item output: $\out := |\T{dom}(\T{levelStatus})|$, the total number of
+  preparation levels in the current catalogue.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\subsubsection{Local Functions}
+
+\noindent $\T{fresh}$ : $() \to (\text{LevelIdT} \rightharpoonup \text{StatusT})$
+
+$\out :=$ a map with one entry for each identifier in LevelCatalogue.ids(),
+all set to $\V{NotStarted}$, and no other entries.
+
+\noindent $\T{points}$ : $\text{LevelIdT} \rightharpoonup \N$
+
+$\T{points}(l)$ is LevelCatalogue.level($l$).reward.points, the journey
+points defined for finishing level $l$.
+
+\noindent $\T{coinReward}$ : $\text{LevelIdT} \rightharpoonup \N$
+
+$\T{coinReward}(l)$ is LevelCatalogue.level($l$).reward.coins, the coins
+defined for finishing level $l$. A reward with no coins has a value of 0.
+Both reward lookups are defined only for identifiers in LevelCatalogue.ids().
+
+\noindent $\T{completed}$ : $() \to \text{set of LevelIdT}$
+\[
+\out := \{l \in \T{dom}(\T{levelStatus}) \mid
+\T{levelStatus}(l) = \V{Completed}\}.
+\]
+
+\subsubsection{Considerations}
+
+The same rules apply to Vision Testing, Eye-Drop Preparation, Slit-Lamp
+Preparation, and any additional catalogue levels. No level count, reward
+amount, exercise type, or age-group variant is fixed in this module.
+Incorrect answers, hints, and skipped exercises do not reduce progress or
+change the reward for reaching the end of a level
+(\srsitemref{FR_NoPenalty}{FR19}).
+
+With a fixed catalogue, start and finish preserve the SRS properties that
+every level remains available, completion survives replay, and each level's
+reward is given once between resets
+(\srsitemref{thm_Start}{T1}, \srsitemref{thm_StatusMachine}{T2},
+\srsitemref{thm_Once}{T3}). Leaving a level changes nothing. Spending coins
+reduces only the balance; it does not remove completed statuses or journey
+points. Spending is outside the operations covered by
+\srsitemref{thm_NoLoss}{T4}.
+
+The Player Data Module coordinates this instance with the player's wardrobe
+and saved record. It checks whether the level was $\V{InProgress}$ before
+finish(), grants any first-completion accessory through the Wardrobe Module,
+and saves the combined result before the next input. It also clears the
+character, accessories, and nickname when applying a full journey reset
+(\srsitemref{FR_PersistState}{FR28}, \srsitemref{FR_FirstReward}{FR31},
+\srsitemref{FR_ResetJourney}{FR45}).
+
+align() supports changes to the available procedures
+(\srsitemref{LC_Procedures}{LC2}). Catalogue identifiers must retain their
+meaning for retained levels. Removing a level or changing its point value
+between releases can change the calculated scoreboard totals; alignment
+preserves the coin balance and does not award rewards for those changes.
 
 % =====================================================================
 % M14 to M26 (Jake Finlay). The Uses of each module follow the Uses

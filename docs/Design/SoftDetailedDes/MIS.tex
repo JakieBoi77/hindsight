@@ -4147,11 +4147,29 @@ screen is shown.
 
 \begin{itemize}
     \item Claude (Opus 5.5), used through Claude Code
+    \item GPT-6.1 Sol, used through Codex
 \end{itemize}
 
 \subsection{How and Where Used}
 
 \begin{itemize}
+    \item In the Introduction, GPT-6.1 Sol was used to help draft a clear, concise description
+    of EyeCanDo using project documentation. It also was used to
+    add links to the published SRS and Module Guide, and to the project
+    repository.
+
+    \item In the specifications of M1 to M13, GPT-6.1 Sol was used to help draft each module
+    one at a time using the team's earlier MIS draft and the current MG,
+    with the SRS providing further context. The initial drafts
+    focused on the game more generally than the Eye Drop portion of the PoC.
+    The author then directed revisions to keep the detail supported by the
+    earlier draft and relevant to the current PoC, while leaving future
+    functionality included but marked as TBD. The interfaces were revised to
+    match the Uses Relation table of the MG, and the content was checked again
+    against both the MG and the earlier draft. Symbols, abbreviations, and
+    notation were updated as needed, and entries that were no longer used
+    after revision were removed.
+
     \item In \hyperref[SecNotation]{Section~\ref*{SecNotation} (Notation)},
     Claude Opus 5.5 drafted tables that define every type and symbol used in
     the specifications of M14 to M26, and an explanation of each part of a
@@ -4188,7 +4206,7 @@ screen is shown.
 
 \subsection{Verification of AI-Generated Content}
 
-The Uses of each module in M14 to M26 were compared with the Uses Relation
+The Uses of each module in M1 to M26 were compared with the Uses Relation
 table of the MG, and the type of each module was compared with its type in the
 MG module decomposition. Every requirement number was checked against the
 current SRS, and every exported constant was checked against the SRS table of

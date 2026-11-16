@@ -111,9 +111,25 @@ urlcolor=cyan          % color of external links
 
 \section{Symbols, Abbreviations and Acronyms}
 
-See SRS Documentation at \wss{give url}
+The application terms and requirement abbreviations are defined in the SRS
+(\srsitemref{sec_DefinitionsAndAcronyms}{Section~1.4}). The following
+abbreviations are used in this document. Mathematical symbols and type notation
+are defined in Section~\ref{SecNotation}, while types specific to a module are
+defined in that module's specification.
 
-\wss{Also add any additional symbols, abbreviations or acronyms}
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{l p{10cm}}
+\toprule
+\textbf{Abbreviation} & \textbf{Description}\\
+\midrule
+ADT & Abstract Data Type\\
+MG & Module Guide\\
+MIS & Module Interface Specification\\
+OS & Operating System\\
+\bottomrule
+\end{tabular}
+\end{center}
 
 \newpage
 
@@ -156,6 +172,8 @@ string & String & a sequence of characters, such as ``Sam''. ``'' is the empty
 string.\\
 picture & ImageT & a picture that can be shown on the screen, such as an
 illustration or an icon\\
+recording & AudioT & a recorded sound included with the application, such as
+narration, music, or a sound effect\\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -182,6 +200,10 @@ tuple of $(x : T_1,\ y : T_2)$ & A tuple: a record with a field $x$ of type
 $T_1$ and a field $y$ of type $T_2$.\\
 $A \to B$ & A function that gives a value of type $B$ for each value of type
 $A$.\\
+$A \rightharpoonup B$ & A partial function: a function that gives a value of
+type $B$ for some, but not necessarily all, values of type $A$.\\
+$() \to ()$ & A callback: a routine with no inputs and no output, registered
+to run when an event occurs.\\
 $T \cup \{\V{none}\}$ & The values of type $T$ and the extra value $\V{none}$,
 which means ``no value''.\\
 $X = ?$ & An abstract data type $X$. Its values can only be created and used
@@ -219,6 +241,10 @@ $\{\}$ & the empty set\\
 $\{a \mapsto b,\ c \mapsto d\}$ & the function that gives $b$ for $a$ and $d$
 for $c$\\
 $f(a)$ & the value of function $f$ for $a$\\
+$\T{dom}(f)$ & the set of inputs for which function $f$ has a value\\
+$f(a) := b$ & change the value of $f$ at $a$ to $b$, leaving its other values
+unchanged; for a partial function, this also adds $a$ to its domain if needed\\
+$\min(a,b)$, $\max(a,b)$ & the smaller and larger of $a$ and $b$, respectively\\
 $\langle a, b \rangle$, $\langle\rangle$ & the sequence of $a$ then $b$, and
 the empty sequence\\
 $s[i]$ & the element at position $i$ of sequence $s$, counting from 0\\
@@ -292,7 +318,7 @@ The following table is taken directly from the Module Guide document for this pr
 \toprule
 \textbf{Level 1} & \textbf{Level 2} \\
 \midrule
-Hardware-Hiding Module & M1 Hardware-Hiding Module \\
+Hardware-Hiding Module & \misref{HH}{1} Hardware-Hiding Module \\
 \midrule
 \multirow{18}{0.31\textwidth}{Behaviour-Hiding Module}
 & M2 Application Control Module \\
@@ -327,76 +353,326 @@ Hardware-Hiding Module & M1 Hardware-Hiding Module \\
 \end{table}
 
 \newpage
-\section{MIS of \wss{Module Name}} \label{Module} \wss{Use labels for
-  cross-referencing}
-
-\wss{You can reference SRS labels, such as R\ref{R_Inputs}.}
-
-\wss{It is also possible to use \LaTeX for hypperlinks to external documents.}
+\section{MIS of Hardware-Hiding Module} \label{mis:HH}
 
 \subsection{Module}
 
-\wss{Short name for the module}
+HardwareHiding (\misref{HH}{1})
+
+This module provides access to the device services used throughout
+\progname{}, including local storage, audio playback, touch input, and scene
+display. It hides the differences between the supported devices so that the
+same services can be used by every preparation level and application screen.
 
 \subsection{Uses}
 
+None. These services are provided by the operating system (OS) and the game
+engine. The specification describes the services that \progname{} requires
+from them.
 
 \subsection{Syntax}
 
 \subsubsection{Exported Constants}
 
+None.
+
+\subsubsection{Exported Types}
+
+\begin{itemize}
+\item $\T{ChannelT} = \{\V{Voice}, \V{Music}, \V{Effects}\}$: the channels
+  for narration, background music, and sound effects. Each channel can play
+  one recording at a time.
+\item $\T{SceneT} = \text{String}$: an identifier for a game scene. The
+  available scenes are included with the application. A scene can be shared
+  by multiple preparation levels.
+\item $\T{TouchT} = \text{tuple of } (\T{id} : \N,\ x : \R,\ y : \R,\
+  \T{down} : \B)$: one touch contact. Its identifier stays the same until the
+  contact ends. The coordinates are measured in millimetres from the bottom
+  left of the display, with $x$ increasing to the right and $y$ increasing
+  upwards. $\T{down}$ is $\true$ while the finger is touching the display,
+  and $\false$ when the contact has ended or been cancelled in the current
+  frame.
+\end{itemize}
+
 \subsubsection{Exported Access Programs}
 
-\begin{center}
-\begin{tabular}{p{2cm} p{4cm} p{4cm} p{2cm}}
-\hline
-\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
-\hline
-\wss{accessProg} & - & - & - \\
-\hline
-\end{tabular}
-\end{center}
+\begin{accessprogs}
+readFile & $n$ : String & String & FileMissing, ReadFailed\\
+writeFile & $n$ : String, $c$ : String & -- & WriteFailed\\
+replaceFile & $\T{src}$ : String, $\T{dst}$ : String & -- & FileMissing, WriteFailed\\
+deleteFile & $n$ : String & -- & --\\
+fileExists & $n$ : String & $\B$ & --\\
+playAudio & $a$ : AudioT, $v$ : $\R$, $\T{ch}$ : ChannelT & -- & --\\
+stopAudio & $\T{ch}$ : ChannelT & -- & --\\
+pauseAudio & -- & -- & --\\
+resumeAudio & -- & -- & --\\
+isMuted & -- & $\B$ & --\\
+touches & -- & set of TouchT & --\\
+loadScene & $s$ : SceneT & -- & UnknownScene, SceneLoadFailed\\
+onBackground & $f$ : $() \to ()$ & -- & --\\
+onForeground & $f$ : $() \to ()$ & -- & --\\
+now & -- & $\R$ & --\\
+random & $n$ : $\N$ & $\N$ & InvalidBound\\
+\end{accessprogs}
 
 \subsection{Semantics}
 
 \subsubsection{State Variables}
 
-\wss{Not all modules will have state variables.  State variables give the module
-  a memory.}
+None. The OS and game engine maintain the resources described below.
 
 \subsubsection{Environment Variables}
 
-\wss{This section is not necessary for all modules.  Its purpose is to capture
-  when the module has external interaction with the environment, such as for a
-  device driver, screen interface, keyboard, file, etc.}
+\begin{itemize}
+\item $\T{files}$ : String $\rightharpoonup$ String, the names and contents of
+  files in the application's private storage. A name belongs to
+  $\T{dom}(\T{files})$ only when that file exists
+  (\srsitemref{NFR_DataProtection}{NFR26}).
+\item $\T{screen}$: the device display, showing the current scene and its
+  screen overlays.
+\item $\T{speaker}$: the device's audio output, including the recording,
+  playback position, and volume of each channel, whether playback is paused,
+  and the device's mute and media-volume settings. Initially, all channels
+  are empty and playback is not paused.
+\item $\T{touchscreen}$ : set of TouchT, the contacts reported by the touch
+  sensor for the current frame.
+\item $\T{scenes}$ : set of SceneT, the scene identifiers included with the
+  installed application.
+\item $\T{lifecycle}$: the application's foreground or interrupted status,
+  and the background and foreground callbacks registered with the platform.
+  Initially, neither callback is registered.
+\item $\T{clock}$ : $\R$, the elapsed time in seconds since the application
+  was launched. It starts at 0 and never decreases.
+\end{itemize}
+
+\subsubsection{State Invariant}
+
+None.
 
 \subsubsection{Assumptions}
 
-\wss{Try to minimize assumptions and anticipate programmer errors via
-  exceptions, but for practical purposes assumptions are sometimes appropriate.}
+\begin{itemize}
+\item The OS and game engine initialize these services before any access
+  program is called. Recordings and scenes are packaged with the application.
+\item File names are non-empty names within the application's private
+  storage. The source and destination of replaceFile are different files.
+\item Calls that change the same file, audio channel, or scene are processed
+  one at a time. Existing files passed to deleteFile can be removed by the
+  application.
+\end{itemize}
 
 \subsubsection{Access Routine Semantics}
 
-\noindent \wss{accessProg}():
+\begin{samepage}
+\noindent readFile($n$):
 \begin{itemize}
-\item transition: \wss{if appropriate} 
-\item output: \wss{if appropriate} 
-\item exception: \wss{if appropriate} 
+\item output: $\out := \T{files}(n)$
+\item exception: $\exc := (n \notin \T{dom}(\T{files}) \Rightarrow
+  \text{FileMissing} \mid \text{the existing file cannot be read}
+  \Rightarrow \text{ReadFailed})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\wss{A module without environment variables or state variables is unlikely to
-  have a state transition.  In this case a state transition can only occur if
-  the module is changing the state of another module.}
+\begin{samepage}
+\noindent writeFile($n$, $c$):
+\begin{itemize}
+\item transition: $\T{files}(n) := c$. The file is created if it does not
+  already exist, or its contents are replaced if it does.
+\item exception: $\exc := (\text{the file cannot be written} \Rightarrow
+  \text{WriteFailed})$. A failed write leaves the previous contents unchanged,
+  or leaves the file absent if it did not exist.
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\wss{Modules rarely have both a transition and an output.  In most cases you
-  will have one or the other.}
+\begin{samepage}
+\noindent replaceFile($\T{src}$, $\T{dst}$):
+\begin{itemize}
+\item transition: $\T{files}(\T{dst}) := \T{files}(\T{src})$, and
+  $\T{src}$ is removed from $\T{dom}(\T{files})$. The destination is created
+  if it does not exist. The replacement is one indivisible change, so a
+  failure or interruption leaves both files as they were before the change
+  (\srsitemref{FR_PersistState}{FR28}).
+\item exception: $\exc := (\T{src} \notin \T{dom}(\T{files}) \Rightarrow
+  \text{FileMissing} \mid \text{the existing source cannot be moved}
+  \Rightarrow \text{WriteFailed})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent deleteFile($n$):
+\begin{itemize}
+\item transition: $n$ is removed from $\T{dom}(\T{files})$. Nothing changes
+  when the file does not exist.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent fileExists($n$):
+\begin{itemize}
+\item output: $\out := n \in \T{dom}(\T{files})$
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent playAudio($a$, $v$, $\T{ch}$):
+\begin{itemize}
+\item transition: $\T{speaker}$ plays recording $a$ from the beginning on
+  channel $\T{ch}$ at volume $\max(0, \min(1, v))$. A volume of 0 is silent,
+  and 1 is the recording's full volume, subject to the device's volume
+  settings. The recording replaces any recording on that channel. If audio
+  is paused, the new recording remains at its beginning until resumeAudio
+  is called.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent stopAudio($\T{ch}$):
+\begin{itemize}
+\item transition: $\T{speaker}$ stops and clears the recording on channel
+  $\T{ch}$, including a paused recording. Calling resumeAudio does not
+  restart a cleared recording. Nothing changes when the channel is empty.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent pauseAudio():
+\begin{itemize}
+\item transition: $\T{speaker}$ pauses all channels and keeps their playback
+  positions. Playback positions do not advance while audio is paused.
+  Nothing changes if audio is already paused
+  (\srsitemref{FR_Suspend}{FR27}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent resumeAudio():
+\begin{itemize}
+\item transition: $\T{speaker}$ continues each paused recording from its
+  saved position. Nothing changes if audio is not paused
+  (\srsitemref{FR_Suspend}{FR27}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent isMuted():
+\begin{itemize}
+\item output: $\out := \true$ when the device's audio output is muted or its
+  media volume is 0, and $\false$ otherwise. The Narration Module (M11) uses
+  this result when providing guidance for muted audio
+  (\srsitemref{FR_NarrationFallback}{FR16}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent touches():
+\begin{itemize}
+\item output: $\out := \T{touchscreen}$. The set contains each current
+  contact and any contact that ended or was cancelled in this frame. Contact
+  identifiers are distinct within the set. An ended contact is reported for
+  one frame only. The result is the empty set when there are no contacts to
+  report, and repeated calls in the same frame return the same set.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent loadScene($s$):
+\begin{itemize}
+\item transition: $\T{screen}$ shows scene $s$. The objects belonging to the
+  previous scene are removed when the new scene is ready. The routine
+  returns when the new scene is available for use.
+\item exception: $\exc := (s \notin \T{scenes} \Rightarrow
+  \text{UnknownScene} \mid \text{an included scene cannot be loaded}
+  \Rightarrow \text{SceneLoadFailed})$. The current scene is retained if
+  loading fails.
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent onBackground($f$):
+\begin{itemize}
+\item transition: $\T{lifecycle}$ registers $f$ as the background callback,
+  replacing any previous callback of this kind. Registration does not call
+  $f$. The platform calls it when the application moves to the background,
+  the device is locked, or an interruption takes over the audio or screen.
+  Further interruption events while the application is already interrupted
+  do not call it again (\srsitemref{FR_Suspend}{FR27}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent onForeground($f$):
+\begin{itemize}
+\item transition: $\T{lifecycle}$ registers $f$ as the foreground callback,
+  replacing any previous callback of this kind. Registration does not call
+  $f$. The platform calls it when the application is in the foreground and
+  all interruptions that took over its audio or screen have ended. A
+  notification that takes over neither does not trigger either callback
+  (\srsitemref{FR_Suspend}{FR27}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent now():
+\begin{itemize}
+\item output: $\out := \T{clock}$. This is elapsed time, including time spent
+  interrupted, rather than the device's calendar time. Changing the device's
+  date or time does not change this clock.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent random($n$):
+\begin{itemize}
+\item output: $\out :=$ a natural number from 0 to $n - 1$, with each number
+  equally likely.
+\item exception: $\exc := (n = 0 \Rightarrow \text{InvalidBound})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
 \subsubsection{Local Functions}
 
-\wss{As appropriate} \wss{These functions are for the purpose of specification.
-  They are not necessarily something that is going to be implemented
-  explicitly.  Even if they are implemented, they are not exported; they only
-  have local scope.}
+None.
+
+\subsubsection{Considerations}
+
+These services support Vision Testing, Eye-Drop Preparation, Slit-Lamp
+Preparation, and all child and caregiver screens. The OS and game engine
+handle device differences (\srsitemref{NFR_Portability}{NFR24}). Every service
+uses only local resources, with no network communication or data sent off the
+device (\srsitemref{NFR_Offline}{NFR19}, \srsitemref{NFR_Privacy}{NFR28}).
+
+The Data File Module (\misref{DataFile}{20}) uses the file services to
+preserve saves on failure. The Application Control Module (M2) registers
+callbacks to coordinate pausing and resuming. Modules using now() for gameplay
+timers must exclude interrupted time so that unfinished content is not
+skipped (\srsitemref{FR_Suspend}{FR27}).
 
 % =====================================================================
 % M14 to M26 (Jake Finlay). The Uses of each module follow the Uses

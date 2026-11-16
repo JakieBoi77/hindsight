@@ -198,6 +198,9 @@ set of $T$ & A set: an unordered collection of values of type $T$, with no
 repeats.\\
 tuple of $(x : T_1,\ y : T_2)$ & A tuple: a record with a field $x$ of type
 $T_1$ and a field $y$ of type $T_2$.\\
+$A \times B$ & The type of ordered pairs $(a,b)$, where $a$ has type $A$
+and $b$ has type $B$. For a function on these pairs, $f(a,b)$ means
+$f((a,b))$.\\
 $A \to B$ & A function that gives a value of type $B$ for each value of type
 $A$.\\
 $A \rightharpoonup B$ & A partial function: a function that gives a value of
@@ -341,7 +344,7 @@ Hardware-Hiding Module & \misref{HH}{1} Hardware-Hiding Module \\
 & \misref{Prefs}{6} Preferences Module \\
 & \misref{Levels}{7} Level Catalogue Module \\
 & \misref{Accessories}{8} Accessory Catalogue Module \\
-& M9 Procedure Content Module \\
+& \misref{Content}{9} Procedure Content Module \\
 & M10 Procedure Runner Module \\
 & M11 Narration Module \\
 & M12 Player Select Screen Module \\
@@ -2919,6 +2922,317 @@ equipped, and an accessory with no price must not offer a buy control.
 Wardrobe and Player Data handle those changes, while the catalogue
 supplies the definitions. All prices use in-game coins
 (\srsitemref{FR_NoRealMoney}{FR40}).
+
+% =====================================================================
+\newpage
+\section{MIS of Procedure Content Module} \label{mis:Content}
+
+\subsection{Module}
+
+ProcedureContent (\misref{Content}{9})
+
+This module defines the content of each preparation level and its
+caregiver guide entry. It provides the steps in their presentation order,
+including the instructions, questions, feedback, and sensation
+descriptions. It also selects the content for an age group when that
+content is available, and the level's default content otherwise.
+
+\subsection{Uses}
+
+Preferences Module (\misref{Prefs}{6}), for AgeGroupT;
+Level Catalogue Module (\misref{Levels}{7}), for LevelIdT and the levels
+and ids access programs; and Narration Module (M11), for LineT, which
+describes a narrated line and its accompanying visual cue and recording.
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+\begin{itemize}
+\item $\T{SENTENCE\_MAX\_WORDS} = 10$: the maximum number of words in
+  a narrated sentence.
+\item $\T{ADULT\_TEXT\_MAX\_GRADE} = 8$: the maximum reading grade of
+  caregiver guide text.
+\end{itemize}
+Both values come from the SRS table of constants and apply to every
+preparation level and guide entry (\srsitemref{NFR_Language}{NFR8}).
+
+\subsubsection{Exported Types}
+
+\begin{itemize}
+\item $\T{StepKindT} = \{\V{Panel}, \V{Demonstration},
+  \V{Exercise}, \V{Question}\}$: an explanation, an animated
+  demonstration, an interactive activity, or a question, respectively.
+  A step is one part of a preparation level; it is not a separate level
+  for progress or rewards.
+\item $\T{AnswerT}$: one answer offered by a question,
+  \[\begin{array}{l}
+  \text{tuple of } (\T{picture} : \text{ImageT},\
+  \T{line} : \text{LineT},\ \T{correct} : \B).
+  \end{array}\]
+  $\T{picture}$ identifies the answer visually. $\T{line}$ explains
+  the answer when it is presented or revealed, and $\T{correct}$ states
+  whether it is a correct answer to that question.
+\item $\T{StepT}$: the content of one step,
+  \[\begin{array}{l}
+  \text{tuple of } (\T{id} : \text{String},\
+  \T{kind} : \text{StepKindT},\ \T{lines} : \text{seq of LineT},\\
+  \phantom{\text{tuple of } (}\T{activity} : \text{String}
+  \cup \{\V{none}\},\ \T{hint} : \text{LineT}
+  \cup \{\V{none}\},\\
+  \phantom{\text{tuple of } (}\T{feedback} : \text{LineT}
+  \cup \{\V{none}\},\ \T{answers} : \text{seq of AnswerT},\\
+  \phantom{\text{tuple of } (}\T{skippable} : \B).
+  \end{array}\]
+  $\T{id}$ identifies the step within its level and content variant.
+  $\T{lines}$ gives its opening explanation or instructions in order.
+  $\T{activity}$ identifies a packaged demonstration or exercise
+  definition, including its scene objects, targets, timing, and completion
+  condition. $\V{none}$ means that there is no such activity.
+  $\T{hint}$ is the encouraging guidance for an incorrect action, and
+  $\T{feedback}$ is the encouragement after a correct action or answer.
+  $\T{answers}$ gives the answer choices in display order.
+  $\T{skippable}$ states whether the child may skip the step while
+  continuing the level.
+\item $\T{GuideT}$: the caregiver guide entry for one preparation level,
+  \[\begin{array}{l}
+  \text{tuple of } (\T{level} : \text{LevelIdT},\
+  \T{name} : \text{String},\\
+  \phantom{\text{tuple of } (}\T{experience} : \text{seq of String},\
+  \T{inGame} : \text{seq of String}).
+  \end{array}\]
+  $\T{level}$ and $\T{name}$ identify the matching catalogue level.
+  $\T{experience}$ explains what the child may experience at the clinic,
+  and $\T{inGame}$ explains how the level presents it, including any
+  differences between its age-group variants. Each sequence contains
+  paragraphs in reading order.
+\end{itemize}
+
+StepT contains the content needed to present a step. The Procedure Runner
+Module (M10) keeps its running state, presents the lines, and carries out
+the selected activity through its presentation modules.
+
+\subsubsection{Exported Access Programs}
+
+\begin{accessprogs}
+init & -- & -- & AlreadyInitialized\\
+stepsFor & $l$ : LevelIdT, $a$ : AgeGroupT & seq of StepT & UnknownLevel\\
+guide & $l$ : LevelIdT & GuideT & UnknownLevel\\
+guides & -- & seq of GuideT & --\\
+\end{accessprogs}
+
+\subsection{Semantics}
+
+The content is fixed after initialization for the running process.
+Query results are independent values: changing a returned step, answer,
+guide entry, or sequence does not change the packaged content. The
+referenced media and activity definitions are read-only. Queries do not
+start a level, present narration, change preferences, or update progress
+and rewards.
+
+\subsubsection{State Variables}
+
+\begin{itemize}
+\item $\T{content}$ : $(\text{LevelIdT} \times \text{AgeGroupT})
+  \rightharpoonup \text{seq of StepT}$, initially with an empty domain,
+  the default content and any age-group variants for each level.
+  $(l,\V{Unset})$ identifies the default content for level $l$.
+\item $\T{entries}$ : seq of GuideT, initially $\langle\rangle$,
+  the caregiver guide entries in the catalogue's suggested journey order.
+\item $\T{ready}$ : $\B$, initially $\false$, whether initialization
+  has finished.
+\end{itemize}
+
+\subsubsection{Environment Variables}
+
+None. The content, media, and activity definitions are included with the
+application. Other modules present the returned values.
+
+\subsubsection{State Invariant}
+
+Before initialization, $\T{dom}(\T{content}) = \{\}$,
+$\T{entries} = \langle\rangle$, and $\T{ready} = \false$.
+When $\T{ready}$ is $\true$:
+
+\begin{itemize}
+\item Every level $l$ in LevelCatalogue.ids() has exactly one default
+  sequence at $(l,\V{Unset})$. It may also have a sequence for
+  $\V{Ages3to4}$, $\V{Ages5to7}$, or both. There is no content for an
+  identifier absent from the catalogue.
+\item Every stored sequence is non-empty and has non-empty step
+  identifiers that are unique within that sequence. It presents at least
+  one step, piece of equipment, or instruction for the corresponding
+  procedure (\srsitemref{FR_LevelContent}{FR6}).
+\begin{samepage}
+\item Every step has at least one opening line. A $\V{Panel}$ has
+  $\T{activity} = \V{none}$, $\T{answers} = \langle\rangle$,
+  and no hint or feedback. A $\V{Demonstration}$ has an activity
+  definition, no answers, and no hint or feedback. An $\V{Exercise}$
+  has an activity definition, a hint, and feedback, with no answers.
+  A $\V{Question}$ has no activity definition or hint; it has at least
+  one answer and feedback. Every activity identifier is non-empty and
+  names a definition supported by the runner and the level's scene.
+\par
+\end{samepage}
+\item Every question has at least one answer with
+  $\T{correct} = \true$. Every answer has a picture and a line that
+  explains it, so all correct answers can be revealed. Hints and feedback
+  are encouraging, with no negative response for a mistake or a skip
+  (\srsitemref{FR_HintOnMiss}{FR14},
+  \srsitemref{FR_RevealAnswer}{FR17},
+  \srsitemref{FR_ValidQuestions}{FR18},
+  \srsitemref{FR_NoPenalty}{FR19}).
+\item Every demonstration, exercise, and question has
+  $\T{skippable} = \true$. Required educational explanations are
+  separate $\V{Panel}$ steps with $\T{skippable} = \false$, so
+  skipping an activity cannot also skip its required information.
+\item Before any step depicts a sensation the child may feel, an earlier
+  required panel describes that sensation. The description is retained
+  even when the following activity is skipped. No description states or
+  implies that the procedure will be painless or free of discomfort
+  (\srsitemref{FR_DescribeSensations}{FR8},
+  \srsitemref{FR_TruthfulSensations}{FR9}).
+\item Each sequence includes required panels explaining, through
+  narration and pictures, that the doctor may do things differently from
+  the game, and that the child can tell the doctor if they feel worried
+  or uncomfortable. These panels occur before the level ending on both
+  normal and skip paths (\srsitemref{FR_ClinicsDiffer}{FR10},
+  \srsitemref{FR_SpeakUp}{FR11}).
+\item Every line, including hints, answer explanations, and feedback,
+  has non-empty words, a matching visual cue, and a recording included
+  with the application. Each narrated sentence has at most
+  $\T{SENTENCE\_MAX\_WORDS}$ words and uses words familiar to the
+  intended age group. Pictures and demonstrations convey every
+  instruction without requiring reading or audible narration
+  (\srsitemref{FR_SpokenInstructions}{FR13},
+  \srsitemref{FR_VisualCues}{FR15},
+  \srsitemref{FR_NarrationFallback}{FR16},
+  \srsitemref{NFR_Language}{NFR8}).
+\item $\T{entries}$ contains exactly one entry for every catalogue
+  level, in the order returned by LevelCatalogue.levels(). Each entry's
+  identifier and name match that level. Both paragraph sequences are
+  non-empty, contain no empty paragraphs, and describe the same
+  procedure as the level. The text is at or below
+  $\T{ADULT\_TEXT\_MAX\_GRADE}$ reading grade
+  (\srsitemref{FR_ProcedureGuide}{FR42},
+  \srsitemref{NFR_Language}{NFR8}).
+\end{itemize}
+
+These conditions apply to every default sequence and every age-group
+variant, including content on incorrect-answer and skip paths.
+
+\subsubsection{Assumptions}
+
+\begin{itemize}
+\item LevelCatalogue.init() is called before init(), and init() is
+  called before any query. Initialization finishes before another call
+  begins. The catalogue does not change while the application runs.
+\item The packaged content is checked against the state invariant
+  before release. Every referenced recording, picture, and activity
+  definition is available locally and belongs to the same reviewed
+  version of the content (\srsitemref{NFR_Offline}{NFR19}).
+\item A paediatric ophthalmologist approves each level, every supplied
+  age-group variant, and every guide entry before release. Changed
+  content is approved again. A child-life specialist reviews the wording,
+  images, animations, and sounds for the intended age group, with no
+  unresolved findings at release
+  (\srsitemref{NFR_ClinicalAccuracy}{NFR22},
+  \srsitemref{NFR_ChildSafe}{NFR2},
+  \srsitemref{NFR_Language}{NFR8}).
+\end{itemize}
+
+\subsubsection{Access Routine Semantics}
+
+\begin{samepage}
+\noindent init():
+\begin{itemize}
+\item transition: set $\T{content}$ to the default step sequences and
+  supplied age-group variants packaged with the application. Set
+  $\T{entries}$ to the packaged guide entries, in catalogue order, and
+  $\T{ready} := \true$. Initialization does not select an age group
+  or begin presenting a procedure.
+\item exception: $\exc := (\T{ready} \Rightarrow
+  \text{AlreadyInitialized})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent stepsFor($l$, $a$):
+\begin{itemize}
+\item output: $\out := \T{content}(l,a)$ when
+  $(l,a) \in \T{dom}(\T{content})$; otherwise,
+  $\out := \T{content}(l,\V{Unset})$. The result is the complete
+  sequence for the chosen variant in presentation order. An unset age
+  group or a missing age-specific variant returns the default content
+  for the same level, without making the level unavailable
+  (\srsitemref{FR_AgeGroup}{FR7}).
+\item exception: $\exc := (l \notin \text{LevelCatalogue.ids}()
+  \Rightarrow \text{UnknownLevel})$. An unknown or removed level
+  identifier does not return another level's content.
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent guide($l$):
+\begin{itemize}
+\item output: $\out := \T{entries}[i]$, where $i$ is the unique
+  position whose entry has $\T{entries}[i].\T{level} = l$.
+  The entry explains the clinic experience and the matching level for
+  the caregiver. It is independent of player progress and the currently
+  selected age group (\srsitemref{FR_ProcedureGuide}{FR42}).
+\item exception: $\exc := (l \notin \text{LevelCatalogue.ids}()
+  \Rightarrow \text{UnknownLevel})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent guides():
+\begin{itemize}
+\item output: $\out := \T{entries}$, containing every guide entry
+  in suggested journey order. This gives the Procedure Guide Screen
+  Module (\misref{Guide}{19}) the names and identifiers needed to list
+  the procedures. It includes levels that the player has not started.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\subsubsection{Local Functions}
+
+None.
+
+\subsubsection{Considerations}
+
+The content covers Vision Testing, Eye-Drop Preparation, and Slit-Lamp
+Preparation, with the same interface for any additional preparation
+levels. Step order, clinical wording, illustrations, questions, and
+age-group variants can change between releases without changing these
+access programs (\srsitemref{LC_Procedures}{LC2},
+\srsitemref{LC_ClinicalContent}{LC3},
+\srsitemref{LC_AgeContent}{LC7}). Each activity definition describes the
+interaction needed by its procedure. A new kind of interaction may also
+require support in the runner
+and presentation modules (\srsitemref{LC_LevelFormat}{LC1}).
+
+The Procedure Runner uses the returned sequence and skip flags to preserve
+required explanations while allowing activities to be skipped. Required
+panels do not disable leaving or restarting the level. Completion and
+rewards are handled when the runner reaches the level ending, rather than
+when this module returns content or an individual exercise finishes
+(\srsitemref{FR_LevelEnd}{FR12},
+\srsitemref{FR_NoPenalty}{FR19},
+\srsitemref{FR_ExitLevel}{FR22},
+\srsitemref{FR_RestartLevel}{FR26}).
+
+The guide and level content are reviewed together for consistent
+explanations. Both are educational preparation, with no claims to diagnose,
+screen, treat, or monitor a condition (\srsitemref{NFR_NoClaims}{NFR32}).
+The VnV Plan checks each level, age-group selection, default fallback,
+and paths that skip all optional activities. Clinical and child-life
+reviews check the content's accuracy and suitability for children.
 
 % =====================================================================
 % M14 to M26 (Jake Finlay). The Uses of each module follow the Uses

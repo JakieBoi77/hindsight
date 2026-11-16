@@ -349,7 +349,7 @@ Hardware-Hiding Module & \misref{HH}{1} Hardware-Hiding Module \\
 & \misref{Content}{9} Procedure Content Module \\
 & \misref{Runner}{10} Procedure Runner Module \\
 & \misref{Narration}{11} Narration Module \\
-& M12 Player Select Screen Module \\
+& \misref{PlayerSelect}{12} Player Select Screen Module \\
 & M13 Journey Map Screen Module \\
 & M14 Reward Screen Module \\
 & M15 Scoreboard Screen Module \\
@@ -710,7 +710,7 @@ Procedure Runner and acts on choices returned by the other screens.
 Hardware-Hiding Module (\misref{HH}{1}), Journey Progress Module (M3),
 Player Data Module (M5), Preferences Module (M6),
 Level Catalogue Module (M7), Accessory Catalogue Module (M8), Procedure
-Runner Module (M10), Player Select Screen Module (M12), Journey Map Screen
+Runner Module (M10), Player Select Screen Module (\misref{PlayerSelect}{12}), Journey Map Screen
 Module (M13), Scoreboard Screen Module (\misref{Scoreboard}{15}), Dress-Up
 Screen Module (\misref{DressUp}{16}), Settings Screen Module
 (\misref{Settings}{18}), Procedure Guide Screen Module (\misref{Guide}{19}),
@@ -864,9 +864,12 @@ without entering settings; the Settings Screen Module applies its parental
 gate whenever settings are opened
 (\srsitemref{FR_ParentGate}{FR41}, \srsitemref{FR_ProcedureGuide}{FR42}).\\[0.6em]
 $\V{Players}$ & Call PlayerSelectScreen.open() and pass the returned slot
-to PlayerData.choosePlayer. Clear $\T{history}$, set
-$\T{level} := \V{none}$, and return to $\V{Home}$ with the selected
-player's data.\\[0.6em]
+to PlayerData.choosePlayer. After it succeeds, clear $\T{history}$,
+set $\T{level} := \V{none}$, and return to $\V{Home}$ with the
+selected player's data. On WriteFailed, keep the previous current player
+and offer retry or reopen player selection. Do not show the requested
+player as active before the save succeeds. If the previous player was
+deleted, it remains a new, unactivated record until a choice is saved.\\[0.6em]
 $\V{Map}$ & Open the Journey Map Screen with the current player's progress.
 When a level is chosen, set $\T{level}$ to its catalogue identifier and
 $\T{screen} := \V{Level}$. Every catalogue level is available, including
@@ -4216,6 +4219,294 @@ the preparation levels. These checks include hints and answer feedback,
 sound lost during playback, and returning after an interruption longer
 than the line's remaining duration. They also check that leaving a level
 cancels its narration before the journey map appears.
+
+% =====================================================================
+\newpage
+\section{MIS of Player Select Screen Module} \label{mis:PlayerSelect}
+
+\subsection{Module}
+
+PlayerSelectScreen (\misref{PlayerSelect}{12})
+
+This module shows the players saved on the device and lets the child
+choose an existing player or start with an unused slot. Each saved
+player has one journey across all preparation levels. The screen also
+provides a caregiver settings view for deleting a saved player, with a
+parental gate and confirmation before any data is removed.
+
+\subsection{Uses}
+
+Hardware-Hiding Module (\misref{HH}{1}), for the display and touch
+input; Player Data Module (\misref{PlayerData}{5}), for SummaryT,
+slotCount, currentPlayer, summary, and deletePlayer; Narration Module
+(\misref{Narration}{11}), for the instructions shown to the child;
+Parental Gate Module (\misref{Gate}{17}), for ask; Character Rig Module
+(\misref{Rig}{23}), for ActorT and the character previews; and UI
+Widgets Module (\misref{Widgets}{26}), for controls, visual cues, and
+confirmation prompts.
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+None. The screen obtains the number of available slots through
+PlayerData.slotCount().
+
+\subsubsection{Exported Types}
+
+None.
+
+\subsubsection{Exported Access Programs}
+
+\begin{accessprogs}
+open & -- & $\N$ & --\\
+\end{accessprogs}
+
+\subsection{Semantics}
+
+open remains active until a player card or the main Back control is
+chosen. It returns a slot number to Application Control, which calls
+PlayerData.choosePlayer to activate that slot. Displaying a card does
+not choose a player or create a save. The only player-data change made
+within open is a confirmed deletion in its caregiver view.
+
+\subsubsection{State Variables}
+
+None. Slot summaries, the player selected at entry, character previews,
+and any pending caregiver choice are kept only for the current open
+call. The screen stores no player records or gate result between calls.
+
+\subsubsection{Environment Variables}
+
+\begin{itemize}
+\item $\T{screen}$: the device display and touch input, reached through
+  Hardware-Hiding and UI Widgets. It shows the player cards, navigation
+  controls, and the caregiver view while that view is open.
+\item $\T{previews}$ : set of ActorT, the temporary character models
+  displayed on used player cards. Each belongs to this screen and is
+  removed when the card is replaced or the screen closes.
+\end{itemize}
+
+Narration controls the screen's spoken instruction, caption, and visual
+cue. The parental gate and confirmation prompt temporarily take input
+away from the player cards.
+
+\subsubsection{State Invariant}
+
+While open is active:
+\begin{itemize}
+\item In either card view, each slot has exactly one card in a fixed
+  position and display order. Deleting a player does not renumber
+  slots or move another player's card into the empty position.
+\item Every displayed balance, completion count, and character preview
+  comes from the summary of that card's slot. Creating or changing a
+  preview does not change a player's saved character or accessories.
+\item Delete controls are available only in the caregiver settings
+  view after its parental gate has been passed. Each deletion applies
+  only to the slot named in its confirmation.
+\item Only the currently visible view accepts input. A touch used to
+  select a card, open the gate, or answer a confirmation cannot also
+  act on the view shown afterwards.
+\end{itemize}
+
+\subsubsection{Assumptions}
+
+\begin{itemize}
+\item Player Data and Narration are initialized, and the menu scene
+  and its display services are ready before open is called. There is
+  at least one slot. Its count and the catalogues remain fixed during
+  the call.
+\item Application Control calls open when no preparation level is
+  running or paused. Only one open call is active, and no other screen
+  changes player records while it is open. currentPlayer() identifies
+  a valid slot, including when it holds a new, unactivated record after
+  deletion and a failed activation attempt.
+\item The packaged menu content provides the player-card symbols,
+  preview positions, control icons, and a LineT explaining how to
+  choose a player. The line has a recording and matching visual
+  demonstration and satisfies Narration's content assumptions. Card
+  and navigation controls satisfy UI Widgets' size and input rules.
+\item Application Control suspends the active screen during a device
+  interruption, including its narration, previews, input, and pending
+  actions. It resumes them from the same point when the interruption
+  ends. Touch contacts from before the interruption are discarded
+  (\srsitemref{FR_Suspend}{FR27}).
+\item On return, Application Control activates the returned slot
+  before showing that player's home screen. It handles WriteFailed
+  by allowing retry or another player choice, without using the
+  requested player's data before activation succeeds.
+\end{itemize}
+
+\subsubsection{Access Routine Semantics}
+
+\noindent open():
+\par\nopagebreak[4]
+\begin{itemize}
+\item transition: retain $s_0 := \text{PlayerData.currentPlayer}()$
+  and $n := \text{PlayerData.slotCount}()$. Apply showCards(),
+  then show a selectable control for every slot, Back at
+  UIWidgets.spot($\V{Back}$), and a manage-players entry at
+  UIWidgets.spot($\V{Settings}$). The last control opens only this
+  module's player-management part of caregiver settings; the main
+  player list has no delete or preference-editing controls
+  (\srsitemref{FR_ParentGate}{FR41}).
+
+  Present the packaged selection instruction through Narration.say
+  with $\T{wait} = \false$, together with a demonstration pointing
+  to the player cards. Keep the visual guidance available after the
+  line finishes. A child can choose a card or use Back without reading
+  a label, coin balance, or completion count. Narration supplies its
+  visual guidance and caregiver prompt when sound cannot be heard
+  (\srsitemref{FR_SpokenInstructions}{FR13},
+  \srsitemref{FR_NarrationFallback}{FR16}).
+
+  Handle choices through UI Widgets. A used or unused card selects
+  that card's slot. Selecting the manage-players entry stops the menu
+  instruction and calls managePlayers(). When that helper returns,
+  refresh the cards and restore the main controls and visual guidance.
+  It does not end open or select a player. Back in the main view
+  chooses $s_0$.
+
+  Accept one navigation choice at a time. Ignore further touches until
+  the next view is ready, and require a fresh contact before accepting
+  another choice. Unexpected touches have no effect. Selection and
+  Back remain available during the menu instruction; either cancels
+  that instruction when accepted. No card, gate, confirmation, or
+  navigation action is processed while the application is suspended
+  (\srsitemref{FR_IgnoreRepeatedTouches}{FR20},
+  \srsitemref{FR_Suspend}{FR27}).
+
+  Before returning, cancel the screen's pending input and presentation
+  work, call Narration.stop(), hide its previews through ActorT.show
+  with $\false$, and remove its controls and cues. Discard the temporary
+  previews and any caregiver authorization. An old callback cannot
+  select another player, delete a slot, or restart the closed screen's
+  instruction.
+\item output: $\out := s$, where $s$ is the slot of the selected
+  card, or $s_0$ when the main Back control is chosen. In either case,
+  $0 \leq \out < n$. The result is the slot number, not the
+  position of a control in UIWidgets.choose's result list.
+
+  Back preserves the player selected at entry when that player has
+  not been deleted. If the caregiver deleted $s_0$, Back returns that
+  now-unused slot and Application Control activates it as a new
+  player. The deleted progress and customization are not restored.
+  Returning from open does not itself create the new save.
+\item exception: none. Slot arguments come from the available cards,
+  and summaries supply valid looks, so InvalidSlot and InvalidLook
+  cannot occur under the assumptions above. Controls and instruction
+  content satisfy their modules' input requirements.
+\end{itemize}
+
+\subsubsection{Local Functions}
+
+\noindent $\T{showCards}$ : $() \to ()$
+\par\nopagebreak[4]
+
+Hide and discard the previous previews. For every slot $s$ from 0 to
+PlayerData.slotCount() minus 1, obtain
+$m := \text{PlayerData.summary}(s)$ and draw its card. Keep the cards
+in slot order, with a distinct, fixed pictorial marker for each slot.
+The marker and position distinguish slots even when their character
+previews are the same; colour is not the only distinction
+(\srsitemref{NFR_Colour}{NFR10}).
+
+When $m.\T{used} = \true$, create a preview with
+new ActorT($m.\T{look}$, $\V{Child}$), place it at the card's
+packaged preview position through placeAt, and show its idle pose.
+An empty look uses Character Rig's default character without selecting
+or saving it for the player. Show $m.\T{coins}$ with a coin icon and
+$m.\T{completed}$ out of $m.\T{total}$ preparation levels with a
+completion icon. These counts describe the whole journey; exercises
+and narrated steps are not counted as levels. Mark the current used
+slot with an outline and tick.
+
+When $m.\T{used} = \false$, show a new-player picture and the label
+``New game''. Do not display another player's preview or offer deletion
+for that card. A used slot with zero coins and no completed levels
+still appears as an existing player; the used flag determines which
+kind of card is shown. Refreshing the cards reads summaries only and
+does not call choosePlayer, startLevel, or finishLevel.
+
+All controls use UI Widgets' minimum touch-target size and visible
+response timing. Back and the caregiver-settings entry keep their
+standard positions when the cards are refreshed
+(\srsitemref{NFR_Layout}{NFR1},
+\srsitemref{NFR_TouchTarget}{NFR3},
+\srsitemref{NFR_Responsiveness}{NFR12}).
+
+\noindent $\T{managePlayers}$ : $() \to ()$
+\par\nopagebreak[4]
+
+Disable the main player controls and call ParentalGate.ask(). A wrong
+answer or cancellation returns to the player list without changing
+data. Do not narrate the gate, demonstrate its answer, or expose delete
+controls before it succeeds (\srsitemref{FR_ParentGate}{FR41}).
+
+After a successful gate, show the player-management settings view with
+the same cards, a delete control for each used slot, and Back. Cards
+identify the saved players in this view; tapping a card does not
+activate it. Back closes this view and discards its authorization.
+Opening it again requires another successful gate. No age, audio,
+caption, cue, nickname, or other preference can be edited here.
+
+For a delete choice, retain the target slot $s$ and read its current
+summary. Call UIWidgets.confirm with a question identifying that slot
+and an explanation that its entire journey, journey points, coin
+balance, owned and equipped accessories, character selection, and
+nickname will be removed. Include the summary's coin balance and
+completed-level count, keeping the target card visible behind the
+prompt. This confirmation is required even when those counts are zero.
+Disable all underlying card and delete controls while it is open.
+
+If confirmation returns $\false$, leave every record unchanged and
+return to the management view. If it returns $\true$, call
+PlayerData.deletePlayer($s$) exactly once, then refresh the cards
+before accepting another choice. The deleted slot becomes unused.
+Other players, caregiver preferences, packaged content, and the
+medical notice acknowledgement are kept. Deleting the current player
+also clears Player Data's active record as its deletePlayer contract
+specifies; the screen does not activate a replacement.
+
+The caregiver may delete another used slot or go Back. All slots may
+be deleted, including the last used slot, without leaving the screen
+unusable. Each deletion has its own target and confirmation. A touch
+that confirmed one deletion cannot confirm another, and no pending
+confirmation or authorization is kept after the view closes.
+
+\subsubsection{Considerations}
+
+Player slots belong to the device, and each contains progress across
+Vision Testing, Eye-Drop Preparation, Slit-Lamp Preparation, and any
+additional preparation levels. The screen obtains its completion
+totals from Player Data and does not assume a fixed list of procedures
+or a fixed number of levels.
+
+The save-slot selector and individual-player deletion are design
+features. The SRS separately requires journey reset and clearing all
+local application data through caregiver settings
+(\srsitemref{FR_ResetJourney}{FR45},
+\srsitemref{FR_ClearAllData}{FR46}). Deleting one slot does not clear
+device preferences or the medical notice acknowledgement, and does
+not replace either of those operations. Its management view follows
+the same parental-gate and confirmation rules.
+
+The screen uses neutral labels, slot markers, and character previews.
+It does not require an account or a real name, and it does not use the
+current player's nickname to label other players. Nickname editing
+remains in the main caregiver settings. All summaries and previews
+are obtained locally (\srsitemref{FR_Nickname}{FR43},
+\srsitemref{NFR_Offline}{NFR19},
+\srsitemref{NFR_Privacy}{NFR28},
+\srsitemref{NFR_Minimization}{NFR29}).
+
+The VnV Plan's checks for instructions without reading or sound,
+repeated touches, caregiver gates, saved data, and interruptions apply
+to this screen. Module checks should also cover unused and used slots,
+identical character previews, cancellation, deletion of the current
+or last player, and returning after a failed activation save. The
+checks compare every slot before and after each action so that one
+player's selection or deletion cannot change another player's journey.
 
 % =====================================================================
 % M14 to M26 (Jake Finlay). The Uses of each module follow the Uses

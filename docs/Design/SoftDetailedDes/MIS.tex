@@ -202,8 +202,9 @@ $A \to B$ & A function that gives a value of type $B$ for each value of type
 $A$.\\
 $A \rightharpoonup B$ & A partial function: a function that gives a value of
 type $B$ for some, but not necessarily all, values of type $A$.\\
-$() \to ()$ & A callback: a routine with no inputs and no output, registered
-to run when an event occurs.\\
+$() \to T$ & A routine with no inputs and a result of type $T$.
+$() \to ()$ has no inputs or output; when registered to run on an event,
+it is a callback.\\
 $T \cup \{\V{none}\}$ & The values of type $T$ and the extra value $\V{none}$,
 which means ``no value''.\\
 $X = ?$ & An abstract data type $X$. Its values can only be created and used
@@ -241,6 +242,7 @@ $\{\}$ & the empty set\\
 $\{a \mapsto b,\ c \mapsto d\}$ & the function that gives $b$ for $a$ and $d$
 for $c$\\
 $f(a)$ & the value of function $f$ for $a$\\
+$t.f$ & the value of field $f$ in tuple $t$\\
 $\T{dom}(f)$ & the set of inputs for which function $f$ has a value\\
 $f(a) := b$ & change the value of $f$ at $a$ to $b$, leaving its other values
 unchanged; for a partial function, this also adds $a$ to its domain if needed\\
@@ -287,7 +289,9 @@ Each module specification has the following parts.
   \item \emph{Access Routine Semantics}: for each access program,
     \textbf{transition} states what changes, \textbf{output} gives the result
     as $\out := \ldots$, and \textbf{exception} gives the error as $\exc :=
-    \ldots$, or ``none''. When an exception is signalled, nothing changes.
+    \ldots$, or ``none''. Exception conditions are checked before the
+    transition. When an exception is signalled, nothing changes.
+  \item \emph{Local Types}: types used only within the module's specification.
   \item \emph{Local Functions} and \emph{Local Constants}: helpers that make the
     specification easier to read. They are not exported.
   \item \emph{Considerations}: extra notes, such as which requirements the
@@ -321,7 +325,7 @@ The following table is taken directly from the Module Guide document for this pr
 Hardware-Hiding Module & \misref{HH}{1} Hardware-Hiding Module \\
 \midrule
 \multirow{18}{0.31\textwidth}{Behaviour-Hiding Module}
-& M2 Application Control Module \\
+& \misref{Control}{2} Application Control Module \\
 & M3 Journey Progress Module \\
 & M4 Wardrobe Module \\
 & M5 Player Data Module \\
@@ -673,6 +677,299 @@ preserve saves on failure. The Application Control Module (M2) registers
 callbacks to coordinate pausing and resuming. Modules using now() for gameplay
 timers must exclude interrupted time so that unfinished content is not
 skipped (\srsitemref{FR_Suspend}{FR27}).
+
+% =====================================================================
+\newpage
+\section{MIS of Application Control Module} \label{mis:Control}
+
+\subsection{Module}
+
+AppControl (\misref{Control}{2})
+
+This module coordinates startup, the home screen and medical notice, and
+navigation between application screens. It sends the selected level to the
+Procedure Runner and acts on choices returned by the other screens.
+
+\subsection{Uses}
+
+Hardware-Hiding Module (\misref{HH}{1}), Journey Progress Module (M3),
+Player Data Module (M5), Preferences Module (M6),
+Level Catalogue Module (M7), Accessory Catalogue Module (M8), Procedure
+Runner Module (M10), Player Select Screen Module (M12), Journey Map Screen
+Module (M13), Scoreboard Screen Module (\misref{Scoreboard}{15}), Dress-Up
+Screen Module (\misref{DressUp}{16}), Settings Screen Module
+(\misref{Settings}{18}), Procedure Guide Screen Module (\misref{Guide}{19}),
+and UI Widgets Module (\misref{Widgets}{26}).
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+None.
+
+\subsubsection{Exported Types}
+
+None.
+
+\subsubsection{Exported Access Programs}
+
+\begin{accessprogs}
+start & -- & -- & AlreadyStarted\\
+\end{accessprogs}
+
+\subsection{Semantics}
+
+\subsubsection{Local Types}
+
+$\T{ScreenT}$: the screens coordinated by this module,
+\[\begin{array}{l}
+\{\V{NotStarted}, \V{Notice}, \V{Home}, \V{Players}, \V{Map},
+\V{Level},\\
+\phantom{\{}\V{DressUp}, \V{Scoreboard}, \V{Settings}, \V{Guide}\}.
+\end{array}\]
+$\V{Home}$ is the home screen; a level's home control returns to $\V{Map}$
+(\srsitemref{FR_ExitLevel}{FR22}).
+
+\subsubsection{State Variables}
+
+\begin{itemize}
+\item $\T{started}$ : $\B$, initially $\false$, whether application control
+  has started in this process.
+\item $\T{screen}$ : ScreenT, initially $\V{NotStarted}$, the screen being
+  shown or prepared.
+\item $\T{history}$ : seq of ScreenT, initially $\langle\rangle$, the
+  screens to return to when a temporary screen closes. The most recent one
+  is at the end of the sequence.
+\item $\T{level}$ : String $\cup \{\V{none}\}$, initially $\V{none}$,
+  the catalogue identifier of the selected level, retained while its scene
+  loads and while the level is played or temporarily paused.
+\item $\T{interrupted}$ : $\B$, initially $\false$, whether the OS has
+  interrupted the application.
+\end{itemize}
+
+\subsubsection{Environment Variables}
+
+\begin{itemize}
+\item $\T{display}$: the device display and touch input, reached through
+  the Hardware-Hiding and UI Widgets modules. This module presents the home
+  screen and medical notice; the other screen modules present their own
+  content.
+\item $\T{presentation}$: the engine's running animations and pending
+  timed actions for the active screen, including their positions and paused
+  states. Audio output is reached through the Hardware-Hiding Module.
+\end{itemize}
+
+\subsubsection{State Invariant}
+
+\begin{itemize}
+\item Before start(), $\T{screen} = \V{NotStarted}$,
+  $\T{history} = \langle\rangle$, and $\T{level} = \V{none}$.
+\item The home screen and all screens reached from it are accessible only
+  after the medical notice has been acknowledged.
+\item When $\T{level}$ has a value, it identifies a level in the Level
+  Catalogue Module. That level is waiting to start, active, or paused behind
+  a temporary screen. At most one level is running.
+\item $\T{history}$ contains only screens with an outstanding return path;
+  it never contains $\V{NotStarted}$.
+\end{itemize}
+
+\subsubsection{Assumptions}
+
+The engine initializes the services used by this module before calling
+start(). Dependencies are initialized before their users, including the
+Preferences Module before the Player Data Module. Player Data restores the
+previous player or prepares a new player when no valid save exists. Modules
+that belong to a scene are initialized after that scene has loaded and before
+it is used.
+
+The packaged content supplies the menu scene, the scene associated with each
+catalogue level, and the controls used on the home screen and medical notice.
+These controls satisfy the size and hold-time requirements of UI Widgets.
+
+\subsubsection{Access Routine Semantics}
+
+\noindent start():
+\begin{itemize}
+\item transition: $\T{started} := \true$. Register
+  $\T{pauseApplication}$ and $\T{resumeApplication}$ through
+  HardwareHiding.onBackground and HardwareHiding.onForeground, respectively.
+  Load the menu
+  scene through HardwareHiding and follow Table~\ref{TblApplicationFlow}
+  until the application closes. The first screen is $\V{Home}$ when
+  Preferences.isAcknowledged() is $\true$, and $\V{Notice}$ otherwise
+  (\srsitemref{FR_MedicalNotice}{FR1}, \srsitemref{FR_RecordAck}{FR2}).
+
+  Each screen processes one navigation choice at a time. Further navigation
+  touches are ignored until the destination is ready
+  (\srsitemref{FR_IgnoreRepeatedTouches}{FR20}). A level is started only
+  after its scene has loaded successfully. If loading fails, keep the current
+  scene and offer retry or return to the previous screen; at startup, keep the
+  startup display and offer retry. Do not change progress or rewards for a
+  failed load.
+\item exception: $\exc := (\T{started} \Rightarrow \text{AlreadyStarted})$
+\end{itemize}
+
+Opening dress-up, the scoreboard, settings, or the guide from another screen
+adds that screen to the end of $\T{history}$. Closing a temporary screen
+restores the last screen in $\T{history}$ and removes that entry. An empty
+history returns to $\V{Home}$. Resetting the journey, clearing all data, and
+switching players clear the history so that an old screen cannot restore the
+previous player's data.
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.14\textwidth}p{0.82\textwidth}@{}}
+\caption{Application screen flow}\label{TblApplicationFlow}\\
+\toprule
+\textbf{Screen} & \textbf{Action and next screen}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Screen} & \textbf{Action and next screen (continued)}\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$\V{Notice}$ & Show the notice that \progname{} is an educational
+preparation aid and does not replace professional medical advice, diagnosis,
+or treatment. When Preferences.isAcknowledged() is $\false$, the only in-app way forward
+is ``I understand'', shown through UI Widgets. Call Preferences.acknowledge()
+on that choice, then show $\V{Home}$. Leaving the app without acknowledging
+does not bypass the notice on the next launch. When the notice was opened
+from the guide, show a close control instead; closing restores $\V{Guide}$
+without changing the acknowledgement or player data
+(\srsitemref{FR_MedicalNotice}{FR1}, \srsitemref{FR_RecordAck}{FR2}).\\[0.6em]
+$\V{Home}$ & On the first visit after launch or clearing all data, activate
+the restored or new current player through Player Data before offering
+player actions. Use UI Widgets to show controls for
+$\V{Map}$, $\V{Players}$, $\V{DressUp}$, $\V{Scoreboard}$, $\V{Guide}$,
+and $\V{Settings}$. Follow the chosen control. The guide is accessible
+without entering settings; the Settings Screen Module applies its parental
+gate whenever settings are opened
+(\srsitemref{FR_ParentGate}{FR41}, \srsitemref{FR_ProcedureGuide}{FR42}).\\[0.6em]
+$\V{Players}$ & Call PlayerSelectScreen.open() and pass the returned slot
+to PlayerData.choosePlayer. Clear $\T{history}$, set
+$\T{level} := \V{none}$, and return to $\V{Home}$ with the selected
+player's data.\\[0.6em]
+$\V{Map}$ & Open the Journey Map Screen with the current player's progress.
+When a level is chosen, set $\T{level}$ to its catalogue identifier and
+$\T{screen} := \V{Level}$. Every catalogue level is available, including
+completed levels. Follow any other navigation choice to its corresponding
+screen; the back control returns to $\V{Home}$
+(\srsitemref{FR_JourneyMap}{FR3}, \srsitemref{FR_StartLevel}{FR4},
+\srsitemref{FR_Replay}{FR5}).\\[0.6em]
+$\V{Level}$ & Load the packaged scene associated with $\T{level}$ through
+HardwareHiding. Ask ProcedureRunner to play that level from its beginning,
+providing $\T{openSettings}$ as the callback for its settings control.
+When the runner returns $\V{PlayAgain}$, play the same level again from
+the beginning. When it returns $\V{ToMap}$, load the menu scene, set
+$\T{level} := \V{none}$, and show $\V{Map}$. The runner stops the exited
+level's media and handles completion through the player-data services
+(\srsitemref{FR_Replay}{FR5}, \srsitemref{FR_StopOnExit}{FR23},
+\srsitemref{FR_RestartAfterExit}{FR25}).\\[0.6em]
+$\V{DressUp}$ & Call DressUpScreen.open($w$, $\T{shop}$, $\T{coins}$),
+where $w$ is the current player's wardrobe from Player Data,
+$\T{shop}$ is the Accessory Catalogue's item list, and $\T{coins}$ is
+the current balance from Journey Progress. Pass the returned total spending
+to Journey Progress once and have Player Data save the resulting player
+state before processing the next navigation choice. Return to the previous
+screen.\\[0.6em]
+$\V{Scoreboard}$ & Call ScoreboardScreen.show($\T{board}()$). When the
+back control is chosen, return to the previous screen
+(\srsitemref{FR_Scoreboard}{FR33}).\\[0.6em]
+$\V{Settings}$ & Call SettingsScreen.open($n$, $d$), where $n$ is the
+current player's nickname and $d$ is $\false$ when a level is paused
+behind settings, and $\true$ otherwise. Let $r$ be its SettingsResultT.
+For $r.\T{request} = \V{Closed}$, save $r.\T{nickname}$ through Player
+Data and return to the previous screen. For $\V{OpenGuide}$, save the
+nickname and open $\V{Guide}$, remembering $\V{Settings}$ as its return
+screen. A failed or cancelled parental gate leaves the nickname unchanged.
+The reset and clear-all results are handled below.\\[0.6em]
+$\V{Settings}$ (reset) & For $r.\T{request} = \V{ResetJourney}$, ask
+Player Data to reset the current journey, removing its accessories, character
+selection, and nickname. Keep the notice acknowledgement and caregiver
+preferences. Clear $\T{history}$, set $\T{level} := \V{none}$, and show
+$\V{Home}$. The Settings Screen has already obtained confirmation
+(\srsitemref{FR_ResetJourney}{FR45}).\\[0.6em]
+$\V{Settings}$ (clear all) & For $r.\T{request} = \V{ClearAllData}$,
+ask Player Data to clear every player slot and Preferences to clear all
+stored preferences and the notice acknowledgement. Clear $\T{history}$,
+set $\T{level} := \V{none}$, and show $\V{Notice}$. Do not save the
+nickname returned with a reset or clear-all request after erasing it.
+Packaged levels and assets remain available
+(\srsitemref{FR_ClearAllData}{FR46}).\\[0.6em]
+$\V{Guide}$ & Call GuideScreen.open(). For $\V{ShowNotice}$, add
+$\V{Guide}$ to $\T{history}$ and show $\V{Notice}$ in viewing mode.
+For $\V{Closed}$, return to the previous screen. Neither viewing the guide
+nor viewing the notice changes the player's progress
+(\srsitemref{FR_ProcedureGuide}{FR42}).\\
+\end{longtable}
+\endgroup
+
+\subsubsection{Local Functions}
+
+\noindent $\T{board}$ : $() \to \text{BoardT}$
+
+$\out :=$ the BoardT required by the Scoreboard Screen Module. It contains one
+row for each catalogue level in journey order, with its name, the current
+player's status, and the points earned from it. Journey Progress supplies
+the total points, completed-level count, and coin balance. Player Data
+supplies the current character picture and nickname, using a neutral picture
+when no character is selected. Build this value when
+the scoreboard opens so that it reflects the current player and saved
+changes (\srsitemref{def_Scoreboard}{D3}).
+
+\noindent $\T{openSettings}$ : $() \to ()$
+
+This is the callback supplied to the Procedure Runner. Suspend the running
+level, add $\V{Level}$ to $\T{history}$, and show $\V{Settings}$ with data
+controls disabled. Follow the settings, guide, and notice rows until the
+level screen is restored. Resume the level from its paused point only when
+$\T{interrupted}$ is $\false$, then return to the runner. Closing the
+guide returns to settings first, so it cannot bypass the parental gate.
+
+\noindent $\T{pauseApplication}$ : $() \to ()$
+
+If $\T{interrupted}$ is $\false$, set it to $\true$ and suspend the
+active presentation. Pause audio through HardwareHiding and pause
+$\T{presentation}$, preserving playback positions, remaining timer
+durations, and pending actions. Suspend ProcedureRunner when the level is
+active. No navigation input or pending gameplay action is processed during
+the interruption. The same rule covers the home screen, menus, and other
+screens with audio or animation. Repeated calls while interrupted do nothing
+(\srsitemref{FR_Suspend}{FR27}).
+
+\noindent $\T{resumeApplication}$ : $() \to ()$
+
+If $\T{interrupted}$ is $\true$, restore the interrupted presentation and
+set $\T{interrupted} := \false$. Resume only the audio, animation, timers,
+and pending actions that were running before the interruption, from their
+saved positions. A level behind settings or the guide remains paused until
+those screens close. Resume ProcedureRunner when $\T{screen} = \V{Level}$.
+Do not advance a timer using time spent interrupted or repeat a pending
+completion action. Repeated calls when not interrupted do nothing
+(\srsitemref{FR_Suspend}{FR27}).
+
+\subsubsection{Considerations}
+
+The control flow uses the Level Catalogue's identifiers and packaged scenes,
+so Vision Testing, Eye-Drop Preparation, and Slit-Lamp Preparation follow the
+same navigation rules. The Procedure Runner coordinates activities within a
+level, while this module coordinates movement between application screens.
+Progress and rewards are managed by the Journey Progress and Player Data
+modules; returning to a screen does not award a reward.
+
+The existing Dress-Up Screen interface returns total spending only when the
+screen closes. The flow above settles that total on return. Saving each
+purchase's wardrobe and coin changes together before the next input requires
+a per-purchase update from that screen to Player Data; the current interface
+does not provide it (\srsitemref{FR_PersistState}{FR28}).
+
+Navigation history and the current exercise are kept only for the running
+process. After the application closes, startup restores saved player data
+and follows the acknowledgement check again. A level chosen after relaunch
+starts from its beginning (\srsitemref{FR_RestartAfterExit}{FR25}).
 
 % =====================================================================
 % M14 to M26 (Jake Finlay). The Uses of each module follow the Uses

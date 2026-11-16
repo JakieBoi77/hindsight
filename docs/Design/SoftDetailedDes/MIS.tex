@@ -312,8 +312,10 @@ Inside a constructor, $\T{self}$ is the new instance.
 Some access programs interact with the user over time, such as a screen that
 waits for a choice. For these, the transition states what the screen shows
 while the program runs, and the output is the user's choice when it returns.
-This is the only case where an access program has both a transition and an
-output, apart from constructors.
+Constructors and routines that report the result of their own state change,
+such as PlayerData.finishLevel, may also have both a transition and an
+output. The result of a state change is returned only when that change
+succeeds; a routine that signals an exception has no normal output.
 
 \newpage
 \section{Module Decomposition}
@@ -334,7 +336,7 @@ Hardware-Hiding Module & \misref{HH}{1} Hardware-Hiding Module \\
 & \misref{Control}{2} Application Control Module \\
 & \misref{Progress}{3} Journey Progress Module \\
 & \misref{Wardrobe}{4} Wardrobe Module \\
-& M5 Player Data Module \\
+& \misref{PlayerData}{5} Player Data Module \\
 & M6 Preferences Module \\
 & M7 Level Catalogue Module \\
 & M8 Accessory Catalogue Module \\
@@ -1583,6 +1585,538 @@ when the screen closes, and Application Control applies that amount then.
 Those callers need to pass each confirmed purchase through Player Data
 with this wardrobe and its ProgressT, and remove the later deduction, to
 save each purchase together (\srsitemref{FR_PersistState}{FR28}).
+
+% =====================================================================
+\newpage
+\section{MIS of Player Data Module} \label{mis:PlayerData}
+
+\subsection{Module}
+
+PlayerData (\misref{PlayerData}{5})
+
+This module manages the current player and the records kept in the device's
+save slots. It combines journey progress, the wardrobe, and the optional
+nickname into one saved record. Screens and preparation levels use its
+access programs to read or change that record, so a purchase or level
+completion cannot save only part of the change.
+
+\subsection{Uses}
+
+Journey Progress Module (\misref{Progress}{3}), Wardrobe Module
+(\misref{Wardrobe}{4}), Preferences Module (M6), Level Catalogue Module
+(M7), Accessory Catalogue Module (M8), and Save Slots Module
+(\misref{Slots}{21}).
+
+ProgressT and StatusT come from Journey Progress. WardrobeT comes from
+Wardrobe, and ItemT and CategoryT come from the Accessory Catalogue.
+LevelIdT and RewardT come from the Level Catalogue. A RewardT contains
+journey points, coins, and an accessory or $\V{none}$; points and coins
+are natural numbers. Preferences supplies the last chosen slot, while
+SaveSlotsT stores the separate player records.
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+None. The slot count is $\T{PLAYER\_SLOTS}$ from the Save Slots Module.
+The SRS does not specify a nickname length limit.
+
+\subsubsection{Exported Types}
+
+\begin{itemize}
+\item $\T{SummaryT}$: the values shown for one player slot,
+  \[\begin{array}{l}
+  \text{tuple of } (\T{used} : \B,\ \T{look} : \text{set of ItemT},\
+  \T{coins} : \N,\\
+  \phantom{\text{tuple of } (}\T{completed} : \N,\ \T{total} : \N).
+  \end{array}\]
+  $\T{used}$ is $\true$ when the slot contains a valid saved record.
+  An unused slot has the values of a new player. The look is the set of
+  items returned by Wardrobe.look().
+\item $\T{GivenT} = \text{tuple of } (\T{first} : \B,\ \T{reward} :
+  \text{RewardT})$: the result of reporting a level's completion.
+  $\T{first}$ is $\true$ only when this call records the first completion
+  and its reward. Otherwise, $\T{reward} = (0, 0, \V{none})$.
+\end{itemize}
+
+\subsubsection{Exported Access Programs}
+
+\begin{accessprogs}
+init & -- & -- & AlreadyInitialized\\
+choosePlayer & $s$ : $\N$ & -- & InvalidSlot, WriteFailed\\
+currentPlayer & -- & $\N$ & --\\
+slotCount & -- & $\N$ & --\\
+summary & $s$ : $\N$ & SummaryT & InvalidSlot\\
+deletePlayer & $s$ : $\N$ & -- & InvalidSlot\\
+status & $l$ : LevelIdT & StatusT & UnknownLevel\\
+coins & -- & $\N$ & --\\
+pointsEarned & $l$ : LevelIdT & $\N$ & UnknownLevel\\
+totalPoints & -- & $\N$ & --\\
+completedCount & -- & $\N$ & --\\
+levelCount & -- & $\N$ & --\\
+startLevel & $l$ : LevelIdT & -- & UnknownLevel, WriteFailed\\
+finishLevel & $l$ : LevelIdT & GivenT & UnknownLevel, WriteFailed\\
+look & -- & set of ItemT & --\\
+owns & $i$ : ItemT & $\B$ & --\\
+shortfall & $i$ : ItemT & $\N$ & NotForSale\\
+buy & $i$ : ItemT & -- & AlreadyOwned, NotForSale, InsufficientCoins, WriteFailed\\
+wear & $i$ : ItemT & -- & NotOwned, WriteFailed\\
+remove & $c$ : CategoryT & -- & WriteFailed\\
+nickname & -- & String & --\\
+setNickname & $n$ : String & -- & WriteFailed\\
+resetJourney & -- & -- & WriteFailed\\
+clearAll & -- & -- & --\\
+\end{accessprogs}
+
+\subsection{Semantics}
+
+Updates to a chosen player's progress, wardrobe, or nickname are prepared
+in a temporary record. A copy includes separate ProgressT and WardrobeT
+values, so changing it does not change the current record or another player's data. The complete
+copy is saved before it replaces the current record and before the next
+input is processed. If saving fails, the previous record is kept both in
+memory and on the device. A completed write followed by an interruption is
+restored as the complete new record on the next launch
+(\srsitemref{FR_PersistState}{FR28},
+\srsitemref{FR_RestoreState}{FR29}).
+
+\subsubsection{Local Types}
+
+$\T{RecordT} = \text{tuple of } (\T{progress} : \text{ProgressT},\
+\T{wardrobe} : \text{WardrobeT},\ \T{nickname} : \text{String})$:
+one player's saved data. The empty string means no nickname. ProgressT
+calculates points and completion counts from level statuses; these totals
+and a separate reward-claimed flag are not stored.
+
+\newpage
+\subsubsection{State Variables}
+
+\begin{itemize}
+\item $\T{slots}$ : SaveSlotsT(RecordT), the device's player records.
+\item $\T{slot}$ : $\N$, the current slot number.
+\item $\T{rec}$ : RecordT, the restored or newly prepared current record.
+\item $\T{chosen}$ : $\B$, whether the current player has been activated
+  with choosePlayer since initialization or deletion of that player.
+\item $\T{ready}$ : $\B$, initially $\false$, whether initialization has
+  finished. The other state variables are set by init().
+\end{itemize}
+
+\subsubsection{Environment Variables}
+
+None. Player records are stored through SaveSlotsT, and the last-player
+preference is stored through Preferences. This module does not display
+screens or access files directly.
+
+\subsubsection{State Invariant}
+
+When $\T{ready}$ is $\true$:
+\begin{itemize}
+\item $0 \leq \T{slot} < \T{PLAYER\_SLOTS}$.
+\item $\T{rec}.\T{progress}$ and $\T{rec}.\T{wardrobe}$ satisfy their
+  module invariants and have been aligned with the current catalogues.
+\item $\T{rec}.\T{nickname}$ is a String. It is optional and does not
+  identify an account.
+\item When $\T{chosen}$ is $\true$, the current slot contains the complete
+  saved value of $\T{rec}$. No caller can change a ProgressT or WardrobeT
+  inside $\T{rec}$ through a returned reference.
+\end{itemize}
+
+\subsubsection{Assumptions}
+
+\begin{itemize}
+\item Preferences and both catalogues are initialized before init(), and
+  init() is called before the other access programs. The catalogue contents
+  remain fixed while the application runs. Each level reward refers to an
+  existing accessory or $\V{none}$.
+\item choosePlayer is called before changing a player's progress,
+  wardrobe, or nickname. Application Control activates currentPlayer()
+  when entering the home screen after startup or clearing all data.
+\item Calls are processed one at a time, including the completion check,
+  reward grant, and save. This module is the only writer of the player
+  records. Returned records, summaries, and item sets are independent
+  values, not writable references to module state.
+\item Item and category arguments come from the current Accessory
+  Catalogue. The Procedure Runner calls finishLevel only after reaching
+  the end of the selected preparation level, including when exercises
+  were skipped.
+\item Changing players, deleting players, and resetting data take place
+  when no preparation level is running or paused. The caller obtains the
+  parental gate and confirmation required for caregiver changes before
+  calling the corresponding access program. A cancelled action makes no
+  call (\srsitemref{FR_ParentGate}{FR41},
+  \srsitemref{FR_ResetJourney}{FR45},
+  \srsitemref{FR_ClearAllData}{FR46}).
+\item Callers handle WriteFailed without closing the application. They
+  keep showing the previous values and allow retry or navigation away. A
+  failed finishLevel call does not open a reward screen; it can be retried
+  without giving the reward twice.
+\end{itemize}
+
+\subsubsection{Access Routine Semantics}
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent init():
+\begin{itemize}
+\item transition: set $\T{slots}$ to new SaveSlotsT(RecordT)(``player'',
+  $\T{newRecord}()$, $\T{valid}$). For each valid slot number $s$ whose
+  isUsed($s$) result is $\false$, call $\T{slots}$.delete($s$). This
+  removes an unreadable or invalid record; deleting an absent file has no
+  effect. Such a slot subsequently loads as a new player, so an old damaged
+  record cannot return on a later launch
+  (\srsitemref{FR_CorruptData}{FR30}).
+
+  Use Preferences.lastPlayer() as $\T{slot}$ when it is less than
+  $\T{PLAYER\_SLOTS}$; otherwise use 0. Set
+  $\T{rec} := \T{loaded}(\T{slot})$ and
+  $\T{chosen}, \T{ready} := \false, \true$. Restoring a player gives no
+  rewards. Initialization does not create a save for an unused slot.
+\item exception: $\exc := (\T{ready} \Rightarrow
+  \text{AlreadyInitialized})$
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent choosePlayer($s$):
+\begin{itemize}
+\item transition: prepare $r := \T{loaded}(s)$ and save it with
+  $\T{slots}$.save($s$, $r$). After the save succeeds, set
+  $\T{slot}, \T{rec}, \T{chosen} := s, r, \true$ and call
+  Preferences.setLastPlayer($s$). An unused slot becomes a saved new
+  player. An existing slot keeps its progress, wardrobe, and nickname,
+  with any catalogue alignment saved before it is used. Other slots are
+  unchanged. When $s = \T{slot}$ and $\T{chosen}$ is already $\true$,
+  nothing changes and no write is needed.
+\item exception: $\exc := (s \geq \T{PLAYER\_SLOTS} \Rightarrow
+  \text{InvalidSlot} \mid \text{the record cannot be saved}
+  \Rightarrow \text{WriteFailed})$. On failure, the previous current
+  player and last-player preference are kept.
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent currentPlayer():
+\begin{itemize}
+\item output: $\out := \T{slot}$, including the slot prepared at startup
+  before choosePlayer is called.
+\item exception: none
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent slotCount():
+\begin{itemize}
+\item output: $\out := \T{PLAYER\_SLOTS}$. Slot numbers run from 0 to
+  this value minus 1.
+\item exception: none
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent summary($s$):
+\begin{itemize}
+\item output: with $r := \T{loaded}(s)$,
+  \[\begin{array}{l}
+  \out := (\T{slots}.\text{isUsed}(s),\
+  r.\T{wardrobe}.\text{look}(),\ r.\T{progress}.\text{coins}(),\\
+  \phantom{\out := (}r.\T{progress}.\text{completedCount}(),\
+  r.\T{progress}.\text{levelCount}()).
+  \end{array}\]
+  The validity check and loaded values refer to the same slot contents.
+  Reading a summary does not choose a player, create a file, save alignment
+  changes, or change the current record. An unused slot returns $\false$,
+  an empty look, 0 coins, 0 completed levels, and the current level count.
+\item exception: $\exc := (s \geq \T{PLAYER\_SLOTS} \Rightarrow
+  \text{InvalidSlot})$
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent deletePlayer($s$):
+\begin{itemize}
+\item transition: call $\T{slots}$.delete($s$). When $s = \T{slot}$,
+  also set $\T{rec}, \T{chosen} := \T{newRecord}(), \false$. The slot
+  remains unused until choosePlayer activates it again; deletion does not
+  immediately write an empty record. Deleting another slot leaves the
+  current player unchanged. Other players, caregiver preferences, and
+  notice acknowledgement are kept. Deleting an unused slot has no effect.
+\item exception: $\exc := (s \geq \T{PLAYER\_SLOTS} \Rightarrow
+  \text{InvalidSlot})$
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent status($l$), coins(), pointsEarned($l$), totalPoints(),
+completedCount(), levelCount():
+\begin{itemize}
+\item output: $\out :=$ the result of the same access program on
+  $\T{rec}.\T{progress}$, passing $l$ where required. These are the
+  current player's values for the journey map and scoreboard
+  (\srsitemref{FR_JourneyMap}{FR3},
+  \srsitemref{FR_Scoreboard}{FR33}).
+\item exception: status and pointsEarned signal UnknownLevel when $l$ is
+  not in LevelCatalogue.ids(), as specified by ProgressT. The other
+  queries have no exceptions.
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent startLevel($l$):
+\begin{itemize}
+\item transition: copy $\T{rec}$ to $r$, call
+  $r.\T{progress}$.start($l$), then $\T{commit}(r)$. No reward is given.
+  A completed level remains completed when replayed
+  (\srsitemref{FR_StartLevel}{FR4}, \srsitemref{FR_Replay}{FR5}).
+\item exception: UnknownLevel as in ProgressT.start; WriteFailed as in
+  $\T{commit}$. A failed start is not recorded.
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent finishLevel($l$):
+\begin{itemize}
+\item transition: let $f$ be whether
+  $\T{rec}.\T{progress}$.status($l$) is $\V{InProgress}$, before any
+  change. When $f$ is $\true$, copy $\T{rec}$ to $r$ and let $q$ be
+  LevelCatalogue.level($l$).reward. Call
+  $r.\T{progress}$.finish($l$). If $q.\T{accessory} \neq \V{none}$,
+  also call $r.\T{wardrobe}$.grant($q.\T{accessory}$). Then call
+  $\T{commit}(r)$. Completion, coins, and accessory ownership are saved
+  together. The nickname and equipped look are unchanged. When the level
+  is $\V{NotStarted}$ or $\V{Completed}$, nothing changes and no write
+  is needed (\srsitemref{def_Ops}{D4}).
+\item output: after a successful commit, $\out := (\true, q)$. When
+  $f$ is $\false$, $\out := (\false, (0, 0, \V{none}))$. The result
+  describes the reward recorded by this call. An accessory already owned
+  remains a single owned item; other parts of a first-completion reward
+  are still given (\srsitemref{FR_FirstReward}{FR31},
+  \srsitemref{FR_NoDuplicateReward}{FR32}).
+\item exception: UnknownLevel when $l$ is not in LevelCatalogue.ids();
+  WriteFailed as in $\T{commit}$. On failure, no GivenT is returned and
+  neither completion nor any part of the reward is recorded.
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent look(), owns($i$):
+\begin{itemize}
+\item output: $\out := \T{rec}.\T{wardrobe}.\text{look}()$ or
+  $\T{rec}.\T{wardrobe}.\text{owns}(i)$, respectively. An empty look
+  uses the default character when displayed; it does not select one.
+\item exception: none
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent shortfall($i$):
+\begin{itemize}
+\item output: $\out := \T{rec}.\T{wardrobe}.\text{shortfall}(i,
+  \T{rec}.\T{progress})$, the additional coins needed by this player.
+\item exception: NotForSale as in WardrobeT.shortfall.
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent buy($i$):
+\begin{itemize}
+\item transition: copy $\T{rec}$ to $r$, call
+  $r.\T{wardrobe}$.buy($i$, $r.\T{progress}$), then
+  $\T{commit}(r)$. The coin deduction and new ownership are one saved
+  change. No further coin deduction is required. The character, equipped
+  accessories, nickname, level statuses, and journey points are unchanged
+  (\srsitemref{FR_Purchase}{FR37}).
+\item exception: AlreadyOwned, NotForSale, or InsufficientCoins as in
+  WardrobeT.buy; WriteFailed as in $\T{commit}$. A refused purchase
+  makes no save attempt. A failed save keeps both the previous balance
+  and ownership (\srsitemref{FR_PurchaseRefused}{FR38}).
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent wear($i$), remove($c$):
+\begin{itemize}
+\item transition: copy $\T{rec}$ to $r$, call
+  $r.\T{wardrobe}$.wear($i$) or $r.\T{wardrobe}$.remove($c$),
+  respectively, then $\T{commit}(r)$. Only the selected character or
+  the affected equipment category changes. Ownership, progress, coins,
+  and nickname are kept (\srsitemref{FR_ChooseCharacter}{FR34},
+  \srsitemref{FR_Equip}{FR39}).
+\item exception: wear signals NotOwned as in WardrobeT.wear. Both
+  routines signal WriteFailed as in $\T{commit}$.
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent nickname():
+\begin{itemize}
+\item output: $\out := \T{rec}.\T{nickname}$. The empty string tells
+  the screen to use wording that is not personalized
+  (\srsitemref{FR_Nickname}{FR43}).
+\item exception: none
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent setNickname($n$):
+\begin{itemize}
+\item transition: copy $\T{rec}$ to $r$, set
+  $r.\T{nickname} := n$, then $\T{commit}(r)$. The empty string
+  clears the nickname. No real name is required, and all other player
+  data is kept (\srsitemref{FR_Nickname}{FR43}).
+\item exception: WriteFailed as in $\T{commit}$.
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent resetJourney():
+\begin{itemize}
+\item transition: call $\T{commit}(\T{newRecord}())$. The current slot
+  stays selected and used, but every level becomes $\V{NotStarted}$,
+  coins and calculated points become 0, no accessory is owned or worn,
+  no character is selected, and the nickname is empty. Other player slots,
+  preferences, and medical notice acknowledgement are kept
+  (\srsitemref{FR_ResetJourney}{FR45}).
+\item exception: WriteFailed as in $\T{commit}$. A failed reset keeps
+  the complete previous journey and customization.
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent clearAll():
+\begin{itemize}
+\item transition: call $\T{slots}$.deleteAll() and set
+  $\T{slot}, \T{rec}, \T{chosen} := 0, \T{newRecord}(), \false$.
+  Every player slot is unused. $\T{ready}$ remains $\true$, and no
+  empty player record is written. Packaged levels and assets are kept.
+  Application Control also calls Preferences.clear() and shows the
+  medical notice before activating a new player. Together these calls
+  clear all local application data
+  (\srsitemref{FR_ClearAllData}{FR46}).
+\item exception: none
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\subsubsection{Local Functions}
+
+\noindent $\T{newRecord}$ : $() \to \text{RecordT}$
+
+$\out := (\text{new ProgressT}(),\ \text{new WardrobeT}(),\ \text{``''})$.
+Each call creates independent progress and wardrobe values. An empty slot
+and a journey reset therefore have the same initial player data.
+
+\noindent $\T{valid}$ : $\text{RecordT} \to \B$
+
+$\out := \true$ exactly when the record has all required fields with their
+declared types and both contained abstract data types satisfy their
+invariants. Validation rejects negative coins, invalid level statuses,
+duplicate level or item identifiers, unowned equipped accessories, and
+multiple equipped items of one category. Empty nicknames, empty inventories,
+no selected character, and a zero balance are valid. A completed level does
+not require its coins to remain unspent or its accessory to remain equipped.
+
+For the current saved version, the level identifiers must match the Level
+Catalogue, and character and accessory identifiers must belong to the
+Accessory Catalogue. A recognized earlier saved version may be accepted
+only through a supported migration that validates its original identifiers
+and preserves the ProgressT and WardrobeT invariants. An arbitrary unknown
+identifier or missing level in a current-version record is invalid; align()
+does not turn a damaged record into a valid one. The persistence decoder
+rejects malformed or incomplete data before it can be used as a RecordT
+(\srsitemref{FR_CorruptData}{FR30}).
+
+\noindent $\T{loaded}$ : $\N \rightharpoonup \text{RecordT}$
+
+For $s < \T{PLAYER\_SLOTS}$, let $r$ be an independent copy of
+$\T{slots}$.load($s$). Call $r.\T{progress}$.align() and
+$r.\T{wardrobe}$.align(), then return $r$. SaveSlotsT supplies a fresh
+record when the stored value is missing, unreadable, or invalid. Alignment
+occurs only after validation, gives no reward, and does not write a file.
+The function is undefined for other slot numbers.
+
+\noindent $\T{commit}$ : $\text{RecordT} \to ()$
+
+The argument $r$ is a valid, aligned replacement for the chosen player's
+record. If its values are already equal to $\T{rec}$, nothing changes and
+no write is needed. Otherwise, call $\T{slots}$.save($\T{slot}$, $r$)
+and, only after it succeeds, set $\T{rec} := r$. The saved value includes
+progress, the entire wardrobe, and the nickname. SaveSlotsT's indivisible
+replacement prevents a partial record from becoming the saved record.
+
+A WriteFailed exception is passed to the caller, leaving $\T{rec}$ and the
+previous save unchanged. The caller can retry the original action against
+that same state. InvalidSlot and InvalidValue cannot occur for this helper
+when the module's assumptions and invariants hold. A failed write does not
+mark a valid save as corrupt or replace it with a new journey.
+
+\subsubsection{Considerations}
+
+The same record and save rules apply to every preparation level, including
+Vision Testing, Eye-Drop Preparation, and Slit-Lamp Preparation. The level's
+catalogue reward is used regardless of hints, incorrect answers, or skipped
+exercises (\srsitemref{FR_NoPenalty}{FR19}). This module does not save the
+current exercise, narration position, or navigation history; a level starts
+from its beginning after relaunch
+(\srsitemref{FR_RestartAfterExit}{FR25}).
+
+finishLevel returns the reward decided by the same saved change that grants
+it. The Procedure Runner uses this result for the Reward Screen instead of
+checking completion in a separate call. Repeating the call after a
+successful completion gives no new reward, while retrying after a failed
+save can complete the original change.
+
+Player Data is the entry point for changes to a player's ProgressT and
+WardrobeT. In particular, the Dress-Up Screen must use buy, wear, and
+remove here so each action is saved before the next input. The deferred
+spending interface noted in Section~\ref{mis:Wardrobe} still needs to be
+updated in its callers; a purchase saved here must not be charged again
+when that screen closes.
+
+The last-player preference is a separate device preference, not part of
+the player record. Preferences handles a failure to save that preference
+without undoing a successfully saved player. A later launch may then use
+the previous last-player value, but each player's data remains in its own
+slot. Resetting a journey keeps the preference and notice acknowledgement;
+clearing all data requires both Player Data and Preferences to be cleared.
+
+All records stay on the device and contain only game progress,
+customization, and the optional nickname. They require no account, real
+name, or clinical information (\srsitemref{NFR_Offline}{NFR19},
+\srsitemref{NFR_DataProtection}{NFR26},
+\srsitemref{NFR_Privacy}{NFR28},
+\srsitemref{NFR_Minimization}{NFR29}).
 
 % =====================================================================
 % M14 to M26 (Jake Finlay). The Uses of each module follow the Uses

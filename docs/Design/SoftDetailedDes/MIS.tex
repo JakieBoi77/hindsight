@@ -350,7 +350,7 @@ Hardware-Hiding Module & \misref{HH}{1} Hardware-Hiding Module \\
 & \misref{Runner}{10} Procedure Runner Module \\
 & \misref{Narration}{11} Narration Module \\
 & \misref{PlayerSelect}{12} Player Select Screen Module \\
-& M13 Journey Map Screen Module \\
+& \misref{Map}{13} Journey Map Screen Module \\
 & M14 Reward Screen Module \\
 & M15 Scoreboard Screen Module \\
 & M16 Dress-Up Screen Module \\
@@ -711,7 +711,7 @@ Hardware-Hiding Module (\misref{HH}{1}), Journey Progress Module (M3),
 Player Data Module (M5), Preferences Module (M6),
 Level Catalogue Module (M7), Accessory Catalogue Module (M8), Procedure
 Runner Module (M10), Player Select Screen Module (\misref{PlayerSelect}{12}), Journey Map Screen
-Module (M13), Scoreboard Screen Module (\misref{Scoreboard}{15}), Dress-Up
+Module (\misref{Map}{13}), Scoreboard Screen Module (\misref{Scoreboard}{15}), Dress-Up
 Screen Module (\misref{DressUp}{16}), Settings Screen Module
 (\misref{Settings}{18}), Procedure Guide Screen Module (\misref{Guide}{19}),
 and UI Widgets Module (\misref{Widgets}{26}).
@@ -870,13 +870,17 @@ selected player's data. On WriteFailed, keep the previous current player
 and offer retry or reopen player selection. Do not show the requested
 player as active before the save succeeds. If the previous player was
 deleted, it remains a new, unactivated record until a choice is saved.\\[0.6em]
-$\V{Map}$ & Open the Journey Map Screen with the current player's progress.
-When a level is chosen, set $\T{level}$ to its catalogue identifier and
-$\T{screen} := \V{Level}$. Every catalogue level is available, including
-completed levels. Follow any other navigation choice to its corresponding
-screen; the back control returns to $\V{Home}$
+$\V{Map}$ & Let $r := \text{JourneyMapScreen.open}()$. When
+$r.\T{kind} = \V{Level}$, set $\T{level} := r.\T{level}$ and
+$\T{screen} := \V{Level}$. This choice is returned only after Play
+is selected on that level's introduction. Every catalogue level is available,
+including completed levels. For the other choices, $\V{Caregiver}$
+opens $\V{Settings}$, $\V{Back}$ returns to $\V{Home}$, and
+$\V{DressUp}$, $\V{Scoreboard}$, $\V{Players}$, and $\V{Guide}$
+open their corresponding screens. The guide does not require the
+settings gate. Opening or leaving an introduction does not start a level
 (\srsitemref{FR_JourneyMap}{FR3}, \srsitemref{FR_StartLevel}{FR4},
-\srsitemref{FR_Replay}{FR5}).\\[0.6em]
+\srsitemref{FR_Replay}{FR5}, \srsitemref{FR_ProcedureGuide}{FR42}).\\[0.6em]
 $\V{Level}$ & Load the packaged scene associated with $\T{level}$ through
 HardwareHiding. Ask ProcedureRunner to play that level from its beginning,
 providing $\T{openSettings}$ as the callback for its settings control.
@@ -4507,6 +4511,342 @@ identical character previews, cancellation, deletion of the current
 or last player, and returning after a failed activation save. The
 checks compare every slot before and after each action so that one
 player's selection or deletion cannot change another player's journey.
+
+% =====================================================================
+\newpage
+\section{MIS of Journey Map Screen Module} \label{mis:Map}
+
+\subsection{Module}
+
+JourneyMapScreen (\misref{Map}{13})
+
+This module shows the available preparation levels and the current
+player's progress through them. It lets the child view a level's
+introduction and choose Play, or navigate to the other application
+screens. The journey order is a suggestion; every level is available
+to start or replay.
+
+\subsection{Uses}
+
+Hardware-Hiding Module (\misref{HH}{1}), for the display and touch
+input; Journey Progress Module (\misref{Progress}{3}), for StatusT;
+Player Data Module (\misref{PlayerData}{5}), for currentPlayer,
+status, and coins; Level Catalogue Module (\misref{Levels}{7}), for
+LevelT, LevelIdT, and levels; Narration Module
+(\misref{Narration}{11}), for the instructions shown to the child;
+and UI Widgets Module (\misref{Widgets}{26}), for controls, visual
+cues, and the coin counter.
+
+Progress is read through Player Data. This screen does not create or
+change a ProgressT instance, load a procedure scene, or start the
+Procedure Runner.
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+None. The available levels and their order come from Level Catalogue.
+Control sizes and response times follow UI Widgets.
+
+\subsubsection{Exported Types}
+
+\begin{itemize}
+\item $\T{MapActionT}$: the destination requested from the map,
+  \[\begin{array}{l}
+  \{\V{Level}, \V{DressUp}, \V{Scoreboard}, \V{Caregiver},
+  \V{Players}, \V{Guide}, \V{Back}\}.
+  \end{array}\]
+  $\V{Level}$ requests play of a selected preparation level.
+  $\V{Caregiver}$ requests caregiver settings, and $\V{Guide}$
+  requests the procedure guide. $\V{Back}$ returns to the home
+  screen. The other values request their named screens.
+\item $\T{ChoiceT}$: the choice returned to Application Control,
+  \[\begin{array}{l}
+  \text{tuple of } (\T{kind} : \text{MapActionT},\
+  \T{level} : \text{LevelIdT} \cup \{\V{none}\}).
+  \end{array}\]
+  When $\T{kind} = \V{Level}$, $\T{level}$ is the identifier
+  of an entry in the current catalogue. For every other kind,
+  $\T{level} = \V{none}$. Viewing an introduction alone does not
+  produce a $\V{Level}$ choice.
+\end{itemize}
+
+\subsubsection{Exported Access Programs}
+
+\begin{accessprogs}
+open & -- & ChoiceT & --\\
+\end{accessprogs}
+
+\subsection{Semantics}
+
+open stays active while the map or one of its level introductions is
+shown. It returns one navigation choice to Application Control. The
+caller opens the requested screen or loads the chosen level and asks
+the Procedure Runner to play it. The runner records the start through
+Player Data after the level's scene has loaded successfully.
+
+Browsing the map, viewing an introduction, and returning a choice do
+not change player data. The screen reads the current player's values
+again on each call, including after a level, a purchase, a player
+change, or a journey reset.
+
+\subsubsection{Local Types}
+
+$\T{IntroChoiceT} = \{\V{Play}, \V{ToMap}, \V{ToHome}\}$:
+the result of a level introduction. $\V{ToMap}$ returns to the map
+within the current open call; $\V{ToHome}$ ends the call with a
+$\V{Back}$ choice.
+
+\subsubsection{State Variables}
+
+None. The catalogue sequence, entry player, displayed statuses, coin
+balance, and any selected introduction are kept only for the current
+open call. No map selection or copy of player progress is saved between
+calls or application launches.
+
+\subsubsection{Environment Variables}
+
+$\T{screen}$: the device display and touch input, reached through
+Hardware-Hiding and UI Widgets. It shows the journey entries, status
+marks, coin counter, navigation controls, and any level introduction.
+Narration manages the accompanying instruction, caption, and visual
+cue. The screen's presentation also includes the demonstrations of how
+to choose a level and press Play.
+
+\subsubsection{State Invariant}
+
+While open is active:
+\begin{itemize}
+\item When the map is shown, it contains exactly one entry for each
+  level in the current catalogue, in the order returned by
+  LevelCatalogue.levels(). A level's age-group variants and exercises
+  are not separate entries.
+\item Every displayed status and the coin balance belong to the
+  player selected at entry. A displayed level is identified by its
+  catalogue identifier, independently of its name or position.
+\item All catalogue levels can be selected, including those marked
+  $\V{Completed}$. Status, coins, points, rewards, and the completion
+  of other levels never create an unlocking condition.
+\item An introduction belongs to one of the displayed catalogue
+  entries. Only Play on that introduction can produce a
+  $\V{Level}$ result, carrying that same entry's identifier.
+\item Viewing or leaving either view does not change a level status,
+  grant or spend a reward, change the current player, or write a save.
+\item Only the visible view accepts input. One accepted touch cannot
+  select a map entry and then activate its Play control.
+\end{itemize}
+
+\subsubsection{Assumptions}
+
+\begin{itemize}
+\item Level Catalogue, Player Data, and Narration are initialized, and
+  the menu scene and its display services are ready. A player has been
+  activated through PlayerData.choosePlayer. Their progress has been
+  aligned with the current catalogue by Player Data. The previous
+  screen has cancelled its presentation work, leaving Narration idle.
+\item Application Control calls open when no preparation level is
+  running or paused. Only one call is active. The catalogue, current
+  player, and player records do not change while the map or an
+  introduction is open. Other screens are opened after this call
+  returns, and a later visit uses a new call.
+\item Packaged menu content provides the controls, status icons,
+  selection instructions, and the instruction for each level's
+  introduction. Instructions are LineT values with a recording and
+  matching visual demonstration, and satisfy Narration's content
+  assumptions. Controls meet UI Widgets' size and input requirements.
+\item Application Control suspends the active presentation during a
+  device interruption, including narration, demonstrations, input,
+  and pending actions. It resumes the same map or introduction from
+  its retained position when the interruption ends. Old touch
+  contacts are discarded before new input is accepted
+  (\srsitemref{FR_Suspend}{FR27}).
+\item The caller processes one returned choice before accepting
+  another navigation input. It applies the settings gate through
+  Settings Screen and handles scene-load or save failures without
+  treating a failed level start as successful.
+\end{itemize}
+
+\subsubsection{Access Routine Semantics}
+
+\noindent open():
+\par\nopagebreak[4]
+\begin{itemize}
+\item transition: retain the player returned by
+  PlayerData.currentPlayer(). Obtain the catalogue sequence
+  $c := \text{LevelCatalogue.levels}()$. Apply showMap($c$), then
+  accept choices through UI Widgets.
+
+  When the child selects an entry $t$ from $c$, call Narration.stop(),
+  cancel the map's demonstration and input handlers, and call
+  introduce($t$). A $\V{ToMap}$ result
+  restores the map and its guidance through showMap($c$), without
+  ending open or starting a level. A $\V{Play}$ or $\V{ToHome}$
+  result ends open with the corresponding output below. A new entry
+  may be chosen after returning to the map.
+
+  The map's dress-up, scoreboard, caregiver-settings, player-selection,
+  procedure-guide, and Back controls end open with their own choices.
+  The settings control does not expose or change a preference here.
+  The procedure guide has a separate control and does not require
+  passing the settings gate
+  (\srsitemref{FR_ParentGate}{FR41},
+  \srsitemref{FR_ProcedureGuide}{FR42}).
+
+  Accept one choice at a time and discard additional touches until
+  the next view is ready. A control's position in UIWidgets.choose
+  is mapped to its associated level identifier or navigation action;
+  it is not used as a level identifier. Ignore unexpected touches.
+  Controls remain usable during the map and introduction instructions;
+  an accepted navigation choice cancels the instruction for the view
+  being left. No timer, playback completion, or automatic-continuation
+  preference selects a level or presses Play
+  (\srsitemref{FR_IgnoreRepeatedTouches}{FR20}).
+
+  In both views, start matching narration and demonstrations within
+  100 milliseconds of each other (\srsitemref{NFR_AVSync}{NFR14}).
+
+  While interrupted, preserve the current view and any selected
+  introduction. Do not accept input, finish a pending navigation, or
+  advance narration and demonstrations until resumption. Require a
+  fresh contact before accepting a choice
+  (\srsitemref{FR_Suspend}{FR27}).
+
+  Before returning, cancel the screen's waiting input, demonstrations,
+  and pending callbacks, call Narration.stop(), and remove its controls,
+  cues, and coin counter. A callback from the closed map or introduction
+  cannot start playback or produce another choice.
+\item output: $\out := (\V{Level}, t.\T{id})$ when Play is chosen
+  on the introduction for entry $t$. Return
+  $\out := (\V{Back}, \V{none})$ when the introduction returns
+  $\V{ToHome}$ or the map's Back control is chosen. For any other
+  navigation control of kind $k$, return
+  $\out := (k, \V{none})$.
+
+  The level result contains the selected catalogue identifier. It
+  does not report a successful scene load, a recorded start, or a
+  completed level. Application Control and the runner handle those
+  operations after the return.
+\item exception: none. Only current catalogue identifiers are passed
+  to PlayerData.status, so UnknownLevel cannot occur under the
+  assumptions above. Packaged instructions and controls satisfy the
+  input requirements of Narration and UI Widgets.
+\end{itemize}
+
+\subsubsection{Local Functions}
+
+\noindent $\T{showMap}$ : seq of LevelT $\to ()$
+\par\nopagebreak[4]
+
+For input $c$, replace the previous view with one illustrated entry
+for each $t$ in $c$, in sequence order. Show $t.\T{name}$ and
+$t.\T{picture}$, and obtain the current status
+$q := \text{PlayerData.status}(t.\T{id})$. Show that StatusT value
+using the following label and distinct mark:
+\begin{itemize}
+\item $\V{NotStarted}$: ``Not Started'', with an unfilled circle.
+\item $\V{InProgress}$: ``In Progress'', with a footprint.
+\item $\V{Completed}$: ``Completed'', with a tick badge.
+\end{itemize}
+Colour may reinforce the marks, but the labels and shapes distinguish
+the states without colour. An in-progress mark does not promise that
+the level will resume partway through. All statuses retain the same
+selection control; no entry shows a lock or a completion prerequisite
+(\srsitemref{FR_JourneyMap}{FR3},
+\srsitemref{FR_StartLevel}{FR4},
+\srsitemref{NFR_Colour}{NFR10}).
+
+Show PlayerData.coins() through UIWidgets.coinCounter, including a
+balance of 0. This is the saved coin balance, not journey points or a
+sum of the catalogue rewards. Alongside the level entries, show the
+other MapActionT navigation controls, with Back and caregiver settings at
+UIWidgets.spot($\V{Back}$) and UIWidgets.spot($\V{Settings}$).
+The coin counter is informational and does not purchase or unlock a
+level. Keep controls in consistent positions and meet UI Widgets'
+minimum touch-target size and visible response timing
+(\srsitemref{NFR_Layout}{NFR1},
+\srsitemref{NFR_TouchTarget}{NFR3},
+\srsitemref{NFR_Responsiveness}{NFR12}).
+
+Run the packaged map instruction through Narration.say with
+$\T{wait} = \false$ as part of the view's presentation, alongside
+a visual demonstration of choosing a level. showMap returns when
+the controls are ready, allowing open to accept input while narration
+continues. Keep its visual guidance available when the line
+finishes, captions are hidden, or sound is off. Choosing a level
+does not require reading its name or status. Narration applies the
+current display and sound preferences and supplies its caregiver
+sound prompt when needed
+(\srsitemref{FR_SpokenInstructions}{FR13},
+\srsitemref{FR_NarrationFallback}{FR16}).
+
+Every call reads the statuses and coin balance again. A previous
+player's map or a view from before a level, purchase, or reset is
+not reused as the source of progress information.
+
+\noindent $\T{introduce}$ : LevelT $\to$ IntroChoiceT
+\par\nopagebreak[4]
+
+For input $t$, show its catalogue name, introductory illustration
+$t.\T{picture}$, and current status. Replace the map controls with
+Play, Back to the map, and Home. Use the same positions and control
+meanings for every preparation level. Back and Home use their
+UI Widgets positions. A completed level may label Play as ``Play
+again'', with the same play icon and behaviour.
+
+While waiting for a choice, run the packaged introduction instruction
+through Narration.say with $\T{wait} = \false$ and demonstrate the
+Play control. The introduction identifies the selected procedure and how to start it;
+the required educational explanations remain in the level's content.
+Retain visual guidance when sound is off, as on the map.
+
+Wait for a fresh choice. The touch that opened this introduction,
+including additional taps made during its transition, cannot activate
+Play or Home. For Play, $\out := \V{Play}$; for Back,
+$\out := \V{ToMap}$; and for Home, $\out := \V{ToHome}$.
+Cancel this view's instruction, demonstrations, and input handlers
+before returning, including Narration.stop(). This helper never
+calls PlayerData.startLevel or changes a saved record. Returning to
+the map or home before Play keeps every level status and reward
+unchanged, as in the SRS
+\srsitemref{UC_SelectGame}{level-selection use case}.
+
+\subsubsection{Considerations}
+
+The current catalogue presents Vision Testing, Eye-Drop Preparation,
+and Slit-Lamp Preparation in that order. The map uses the same
+interface for additional or reordered levels and does not fix the
+level count. Every player sees the same catalogue, with their own
+statuses and coin balance. The runner selects the age-group content
+after play is requested; an age-group choice does not remove a level
+from the map (\srsitemref{FR_AgeGroup}{FR7}).
+
+Any level can be played first, and every play starts from the
+beginning. The runner and Player Data change a previously unfinished
+level to $\V{InProgress}$ when it starts. A completed level stays
+$\V{Completed}$ during and after replay, including an early exit.
+The map displays those recorded statuses without resetting them or
+awarding another first-completion reward
+(\srsitemref{FR_StartLevel}{FR4},
+\srsitemref{FR_Replay}{FR5},
+\srsitemref{FR_NoDuplicateReward}{FR32}).
+
+Application Control handles the destinations in ChoiceT. The guide
+remains available without entering settings, the Settings Screen
+applies its parental gate, and the scoreboard presents the current
+player's detailed progress. Returning from a temporary screen opens
+a fresh map, while a player switch or data reset follows Application
+Control's home or notice flow. The map does not reopen an old player's
+view after either change.
+
+The VnV Plan checks the map on a new journey, a journey with all three
+statuses, starting levels in reverse order, and replay after completion.
+It also checks the recorded balances after early exits and replay.
+Module checks should cover cancelling an introduction before Play,
+repeated touches across the map-to-introduction transition, each
+navigation result, muted instructions, interruptions, and fresh data
+after a player change or purchase. Catalogue changes should preserve
+the association between each entry and its identifier, name, picture,
+and recorded status.
 
 % =====================================================================
 % M14 to M26 (Jake Finlay). The Uses of each module follow the Uses

@@ -256,6 +256,7 @@ $\min(a,b)$, $\max(a,b)$ & the smaller and larger of $a$ and $b$, respectively\\
 $\langle a, b \rangle$, $\langle\rangle$ & the sequence of $a$ then $b$, and
 the empty sequence\\
 $s[i]$ & the element at position $i$ of sequence $s$, counting from 0\\
+$|s|$ & the number of elements in sequence $s$\\
 $s \,||\, t$ & sequence $s$ followed by sequence $t$\\
 $a, \ldots, b$ & all the values from $a$ to $b$\\
 \bottomrule
@@ -338,7 +339,7 @@ Hardware-Hiding Module & \misref{HH}{1} Hardware-Hiding Module \\
 & \misref{Wardrobe}{4} Wardrobe Module \\
 & \misref{PlayerData}{5} Player Data Module \\
 & \misref{Prefs}{6} Preferences Module \\
-& M7 Level Catalogue Module \\
+& \misref{Levels}{7} Level Catalogue Module \\
 & M8 Accessory Catalogue Module \\
 & M9 Procedure Content Module \\
 & M10 Procedure Runner Module \\
@@ -2467,6 +2468,209 @@ undo a saved purchase, reward, or player selection. All storage stays on
 the device (\srsitemref{NFR_Offline}{NFR19},
 \srsitemref{NFR_DataProtection}{NFR26},
 \srsitemref{NFR_Privacy}{NFR28}).
+
+% =====================================================================
+\newpage
+\section{MIS of Level Catalogue Module} \label{mis:Levels}
+
+\subsection{Module}
+
+LevelCatalogue (\misref{Levels}{7})
+
+This module defines the preparation levels available in the game, their
+suggested journey order, and the reward associated with each level. It
+provides the identifiers, names, and illustrations used by the other
+modules to refer to and display those levels. The same catalogue is used
+for every player.
+
+\subsection{Uses}
+
+Accessory Catalogue Module (M8), for ItemT and the items access program.
+ItemT describes an item in that catalogue; a level's optional accessory
+reward must refer to one of its accessories.
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+None. The levels, their order, and their rewards are defined by the content
+packaged with the application.
+
+\subsubsection{Exported Types}
+
+\begin{itemize}
+\item $\T{LevelIdT}$: a non-empty String used to identify a preparation
+  level. The identifier is independent of the level's displayed name and
+  position in the journey. A value may identify a level from an earlier
+  release that is no longer in the current catalogue.
+\item $\T{RewardT}$: the reward defined for a level's first completion,
+  \[\begin{array}{l}
+  \text{tuple of } (\T{points} : \N,\ \T{coins} : \N,\\
+  \phantom{\text{tuple of } (}\T{accessory} : \text{ItemT}
+  \cup \{\V{none}\}).
+  \end{array}\]
+  $\T{points}$ is the number of journey points, and $\T{coins}$ is the
+  number of coins. A coin value of 0 means no coins are included, and
+  $\V{none}$ means no accessory is included. Points may also be 0, as
+  allowed by the SRS data dictionary. These values describe the reward;
+  they do not record whether a player has received it
+  (\srsitemref{FR_FirstReward}{FR31}).
+\item $\T{LevelT}$: the definition of one preparation level,
+  \[\begin{array}{l}
+  \text{tuple of } (\T{id} : \text{LevelIdT},\
+  \T{name} : \text{String},\\
+  \phantom{\text{tuple of } (}\T{picture} : \text{ImageT},\
+  \T{reward} : \text{RewardT}).
+  \end{array}\]
+  $\T{name}$ is the level's displayed name, and $\T{picture}$ is its
+  illustration. Each record represents a whole preparation level. The
+  exercises and age-group variants within it belong to the Procedure
+  Content Module (M9).
+\end{itemize}
+
+\subsubsection{Exported Access Programs}
+
+\begin{accessprogs}
+init & -- & -- & AlreadyInitialized\\
+levels & -- & seq of LevelT & --\\
+level & $l$ : LevelIdT & LevelT & UnknownLevel\\
+ids & -- & set of LevelIdT & --\\
+\end{accessprogs}
+
+\subsection{Semantics}
+
+The catalogue is fixed after initialization for the running process.
+Query results are independent values: changing a returned sequence, record,
+or set does not change the catalogue or the Accessory Catalogue. Queries
+do not change player progress, rewards, or saved data.
+
+\subsubsection{State Variables}
+
+\begin{itemize}
+\item $\T{catalogue}$ : seq of LevelT, initially $\langle\rangle$, the
+  available levels in suggested journey order.
+\item $\T{ready}$ : $\B$, initially $\false$, whether initialization has
+  finished.
+\end{itemize}
+
+\subsubsection{Environment Variables}
+
+None. The definitions and illustrations are included with the application.
+Other modules display the returned values.
+
+\subsubsection{State Invariant}
+
+Before initialization, $\T{catalogue} = \langle\rangle$ and
+$\T{ready} = \false$. When $\T{ready}$ is $\true$:
+
+\begin{itemize}
+\item $|\T{catalogue}| \geq 1$, with exactly one entry for each procedure
+  included in the game, in order of level number.
+\item No two entries have the same identifier. Every entry has a
+  non-empty displayed name and an illustration included with the
+  application.
+\item Every reward's points and coins are natural numbers. Its accessory
+  is either $\V{none}$ or an accessory in AccessoryCatalogue.items();
+  a character is not an accessory reward.
+\end{itemize}
+
+\subsubsection{Assumptions}
+
+\begin{itemize}
+\item AccessoryCatalogue.init() is called before init(), and init() is
+  called before any query. Initialization finishes before another call
+  begins.
+\item The packaged catalogue is checked against the state invariant
+  before release. Its illustrations and referenced accessories are
+  available locally. Neither catalogue changes while the application runs
+  (\srsitemref{NFR_Offline}{NFR19}).
+\item A retained identifier continues to identify the same preparation
+  level across releases, even if its name or journey position changes.
+  An identifier removed from the catalogue is not reused for a different
+  level, so a saved completion cannot be assigned to another procedure.
+\end{itemize}
+
+\subsubsection{Access Routine Semantics}
+
+\begin{samepage}
+\noindent init():
+\begin{itemize}
+\item transition: set $\T{catalogue}$ to all preparation level definitions
+  packaged with the application, in order of level number, and set
+  $\T{ready} := \true$. The sequence order gives the suggested journey
+  order; it does not determine which levels the child can select
+  (\srsitemref{FR_JourneyMap}{FR3}, \srsitemref{FR_StartLevel}{FR4}).
+\item exception: $\exc := (\T{ready} \Rightarrow
+  \text{AlreadyInitialized})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent levels():
+\begin{itemize}
+\item output: $\out := \T{catalogue}$, containing every level in the
+  suggested journey order. The result is the same for every player,
+  regardless of completion status, journey points, coins, or preferences.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent level($l$):
+\begin{itemize}
+\item output: $\out := \T{catalogue}[i]$, where $i$ is the unique
+  position whose entry has $\T{catalogue}[i].\T{id} = l$.
+\item exception: $\exc := (l \notin \text{LevelCatalogue.ids}()
+  \Rightarrow \text{UnknownLevel})$. An identifier absent from the current
+  catalogue has no matching level; no substitute is returned.
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent ids():
+\begin{itemize}
+\item output: $\out :=$ the set containing the identifier of every entry
+  in $\T{catalogue}$, and no other values. This set has no journey order;
+  callers that need the order use levels().
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\subsubsection{Local Functions}
+
+None.
+
+\subsubsection{Considerations}
+
+The current journey contains Vision Testing, Eye-Drop Preparation, and
+Slit-Lamp Preparation in that order. The interface also supports levels
+being added, removed, or reordered, and rewards being adjusted between
+releases, without fixing a level count or reward amount in the access
+programs (\srsitemref{LC_Procedures}{LC2},
+\srsitemref{LC_Rewards}{LC4}).
+
+Every catalogue level remains available to start or replay. A level's
+position, reward, or the player's progress does not create an unlocking
+condition (\srsitemref{FR_StartLevel}{FR4}). Journey Progress and Player
+Data determine whether a completion earns the defined reward and record
+it together with the player's progress. This module supplies the same
+reward definition regardless of answers, hints, or skipped exercises
+(\srsitemref{FR_NoPenalty}{FR19},
+\srsitemref{FR_NoDuplicateReward}{FR32}).
+
+Stable identifiers allow Player Data to align saved progress with a changed
+catalogue. Changing a level's name or position preserves its completion
+status. Removing a level or changing its points can change the scoreboard
+totals calculated by Journey Progress; the catalogue itself does not grant
+or remove coins or owned accessories.
+
+RewardT uses the Accessory Catalogue's ItemT, as expected by the Player
+Data interface. This requires M7 to use M8. The MG's current Uses Relation
+omits this dependency and needs to include it.
 
 % =====================================================================
 % M14 to M26 (Jake Finlay). The Uses of each module follow the Uses

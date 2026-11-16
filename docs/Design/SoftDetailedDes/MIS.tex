@@ -345,7 +345,7 @@ Hardware-Hiding Module & \misref{HH}{1} Hardware-Hiding Module \\
 & \misref{Levels}{7} Level Catalogue Module \\
 & \misref{Accessories}{8} Accessory Catalogue Module \\
 & \misref{Content}{9} Procedure Content Module \\
-& M10 Procedure Runner Module \\
+& \misref{Runner}{10} Procedure Runner Module \\
 & M11 Narration Module \\
 & M12 Player Select Screen Module \\
 & M13 Journey Map Screen Module \\
@@ -3233,6 +3233,531 @@ screen, treat, or monitor a condition (\srsitemref{NFR_NoClaims}{NFR32}).
 The VnV Plan checks each level, age-group selection, default fallback,
 and paths that skip all optional activities. Clinical and child-life
 reviews check the content's accuracy and suitability for children.
+
+% =====================================================================
+\newpage
+\section{MIS of Procedure Runner Module} \label{mis:Runner}
+
+\subsection{Module}
+
+ProcedureRunner (\misref{Runner}{10})
+
+This module runs a preparation level from the steps supplied by Procedure
+Content. It coordinates narration, demonstrations, exercises, questions,
+and the controls used during a level. It also handles skipping,
+restarting, leaving, and interruptions, and reports the level's start and
+completion through Player Data.
+
+\subsection{Uses}
+
+Hardware-Hiding Module (\misref{HH}{1}), for touch input, timing, and audio
+control; Player Data Module (\misref{PlayerData}{5}), for startLevel,
+finishLevel, and GivenT; Preferences Module (\misref{Prefs}{6}), for
+AgeGroupT and the current preferences; Level Catalogue Module
+(\misref{Levels}{7}), for LevelIdT and level definitions; Procedure
+Content Module (\misref{Content}{9}), for StepT and stepsFor; Narration
+Module (M11), for presenting and controlling narrated lines; Reward
+Screen Module (\misref{Reward}{14}), for PrizeT, EndChoiceT, and show;
+Scene Staging Module (\misref{Staging}{22}), Screen Effects Module
+(\misref{Effects}{24}), Sound Effects Module (\misref{Sound}{25}), and
+UI Widgets Module (\misref{Widgets}{26}), for presenting the activities
+and their controls.
+
+Application Control supplies the settings callback. The runner uses that
+callback to open settings and lets Application Control manage the
+parental gate, guide, and return to the level.
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+\begin{itemize}
+\item $\T{SKIP\_HOLD\_MIN\_S} = 1$: the continuous hold time, in seconds,
+  needed to skip an optional step (\srsitemref{FR_HoldSkip}{FR21}).
+\item $\T{ANSWER\_REVEAL\_MAX\_S} = 1$: the maximum time, in seconds,
+  to show every correct answer after an incorrect answer
+  (\srsitemref{NFR_Responsiveness}{NFR12}).
+\item $\T{AV\_SYNC\_MAX\_MS} = 100$: the maximum difference, in
+  milliseconds, between the start of narration and its accompanying
+  animation (\srsitemref{NFR_AVSync}{NFR14}).
+\end{itemize}
+These values come from the SRS table of constants.
+
+\subsubsection{Exported Types}
+
+$\T{OutcomeT} = \{\V{ToMap}, \V{PlayAgain}\}$: the navigation choice
+returned when play ends. $\V{ToMap}$ returns to the journey map, and
+$\V{PlayAgain}$ requests another run of the same preparation level.
+Neither value reports whether a new reward was given.
+
+\subsubsection{Exported Access Programs}
+
+\begin{accessprogs}
+init & -- & -- & AlreadyInitialized\\
+play & $l$ : LevelIdT, $f$ : $() \to ()$ & OutcomeT & AlreadyPlaying, UnknownLevel\\
+suspend & -- & -- & --\\
+resume & -- & -- & --\\
+\end{accessprogs}
+
+\subsection{Semantics}
+
+play remains active while the child goes through a level, including
+while it is paused or its ending is shown. suspend and resume can be
+called during play. A second play call cannot replace the active level.
+All progress and reward changes go through Player Data, which saves the
+complete change before the next input is processed.
+
+\subsubsection{Local Types}
+
+\begin{itemize}
+\item $\T{RunPhaseT} = \{\V{Idle}, \V{Starting}, \V{Playing},
+  \V{Finishing}, \V{Reward}\}$: no active call, recording a start,
+  presenting steps, recording completion, or presenting the ending.
+\item $\T{ControlRequestT} = \{\V{Home}, \V{Restart}, \V{Skip},
+  \V{Settings}, \V{Retry}\}$: a request accepted from the level controls.
+\item $\T{ScheduledT} = \text{tuple of } (\T{generation} : \N,\
+  \T{remaining} : \R,\ \T{action} : (() \to ()))$: a pending runner
+  action, the presentation it belongs to, and the active time remaining
+  before it can run, in seconds.
+\end{itemize}
+
+\subsubsection{State Variables}
+
+\begin{itemize}
+\item $\T{ready}$ : $\B$, initially $\false$, whether initialization
+  has finished.
+\item $\T{phase}$ : RunPhaseT, initially $\V{Idle}$.
+\item $\T{level}$ : LevelIdT $\cup \{\V{none}\}$, initially
+  $\V{none}$, the selected preparation level.
+\item $\T{age}$ : AgeGroupT, initially $\V{Unset}$, the age-group
+  selection used to obtain the current steps.
+\item $\T{steps}$ : seq of StepT, initially $\langle\rangle$, the
+  complete selected content in presentation order.
+\item $i$ : $\N$, initially 0, the current step's position.
+  $i = |\T{steps}|$ means that all steps have finished or been
+  validly skipped.
+\item $\T{paused}$ : $\B$, initially $\false$, whether progression
+  and playback are suspended.
+\item $\T{fresh}$ : $\B$, initially $\false$, whether an age-group
+  change has selected content that must begin at its first step when
+  the level is shown again.
+\item $\T{given}$ : GivenT $\cup \{\V{none}\}$, initially
+  $\V{none}$, the result of a successful finishLevel call for this run.
+\item $\T{generation}$ : $\N$, initially 0, the identifier of the
+  current presentation. It increases whenever that presentation is
+  replaced or cancelled.
+\item $\T{pending}$ : seq of ScheduledT, initially $\langle\rangle$,
+  the runner's scheduled actions in the order they were registered.
+\end{itemize}
+
+The active presentation retains its current line, exercise progress,
+answer highlights, and pending input operation until it finishes or is
+cancelled. Narration and the presentation modules retain their own media
+positions. These values are kept only for the running process.
+
+\subsubsection{Environment Variables}
+
+\begin{itemize}
+\item $\T{screen}$: the device display and touch input, reached through
+  Hardware-Hiding and UI Widgets. It shows the level controls, activity,
+  answer choices, and any save-retry message.
+\item $\T{presentation}$: the engine's active level and ending
+  animations and waiting input operations, including their positions
+  and paused states.
+\item $\T{clock}$ : $\R$, elapsed seconds from HardwareHiding.now().
+  Only time during active play reduces a scheduled action's remaining
+  time. The clock itself continues during an interruption.
+\end{itemize}
+
+Narration, Scene Staging, Screen Effects, and Sound Effects control their
+own audio, characters, equipment, and overlays.
+
+\subsubsection{State Invariant}
+
+\begin{itemize}
+\item When $\T{phase} = \V{Idle}$, $\T{level} = \V{none}$,
+  $\T{steps} = \langle\rangle$, $i = 0$, $\T{age} = \V{Unset}$,
+  $\T{given} = \V{none}$, $\T{pending} = \langle\rangle$, and
+  both $\T{paused}$ and $\T{fresh}$ are $\false$.
+\item In every other phase, $\T{level}$ is in LevelCatalogue.ids(),
+  and $\T{steps}$ is the non-empty sequence returned by
+  ProcedureContent.stepsFor($\T{level}$, $\T{age}$). The current
+  player remains the player who started the call.
+\item $\V{Starting}$ has $i = 0$. $\V{Playing}$ has
+  $0 \leq i < |\T{steps}|$ and a successfully recorded start.
+  $\V{Finishing}$ and $\V{Reward}$ have $i = |\T{steps}|$.
+  No access to $\T{steps}[i]$ occurs in either ending phase.
+\item $\T{given} \neq \V{none}$ only in $\V{Reward}$. Its value
+  is the result of the saved completion for this run. The runner never
+  constructs a reward from answers, skipped activities, or a separate
+  check of completion status.
+\item Steps advance in order. A required panel must finish before the
+  following step begins. Skipping advances past only the current
+  skippable step, leaving all later required panels in the sequence.
+\item Every pending action has non-negative remaining time and belongs
+  to the current generation. An action is removed before it runs, so it
+  cannot run twice. A callback from an older generation has no effect.
+\item While paused, input, timers, and completion actions do not advance
+  the level. A deliberate age-group change through settings may replace
+  its selected content; $\T{fresh}$ then remains $\true$ until the
+  new first step is presented. It cannot complete the level.
+\item $\T{fresh} = \true$ only while $\T{phase} = \V{Playing}$,
+  $\T{paused} = \true$, and $i = 0$. The replaced presentation
+  cannot resume or report completion.
+\end{itemize}
+
+\subsubsection{Assumptions}
+
+\begin{itemize}
+\item init() is called once before the other access programs. Before
+  play, the content, catalogues, preferences, and Player Data are ready,
+  and the current player has been activated through choosePlayer.
+  The selected level's scene is loaded and its presentation modules
+  are initialized.
+\item Every activity identifier in the selected content resolves to a
+  packaged activity supported by the runner and that scene. Its targets,
+  actions, media, and completion condition have been checked before
+  release. The content satisfies Procedure Content's invariant.
+\item Application Control supplies $f$ as its openSettings callback.
+  It preserves the active player and level, disables data-reset controls,
+  and handles errors within the temporary screens. It calls resume only
+  when the level is visible and no device interruption remains.
+  Settings cannot be opened twice for the same accepted request.
+\item Event handling and player-data updates are serialized. A start or
+  completion update and retention of its result finish before another
+  event is handled. Player switching, deletion, and journey reset do not
+  occur while play is active.
+\item Presentation operations support cancellation and retain their
+  positions when paused. Cancelling an operation releases its waiting
+  call without reporting that the activity finished. Repeated pause
+  or resume requests do not reset shared presentation resources.
+\end{itemize}
+
+\subsubsection{Access Routine Semantics}
+
+\begin{samepage}
+\noindent init():
+\begin{itemize}
+\item transition: set the state variables to their initial values above,
+  then set $\T{ready} := \true$. No level controls or activities are shown.
+\item exception: $\exc := (\T{ready} \Rightarrow
+  \text{AlreadyInitialized})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\noindent play($l$, $f$):
+\par\nopagebreak[4]
+\begin{itemize}
+\item transition: set $\T{level} := l$ and
+  $\T{phase} := \V{Starting}$. Read Preferences.get(), set
+  $\T{age}$ to its ageGroup, and set
+  $\T{steps} := \text{ProcedureContent.stepsFor}(l,\T{age})$.
+  Set $i := 0$, $\T{given} := \V{none}$, and both $\T{paused}$ and
+  $\T{fresh}$ to $\false$. Begin a new presentation generation and
+  follow the phases
+  below. The selected content is used for every player, with its default
+  fallback when needed (\srsitemref{FR_AgeGroup}{FR7}).
+  \begin{enumerate}
+  \item In $\V{Starting}$, call PlayerData.startLevel($l$). After it
+    succeeds, set $\T{phase} := \V{Playing}$ and present the first
+    step. A completed level stays completed when replayed
+    (\srsitemref{FR_StartLevel}{FR4}, \srsitemref{FR_Replay}{FR5}).
+    On WriteFailed, keep the previous saved values and offer retry,
+    restart, and home. No activity begins until the start is saved.
+  \item In $\V{Playing}$, apply $\T{present}(\T{steps}[i])$.
+    When the step finishes normally, retire its input and pending
+    callbacks, increase the generation, and advance $i$ once. Present
+    the next step, or set $\T{phase} := \V{Finishing}$ when
+    $i = |\T{steps}|$. A cancelled step does not also report normal
+    completion. Process accepted control requests through
+    $\T{handle}$ throughout the presentation.
+  \item In $\V{Finishing}$, call $\T{stopPresentation}()$ and then
+    PlayerData.finishLevel($l$). Retain its result in $\T{given}$
+    and enter $\V{Reward}$ only after it succeeds. On WriteFailed,
+    remain in $\V{Finishing}$ with $\T{given} = \V{none}$.
+    Explain that progress could not be saved and offer retry, restart,
+    and home. Do not show a reward or claim that completion was saved
+    (\srsitemref{FR_LevelEnd}{FR12},
+    \srsitemref{FR_PersistState}{FR28}).
+  \item In $\V{Reward}$, pass the level's catalogue name,
+    $\T{given}.\T{first}$, and $\T{prize}(\T{given})$ to
+    RewardScreen.show. Retain that same result through any
+    interruption; returning to the ending does not call finishLevel
+    again. Keep home and restart available from the start of the
+    celebration, using the runner's controls until the screen's home
+    and play-again controls are available. Either pair provides the
+    same exit and restart choices for this phase.
+  \end{enumerate}
+  Each successful start or completion is saved before further input.
+  Failed writes are handled within play and may be retried without
+  replacing valid player data. The first successful completion result
+  is retained before displaying the ending, including when the call
+  is immediately followed by an interruption.
+\item output: $\out := \V{PlayAgain}$ when restart or play-again
+  is chosen at the ending; $\out := \V{ToMap}$ when home is chosen during
+  play, save recovery, or the ending. Before either return, call
+  $\T{stopPresentation}()$ and restore the idle state described above.
+  Keep $\T{ready}$ and the increased generation. Application Control
+  then shows the map or starts another play call.
+\item exception: $\exc := \text{AlreadyPlaying}$ when
+  $\T{phase} \neq \V{Idle}$; otherwise,
+  $\exc := \text{UnknownLevel}$ when
+  $l \notin \text{LevelCatalogue.ids}()$. Check these conditions before
+  changing state or calling Player Data. There is no normal output
+  when either exception is signalled.
+\end{itemize}
+
+\noindent suspend():
+\par\nopagebreak[4]
+\begin{itemize}
+\item transition: when play is active and $\T{paused} = \false$,
+  set $\T{paused} := \true$. Pause Narration, Scene Staging,
+  Screen Effects, and Sound Effects, and call
+  HardwareHiding.pauseAudio() so background music is paused too.
+  Also pause $\T{presentation}$, including an ending celebration.
+  Retain the current phase, step, line position, activity progress,
+  answer highlights, and remaining timer durations. Disable level input
+  and cancel active touch contacts and incomplete skip holds.
+  Pending actions, including a step completion or reward display,
+  remain pending and cannot run while paused
+  (\srsitemref{FR_Suspend}{FR27}).
+
+  A save already completed before suspension remains saved, with its
+  result retained; no save is repeated on resumption. Repeated suspension,
+  or suspension while idle, does nothing.
+\item exception: none
+\end{itemize}
+
+\begin{samepage}
+\noindent resume():
+\begin{itemize}
+\item transition: when play is active and $\T{paused} = \true$,
+  apply $\T{applyPreferences}()$. If $\T{fresh} = \false$, resume
+  the paused narration, staging, screen effects, sound effects, and audio
+  channels from their retained positions. Resume only work that was
+  active before suspension, including the retained animations in
+  $\T{presentation}$. If $\T{fresh} = \true$, cancel the old
+  presentation through $\T{stopPresentation}()$, resume the emptied
+  presentation services to clear their paused states, clear $\T{fresh}$,
+  and prepare the new first step instead. No stopped media is restarted.
+
+  Set $\T{paused} := \false$ and continue the retained phase or new
+  first step. Scheduled actions use their retained remaining durations;
+  time spent paused does not count. A due action can run once after
+  resumption if it still belongs to the current generation. Require fresh
+  touch contacts before accepting a choice or a skip hold. Repeated
+  resumption, or resumption while idle, does nothing
+  (\srsitemref{FR_Suspend}{FR27}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\subsubsection{Local Functions}
+
+\noindent $\T{present}$ : StepT $\to ()$
+\par\nopagebreak[4]
+
+For input $s$, replace the previous step's controls, cues, and answer
+highlights. Present $s.\T{lines}$ in their given order through
+Narration.say, with their pictures and demonstrations. A line finishes
+before a continuation control can advance it. Narration and its matching animation
+start within $\T{AV\_SYNC\_MAX\_MS}$ of each other. While an on-screen
+character speaks, use Narration.speaker() and loudness() to drive
+SceneStaging.speaking(); an off-screen narrator maps to no speaking
+character. Guidance remains available when captions are off or audio
+cannot be heard (\srsitemref{FR_SpokenInstructions}{FR13},
+\srsitemref{FR_VisualCues}{FR15},
+\srsitemref{FR_NarrationFallback}{FR16}).
+
+Each call to present retains the generation at its entry. Its return
+advances the step position only when that generation is still current
+and the step finished normally. A return caused by cancellation or
+content replacement never advances the new presentation.
+
+The behaviour depends on $s.\T{kind}$:
+
+\begin{itemize}
+\item $\V{Panel}$: present every line and its visual explanation in
+  full. After the last line and demonstration finish, wait for Next,
+  or continue when autoContinue is enabled. A required panel cannot
+  be shortened by a skip, an answer, or an ordinary scene touch.
+\item $\V{Demonstration}$: perform the packaged activity identified by
+  $\T{activity}$ with its accompanying lines and visual guidance.
+  Finish when the demonstration and its narration finish, unless a
+  permitted control cancels it.
+\item $\V{Exercise}$: explain the action, then accept the inputs
+  defined by its packaged activity. A defined incorrect action presents
+  $\T{hint}$ and permits another attempt. On satisfying the activity's
+  completion condition, present $\T{feedback}$ and finish. No timeout
+  or incorrect action produces failure or removes a reward
+  (\srsitemref{FR_HintOnMiss}{FR14},
+  \srsitemref{FR_NoPenalty}{FR19}).
+\item $\V{Question}$: present the prompt and display the answer
+  pictures in their supplied order. A correct choice presents
+  $\T{feedback}$ and finishes. After an incorrect choice, mark every
+  correct answer within $\T{ANSWER\_REVEAL\_MAX\_S}$, using an outline
+  and a tick through UI Widgets, and narrate the correct answers'
+  lines in display order. All correct choices are marked together;
+  their visual reveal does not wait for the spoken explanations to
+  finish. Keep the question available until the child selects any
+  correct answer and receives feedback, or uses a permitted control.
+  Further mistakes keep the correct answers marked and do not queue
+  overlapping narration or advance the level
+  (\srsitemref{FR_RevealAnswer}{FR17},
+  \srsitemref{FR_ValidQuestions}{FR18},
+  \srsitemref{NFR_Colour}{NFR10}).
+\end{itemize}
+
+The activity definition supplies the scene setup, targets, timing, and
+completion condition for its procedure. Stage actions use Scene Staging,
+and the runner handles the activity's input and completion. Only inputs
+directed at that activity can count as incorrect actions. Navigation
+touches are consumed by their controls, and unexpected touches or gestures
+are ignored (\srsitemref{FR_RestartLevel}{FR26}).
+
+During procedure narration, Next, replay, answer, and scene touches
+cannot skip or shorten the line. Home and restart remain available, and
+skip is accepted only under the rule below. Opening settings pauses the
+presentation without treating its narration as finished. Exercise and
+question input waits until the relevant instructions have finished
+(\srsitemref{FR_HoldSkip}{FR21}).
+
+\noindent $\T{handle}$ : ControlRequestT $\to ()$
+\par\nopagebreak[4]
+
+Level controls are shown through UI Widgets. Home and settings use their
+standard positions; restart and skip retain consistent positions across
+levels. Home and restart use a tap, and skip uses a hold of
+$\T{SKIP\_HOLD\_MIN\_S}$. The controls meet UI Widgets' size and response
+requirements. Process one accepted navigation choice at a time, discard
+additional touches during its transition, and accept fresh input only
+after the destination is ready (\srsitemref{FR_IgnoreRepeatedTouches}{FR20}).
+
+\begin{itemize}
+\item $\V{Home}$: call $\T{stopPresentation}()$ and end play with
+  $\V{ToMap}$. Do not call finishLevel, roll back the recorded start,
+  or change saved progress. Home works with one touch during narration,
+  required panels, unfinished activities, and save recovery, without
+  confirmation or waiting for the current activity to finish
+  (\srsitemref{FR_ExitLevel}{FR22},
+  \srsitemref{FR_StopOnExit}{FR23},
+  \srsitemref{FR_ExitKeepsData}{FR24},
+  \srsitemref{NFR_Exit}{NFR4}).
+\item $\V{Restart}$: in $\V{Reward}$, cancel the ending and return
+  $\V{PlayAgain}$ for Application Control to start a fresh call.
+  Otherwise, call $\T{stopPresentation}()$, set $\T{age}$ to the
+  current age group, set $\T{steps}$ to its complete content sequence
+  for the same level, and set $i := 0$. An already started run returns to $\V{Playing}$ without
+  another start or finish update. A failed start remains in
+  $\V{Starting}$ and retries startLevel. No saved progress or rewards
+  are removed
+  (\srsitemref{FR_RestartLevel}{FR26}).
+\item $\V{Skip}$: only in $\V{Playing}$, with the current step's
+  skippable field $\true$, accept a continuous hold reaching
+  $\T{SKIP\_HOLD\_MIN\_S}$. Call $\T{stopPresentation}()$,
+  advance $i$ once, and continue with the next step or the ending.
+  The hold is cleared on release, cancellation, suspension, or a step
+  change. Separate presses never accumulate and one held contact
+  cannot skip two steps. Required panels remain unskippable, including
+  when audio is muted or autoContinue is enabled
+  (\srsitemref{FR_DescribeSensations}{FR8},
+  \srsitemref{FR_NoPenalty}{FR19},
+  \srsitemref{FR_HoldSkip}{FR21}).
+\item $\V{Settings}$: while presenting steps, call suspend(), then
+  invoke $f$ from the active play call. Check for changed preferences
+  while the callback is open. Application Control resumes the level
+  only after the temporary screens close and any interruption ends.
+  Do not resume it merely because $f$ returns. Repeated settings
+  touches cannot open another callback.
+\item $\V{Retry}$: after WriteFailed, retry only the failed operation
+  in the current phase, startLevel in $\V{Starting}$ or finishLevel
+  in $\V{Finishing}$. Ignore retry in other phases. A completion
+  retry uses the same level and leaves the steps at their ending.
+\end{itemize}
+
+Requests that are unavailable in the current phase have no effect.
+Pausing prevents requests from being accepted. After its celebration,
+the reward screen handles its own two choices. Hints, answer reveals,
+skips, and restarts of an already started level never
+write player data.
+
+\noindent $\T{applyPreferences}$ : $() \to ()$
+\par\nopagebreak[4]
+
+Read $p := \text{Preferences.get}()$. Apply its sound and narration
+volumes through SoundEffects.setVolume and its reduced-motion choice
+through ScreenEffects.setReducedMotion. Narration and the displayed
+controls use its current caption, cue-size, volume, and continuation
+choices. Essential visual guidance remains available.
+
+Check these choices before presenting a step, before resumption, and
+while the settings callback is open, so changes apply without restarting
+the application (\srsitemref{FR_Preferences}{FR44}). When the level is
+paused behind settings in $\V{Playing}$ and
+$p.\T{ageGroup} \neq \T{age}$, set $\T{steps}$ to
+ProcedureContent.stepsFor($\T{level}$, $p.\T{ageGroup}$) at once,
+set $\T{age} := p.\T{ageGroup}$ and $i := 0$, and set
+$\T{fresh} := \true$. Invalidate the old generation and its pending
+actions. Keep its media paused until the level is shown again, then
+discard the old presentation and begin the new sequence. This preserves
+every required explanation when variants have different step orders.
+It does not change the recorded start or grant a reward. An ordinary
+interruption with no age-group change resumes the same step and position.
+
+\noindent $\T{stopPresentation}$ : $() \to ()$
+\par\nopagebreak[4]
+
+Increase the generation and clear $\T{pending}$. Cancel the active
+activity, level and ending animations, input handlers, and waiting
+presentation calls. Call
+Narration.stop(), SoundEffects.stopAll(), ScreenEffects.clear(),
+SceneStaging.stopAll(), SceneStaging.listen($\{\}$), and
+HardwareHiding.stopAudio($\V{Music}$). Clear level cues and remove
+the runner's controls. Cancel any delayed or looping level work so it
+cannot start after the map is shown. Stopped work is never resumed by a
+later resume call. Repeated cleanup has no additional visible effect
+(\srsitemref{FR_StopOnExit}{FR23}).
+
+\begin{samepage}
+\noindent $\T{prize}$ : GivenT $\to$ PrizeT
+
+For input $g$, $\out :=$ a PrizeT containing $g.\T{reward}.\T{points}$
+and $g.\T{reward}.\T{coins}$. Its accessory is $\V{none}$ when
+$g.\T{reward}.\T{accessory} = \V{none}$, and otherwise the picture
+of that ItemT. This converts the saved reward to the Reward Screen's
+display type. It does not recalculate or grant a reward.
+\par
+\end{samepage}
+
+\subsubsection{Considerations}
+
+Vision Testing, Eye-Drop Preparation, Slit-Lamp Preparation, and any
+additional preparation levels follow the same progression rules. Their
+activities come from Procedure Content and the supported presentation
+definitions. The runner does not fix the number of steps or require the
+same interactions in every procedure. New activity formats may require
+new handlers and stage actions (\srsitemref{LC_LevelFormat}{LC1},
+\srsitemref{LC_Procedures}{LC2}).
+
+Completion belongs to the whole preparation level. Skipping every
+optional activity still reaches the ending after the required
+explanations, with the same first-completion reward. Player Data applies
+the Journey Progress rules and saves completion and rewards together;
+the runner displays the returned result. Replaying, restarting, returning
+from settings, and resuming after an interruption do not award another
+reward (\srsitemref{FR_FirstReward}{FR31},
+\srsitemref{FR_NoDuplicateReward}{FR32}).
+
+An interruption with the process retained resumes its current
+presentation. Leaving the level or closing the application discards the
+step position and pending work, so the next play starts from the
+beginning while retaining saved progress
+(\srsitemref{FR_RestartAfterExit}{FR25}). The VnV Plan checks these paths
+across every level and content variant, including protected narration,
+skip timing, incorrect answers, pending completion callbacks, and save
+failures.
 
 % =====================================================================
 % M14 to M26 (Jake Finlay). The Uses of each module follow the Uses

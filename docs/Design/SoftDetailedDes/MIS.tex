@@ -127,6 +127,7 @@ ADT & Abstract Data Type\\
 MG & Module Guide\\
 MIS & Module Interface Specification\\
 OS & Operating System\\
+UI & User Interface\\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -253,6 +254,7 @@ for $c$\\
 $f(a)$ & the value of function $f$ for $a$\\
 $t.f$ & the value of field $f$ in tuple $t$\\
 $\T{dom}(f)$ & the set of inputs for which function $f$ has a value\\
+$\T{length}(a)$ & the duration of recording $a$ of type AudioT, in seconds\\
 $f(a) := b$ & change the value of $f$ at $a$ to $b$, leaving its other values
 unchanged; for a partial function, this also adds $a$ to its domain if needed\\
 $\min(a,b)$, $\max(a,b)$ & the smaller and larger of $a$ and $b$, respectively\\
@@ -346,7 +348,7 @@ Hardware-Hiding Module & \misref{HH}{1} Hardware-Hiding Module \\
 & \misref{Accessories}{8} Accessory Catalogue Module \\
 & \misref{Content}{9} Procedure Content Module \\
 & \misref{Runner}{10} Procedure Runner Module \\
-& M11 Narration Module \\
+& \misref{Narration}{11} Narration Module \\
 & M12 Player Select Screen Module \\
 & M13 Journey Map Screen Module \\
 & M14 Reward Screen Module \\
@@ -588,7 +590,8 @@ None.
 \noindent isMuted():
 \begin{itemize}
 \item output: $\out := \true$ when the device's audio output is muted or its
-  media volume is 0, and $\false$ otherwise. The Narration Module (M11) uses
+  media volume is 0, and $\false$ otherwise. The Narration Module
+  (\misref{Narration}{11}) uses
   this result when providing guidance for muted audio
   (\srsitemref{FR_NarrationFallback}{FR16}).
 \item exception: none
@@ -2941,7 +2944,7 @@ content is available, and the level's default content otherwise.
 
 Preferences Module (\misref{Prefs}{6}), for AgeGroupT;
 Level Catalogue Module (\misref{Levels}{7}), for LevelIdT and the levels
-and ids access programs; and Narration Module (M11), for LineT, which
+and ids access programs; and Narration Module (\misref{Narration}{11}), for LineT, which
 describes a narrated line and its accompanying visual cue and recording.
 
 \subsection{Syntax}
@@ -3256,7 +3259,7 @@ finishLevel, and GivenT; Preferences Module (\misref{Prefs}{6}), for
 AgeGroupT and the current preferences; Level Catalogue Module
 (\misref{Levels}{7}), for LevelIdT and level definitions; Procedure
 Content Module (\misref{Content}{9}), for StepT and stepsFor; Narration
-Module (M11), for presenting and controlling narrated lines; Reward
+Module (\misref{Narration}{11}), for presenting and controlling narrated lines; Reward
 Screen Module (\misref{Reward}{14}), for PrizeT, EndChoiceT, and show;
 Scene Staging Module (\misref{Staging}{22}), Screen Effects Module
 (\misref{Effects}{24}), Sound Effects Module (\misref{Sound}{25}), and
@@ -3758,6 +3761,461 @@ beginning while retaining saved progress
 across every level and content variant, including protected narration,
 skip timing, incorrect answers, pending completion callbacks, and save
 failures.
+
+% =====================================================================
+\newpage
+\section{MIS of Narration Module} \label{mis:Narration}
+
+\subsection{Module}
+
+Narration (\misref{Narration}{11})
+
+This module presents spoken lines with their captions and visual cues.
+It handles playback, replay, temporary hints, and the controls used to
+continue after a line. The same interface is used for procedure
+explanations, instructions, questions, and feedback across all preparation
+levels, and for instructions on other screens.
+
+\subsection{Uses}
+
+Hardware-Hiding Module (\misref{HH}{1}), for the voice channel, mute
+status, timing, and touch input; Preferences Module (\misref{Prefs}{6}),
+for the current volume, caption, cue-size, and continuation choices;
+Character Rig Module (\misref{Rig}{23}), for MoodT; and UI Widgets
+Module (\misref{Widgets}{26}), for visual cues, banners, and controls.
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+\begin{itemize}
+\item $\T{CAPTION\_MAX\_WORDS} = 8$: the maximum number of words in
+  a line's short caption.
+\item $\T{WORDS\_PER\_SECOND} = 2.5$: the pace used to time a line
+  without a recording, in words per second.
+\item $\T{MIN\_LINE\_S} = 1.5$: the minimum display time, in seconds,
+  for a line without a recording.
+\end{itemize}
+These values are presentation choices from the initial design. The SRS
+separately limits each narrated sentence to 10 words
+(\srsitemref{NFR_Language}{NFR8}).
+
+\subsubsection{Exported Types}
+
+\begin{itemize}
+\item $\T{SpeakerT} = \{\V{Doctor}, \V{Peer}, \V{Narrator}\}$:
+  the clinician character, the child character who models a procedure,
+  or an off-screen narrator. These are roles, independent of a
+  character's name or the selected procedure.
+\item $\T{LineT}$: one line and its accompanying guidance,
+  \[\begin{array}{l}
+  \text{tuple of } (\T{id} : \text{String},\
+  \T{speaker} : \text{SpeakerT},\ \T{words} : \text{String},\\
+  \phantom{\text{tuple of } (}\T{caption} : \text{String},\
+  \T{cue} : \text{ImageT},\\
+  \phantom{\text{tuple of } (}\T{recording} : \text{AudioT}
+  \cup \{\V{none}\},\ \T{mood} : \text{MoodT}).
+  \end{array}\]
+  $\T{id}$ identifies the line in the packaged content.
+  $\T{words}$ is the spoken text, and $\T{caption}$ is its short
+  written summary. $\T{cue}$ is the picture or icon that accompanies
+  the instruction. $\T{recording}$ is the matching voice recording,
+  or $\V{none}$ when no recording is supplied. $\T{mood}$ is the
+  expression shown by the speaker's portrait.
+\end{itemize}
+
+Captions supplement the pictures and demonstrations; they are not the
+child's only way to follow an instruction. Supporting a line without a
+recording does not replace the requirement to package narration for
+every released child-facing instruction
+(\srsitemref{FR_SpokenInstructions}{FR13}).
+
+\subsubsection{Exported Access Programs}
+
+\begin{accessprogs}
+init & -- & -- & AlreadyInitialized\\
+say & $x$ : LineT, $\T{wait}$ : $\B$ & -- & AlreadyPresenting, EmptyLine\\
+aside & $x$ : LineT & -- & AlreadyPresenting, EmptyLine\\
+stop & -- & -- & --\\
+pause & -- & -- & --\\
+resume & -- & -- & --\\
+isSpeaking & -- & $\B$ & --\\
+speaker & -- & SpeakerT $\cup \{\V{none}\}$ & --\\
+loudness & -- & $\R$ & --\\
+\end{accessprogs}
+
+\subsection{Semantics}
+
+say and aside remain active while their line is being presented.
+pause, resume, stop, and the queries can be called during that time.
+A second presentation cannot interrupt the first or queue another copy
+of a hint. The caller handles navigation and decides whether a step may
+be skipped. This module does not change level status or rewards.
+
+\subsubsection{Local Types}
+
+$\T{NarrationPhaseT} = \{\V{Idle}, \V{Playing}, \V{Waiting}\}$:
+no active presentation, a line whose playback time has not finished,
+or a completed line waiting for the child to continue.
+
+\subsubsection{State Variables}
+
+\begin{itemize}
+\item $\T{current}$ : LineT $\cup \{\V{none}\}$, initially
+  $\V{none}$, the line whose guidance is displayed.
+\item $\T{phase}$ : NarrationPhaseT, initially $\V{Idle}$.
+\item $\T{elapsed}$ : $\R$, initially 0, the active playback time
+  of the current line, in seconds. Paused time is excluded.
+\item $\T{paused}$ : $\B$, initially $\false$, whether playback,
+  timing, and narration controls are suspended.
+\item $\T{generation}$ : $\N$, initially 0, the identifier of the
+  current presentation. It increases when a presentation starts,
+  replays, or is cancelled.
+\item $\T{ready}$ : $\B$, initially $\false$, whether initialization
+  has finished.
+\end{itemize}
+
+An active call retains its arguments and generation. aside also retains
+the line displayed before its call. These remain available during a
+pause and are discarded on cancellation. They are not saved between
+application launches.
+
+\subsubsection{Environment Variables}
+
+\begin{itemize}
+\item $\T{voice}$: the device's $\V{Voice}$ audio channel, including
+  its recording, playback position, volume, and paused state, provided
+  by Hardware-Hiding and the game engine.
+\item $\T{bubble}$: the narration area of the display. It contains
+  the speaker's portrait, visual cue, optional caption, continuation
+  and replay controls, and any caregiver sound prompt.
+\item $\T{clock}$ : $\R$, elapsed seconds from HardwareHiding.now().
+  It continues during an interruption, but only unpaused time counts
+  towards $\T{elapsed}$.
+\end{itemize}
+
+The caller controls the accompanying demonstration and the rest of the
+screen. Narration changes only its own display area and voice playback,
+apart from the shared audio pause and resume operations described below.
+
+\subsubsection{State Invariant}
+
+\begin{itemize}
+\item When $\T{current} = \V{none}$, $\T{phase} = \V{Idle}$,
+  $\T{elapsed} = 0$, the voice channel is empty, and the bubble is hidden.
+\item $\V{Playing}$ and $\V{Waiting}$ both have a current line.
+  When there is a current line, its elapsed time satisfies
+  \[0 \leq \T{elapsed} \leq \T{duration}(\T{current}).\]
+  $\V{Waiting}$ has
+  $\T{elapsed} = \T{duration}(\T{current})$.
+\item At most one line plays at a time. In $\V{Idle}$ and
+  $\V{Waiting}$, no recording is playing. A line retained in
+  $\V{Idle}$ has finished, and its cue remains visible until
+  replaced or cleared.
+\item Next and replay accept input only in $\V{Waiting}$ while
+  $\T{paused} = \false$. They cannot shorten an unfinished line.
+\item While paused, the playback position and $\T{elapsed}$ do not
+  advance. No touch, playback-completion event, or automatic continuation
+  can finish the active call during that pause.
+\item A timer or input callback can act only on the generation to
+  which it belongs. A cancelled presentation cannot restore its bubble,
+  restart its audio, or continue a later step.
+\end{itemize}
+
+\subsubsection{Assumptions}
+
+\begin{itemize}
+\item Preferences and the device services are ready before init(),
+  which is called once before the other access programs. Narration owns
+  the voice channel; callers do not start another recording on it.
+\item Lines have non-empty identifiers and matching cues. Supplied
+  recordings are available locally, have positive durations, and match
+  their words. Content checks enforce the caption limit and the SRS
+  language requirements before release. The released procedure content
+  also satisfies the Procedure Content Module's invariant.
+\item say and aside are called only while Narration is not paused.
+  Events are processed one at a time. The caller pauses and resumes
+  demonstrations with narration, and resumes only after the screen is
+  visible and all device interruptions have ended.
+\item The caller coordinates the matching demonstration with each
+  line. If a demonstration continues beyond the line's duration, it
+  uses say($x$, $\false$) and waits for both to finish before offering
+  its own continuation control. Otherwise, say may handle continuation.
+\item Before leaving, restarting, or replacing a presentation, the
+  caller cancels its pending work and calls stop(). A return caused by
+  cancellation is not treated as normal step completion, as specified
+  by the Procedure Runner Module (\misref{Runner}{10}).
+\end{itemize}
+
+\subsubsection{Access Routine Semantics}
+
+\begin{samepage}
+\noindent init():
+\begin{itemize}
+\item transition: set the state variables to their initial values above,
+  stop and clear the voice channel through
+  HardwareHiding.stopAudio($\V{Voice}$), and hide the bubble. Then
+  set $\T{ready} := \true$.
+\item exception: $\exc := (\T{ready} \Rightarrow
+  \text{AlreadyInitialized})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent say($x$, $\T{wait}$):
+\begin{itemize}
+\item transition: increase $\T{generation}$, retain that value for
+  this call, and set $\T{current} := x$, $\T{elapsed} := 0$, and
+  $\T{phase} := \V{Playing}$. Apply $\T{showLine}(x)$ and, when
+  a recording is supplied, start it through
+  HardwareHiding.playAudio($x.\T{recording}$,
+  Preferences.get().$\T{narrationVolume}$, $\V{Voice}$).
+  With no recording, leave the voice channel empty and use the fallback
+  duration. Keep the cue visible throughout playback.
+
+  Increase $\T{elapsed}$ with active playback time until
+  $\T{duration}(x)$ has elapsed, then stop the voice channel.
+  Muting does not shorten this duration or pause the line. Reapply
+  showLine when the sound state or preferences change, including during
+  a pause, without restarting playback
+  (\srsitemref{FR_NarrationFallback}{FR16},
+  \srsitemref{FR_Preferences}{FR44}).
+
+  If $\T{wait} = \false$, or autoContinue is enabled, set
+  $\T{phase} := \V{Idle}$ and return after the line finishes.
+  Otherwise, set $\T{phase} := \V{Waiting}$ and offer Next and replay
+  through UI Widgets. A fresh Next touch ends the call. A fresh replay
+  touch increases the generation, updates this call's retained value,
+  sets $\T{elapsed} := 0$ and $\T{phase} := \V{Playing}$, and
+  plays the same line from its beginning. Disable both controls
+  until the replay finishes, then apply the same continuation rule.
+  Enabling autoContinue
+  while waiting ends the call once it is unpaused; it never cuts short
+  initial playback or replay. Before a normal return, remove these
+  controls, set $\T{phase} := \V{Idle}$, and retain the completed
+  line's cue and caption.
+
+  Touches during playback are not saved for later. Accept one choice
+  at a time, requiring a new contact after the controls become available.
+  Next, replay, answer, and ordinary scene touches cannot shorten
+  procedure narration. Home and restart remain under the caller's
+  control, and a permitted skip cancels the presentation through stop().
+  Opening settings pauses it
+  (\srsitemref{FR_IgnoreRepeatedTouches}{FR20},
+  \srsitemref{FR_HoldSkip}{FR21}).
+\item exception: $\exc := \text{AlreadyPresenting}$ when
+  $\T{phase} \neq \V{Idle}$; otherwise,
+  $\exc := \text{EmptyLine}$ when both
+  $\T{wordCount}(x.\T{words}) = 0$ and
+  $\T{wordCount}(x.\T{caption}) = 0$.
+  Check both conditions before replacing the displayed line or audio.
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent aside($x$):
+\begin{itemize}
+\item transition: retain the previously displayed line and present $x$
+  as say($x$, $\false$). On normal completion, if a previous line
+  existed, set $\T{current}$ to that line and restore its bubble
+  through showLine, with
+  $\T{elapsed} := \T{duration}(\T{current})$, without replaying its
+  audio or presenting a Next control. If there was no previous line,
+  set $\T{current} := \V{none}$, $\T{elapsed} := 0$, and hide
+  the bubble. In either case, $\T{phase} := \V{Idle}$.
+  This lets a hint or answer explanation finish and then restores the
+  instruction for the child's next attempt. If stop() cancels the
+  aside, discard the retained line instead of restoring it.
+\item exception: the same conditions and precedence as say. An aside
+  cannot interrupt an unfinished explanation or another aside.
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent stop():
+\begin{itemize}
+\item transition: increase $\T{generation}$, cancel the active call,
+  timers, replay, and waiting input, and discard any line retained by
+  aside. Call HardwareHiding.stopAudio($\V{Voice}$). Set
+  $\T{current} := \V{none}$, $\T{phase} := \V{Idle}$,
+  $\T{elapsed} := 0$, and $\T{paused} := \false$. Remove the
+  bubble, its cues, controls, and sound prompt. Release the cancelled
+  call without reporting normal completion. A later callback or resume
+  cannot restart it (\srsitemref{FR_StopOnExit}{FR23}). Repeating stop
+  has no additional visible effect. stop does not resume the shared
+  audio channels; the caller clears any shared pause before starting
+  another presentation.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent pause():
+\begin{itemize}
+\item transition: when not already paused, set $\T{paused} := \true$
+  and call HardwareHiding.pauseAudio(). Retain the phase, current line,
+  playback position, elapsed time, and any line saved by aside. Disable
+  Next and replay, cancel existing touch contacts, and leave completion
+  work pending until resumption. Repeating pause does nothing.
+  Hardware-Hiding pauses all audio channels; the caller coordinates
+  this with its animations and other presentation modules
+  (\srsitemref{FR_Suspend}{FR27}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent resume():
+\begin{itemize}
+\item transition: when paused, apply showLine to the current line if
+  one exists, then call HardwareHiding.resumeAudio() and set
+  $\T{paused} := \false$. Continue the retained phase and playback
+  position, excluding all paused time. Process a pending completion
+  only if it still belongs to the current generation. Require fresh
+  input for Next or replay. A completed line is not replayed merely
+  because it was paused. Repeating resume, or calling it after stop,
+  does nothing (\srsitemref{FR_Suspend}{FR27}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent isSpeaking():
+\begin{itemize}
+\item output: $\out := (\T{phase} = \V{Playing}) \wedge
+  \neg\T{paused}$. This reports an active line, including one whose
+  audio is muted or absent. It is $\false$ while waiting for Next.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent speaker():
+\begin{itemize}
+\item output: $\out := \T{current}.\T{speaker}$ when isSpeaking()
+  is $\true$, and $\out := \V{none}$ otherwise.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent loudness():
+\begin{itemize}
+\item output: $\out :=$ the current recording amplitude relative to
+  its peak, from 0 to 1. Return 0 when isSpeaking() is $\false$,
+  there is no recording, or inaudible() is $\true$. This value lets
+  the caller animate the speaking character's mouth; it does not
+  change the device volume.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\subsubsection{Local Functions}
+
+\begin{samepage}
+\noindent $\T{duration}$ : LineT $\to \R$
+\par\nopagebreak[4]
+
+For input $x$ with a recording,
+$\out := \T{length}(x.\T{recording})$, even when the device or
+caregiver volume makes that recording silent. Otherwise,
+\[
+\out := \max(\T{MIN\_LINE\_S},\ n / \T{WORDS\_PER\_SECOND}),
+\]
+where $n = \T{wordCount}(x.\T{words})$ when that count is nonzero,
+and $n = \T{wordCount}(x.\T{caption})$ otherwise. This gives a line
+without a recording time to be shown; it is not a time limit on the
+child's response.
+\par
+\end{samepage}
+
+\begin{samepage}
+\noindent $\T{inaudible}$ : $() \to \B$
+\par\nopagebreak[4]
+
+$\out := \text{HardwareHiding.isMuted}() \vee
+\text{Preferences.get}().\T{narrationVolume} = 0$.
+This checks device mute, zero media volume, and the caregiver's
+narration-volume setting whenever the bubble is updated.
+\par
+\end{samepage}
+
+\begin{samepage}
+\noindent $\T{wordCount}$ : String $\to \N$
+\par\nopagebreak[4]
+
+For input $s$, $\out :=$ the number of whitespace-separated groups
+containing at least one letter or digit. A contraction or hyphenated word
+counts as one word. Empty text, whitespace, and punctuation alone count
+as zero.
+\par
+\end{samepage}
+
+\begin{samepage}
+\noindent $\T{showLine}$ : LineT $\to ()$
+\par\nopagebreak[4]
+
+For input $x$, read $p := \text{Preferences.get}()$. Show the portrait
+for $x.\T{speaker}$ with $x.\T{mood}$, and the cue $x.\T{cue}$ at
+the chosen cue size. For $\V{Narrator}$, use a narrator icon instead
+of an on-screen character's portrait. Show the caption at
+$p.\T{captionSize}$ when captions are enabled, inaudible() is $\true$,
+or no recording is supplied. Hiding captions never hides the cue.
+
+When inaudible() is $\true$, show a caregiver prompt through UI Widgets
+explaining how to restore sound. When HardwareHiding.isMuted() is
+$\true$, explain how to unmute the device or raise its media volume.
+When $p.\T{narrationVolume} = 0$, explain how to restore narration
+through caregiver settings. Include both instructions when both apply.
+The prompt does not require acknowledgement, cover the guidance or
+navigation controls, open settings automatically, or stop play.
+Remove it when sound is restored. A line without a recording keeps its
+visual guidance and timing; it does not ask the caregiver to fix a
+missing recording by changing volume
+(\srsitemref{FR_VisualCues}{FR15},
+\srsitemref{FR_NarrationFallback}{FR16}).
+
+Apply $p.\T{narrationVolume}$ to the voice channel at its current
+position without restarting it or changing its paused state. Refresh
+the displayed line when these preferences or the device sound state
+change, including while settings are open. Caption and cue-size changes
+preserve the same instruction and playback position
+(\srsitemref{FR_Preferences}{FR44}).
+\par
+\end{samepage}
+
+\subsubsection{Considerations}
+
+Vision Testing, Eye-Drop Preparation, Slit-Lamp Preparation, and any
+additional levels supply their own lines, recordings, and cues. This
+module does not depend on a particular procedure, character name,
+exercise, or number of lines. Procedure Content supplies the reviewed
+wording; the runner determines the step order and which explanations
+must be completed before continuing.
+
+The runner starts matching narration and animation within 100
+milliseconds and uses speaker() and loudness() to coordinate character
+speech (\srsitemref{NFR_AVSync}{NFR14}). It also keeps home and restart
+available, enforces the hold required for a permitted skip, and prevents
+skipping required explanations. Those rules still apply when narration
+is silent or automatic continuation is enabled. Completing or replaying
+a line is not completion of a level.
+
+The VnV Plan checks narrated instructions, visual guidance without
+sound, repeated touches, protected explanations, and pause/resume across
+the preparation levels. These checks include hints and answer feedback,
+sound lost during playback, and returning after an interruption longer
+than the line's remaining duration. They also check that leaving a level
+cancels its narration before the journey map appears.
 
 % =====================================================================
 % M14 to M26 (Jake Finlay). The Uses of each module follow the Uses

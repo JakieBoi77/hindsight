@@ -337,7 +337,7 @@ Hardware-Hiding Module & \misref{HH}{1} Hardware-Hiding Module \\
 & \misref{Progress}{3} Journey Progress Module \\
 & \misref{Wardrobe}{4} Wardrobe Module \\
 & \misref{PlayerData}{5} Player Data Module \\
-& M6 Preferences Module \\
+& \misref{Prefs}{6} Preferences Module \\
 & M7 Level Catalogue Module \\
 & M8 Accessory Catalogue Module \\
 & M9 Procedure Content Module \\
@@ -2117,6 +2117,356 @@ name, or clinical information (\srsitemref{NFR_Offline}{NFR19},
 \srsitemref{NFR_DataProtection}{NFR26},
 \srsitemref{NFR_Privacy}{NFR28},
 \srsitemref{NFR_Minimization}{NFR29}).
+
+% =====================================================================
+\newpage
+\section{MIS of Preferences Module} \label{mis:Prefs}
+
+\subsection{Module}
+
+Preferences (\misref{Prefs}{6})
+
+This module manages the caregiver's settings, the medical notice
+acknowledgement, and the last chosen player slot. These values belong to
+the device and are shared by every player and preparation level. Nicknames,
+character selections, and journey data are managed by the Player Data
+Module (\misref{PlayerData}{5}).
+
+\subsection{Uses}
+
+Data File Module (\misref{DataFile}{20}), for DataFileT and its load,
+recovery, save, and delete access programs.
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+\[
+\T{DEFAULT\_PREFS} : \text{PrefsT} =
+(\V{Unset}, 1.0, 1.0, \true, \V{Standard}, \V{Standard}, \false, \false).
+\]
+In the field order defined below, these defaults mean no age group selected,
+both volume controls at 1, captions shown at the standard size, standard
+visual cues, manual continuation, and full motion. These are design defaults;
+the SRS does not prescribe their values.
+
+\subsubsection{Exported Types}
+
+\begin{itemize}
+\item $\T{AgeGroupT} = \{\V{Unset}, \V{Ages3to4}, \V{Ages5to7}\}$:
+  no age group selected, ages 3 to 4, or ages 5 to 7, respectively
+  (\srsitemref{FR_AgeGroup}{FR7}).
+\item $\T{SizeT} = \{\V{Standard}, \V{Large}\}$: the size choices for
+  captions and visual cues. The presenting module supplies the standard
+  dimensions and a larger alternative. Neither value hides the content.
+\item $\T{PrefsT}$: the caregiver's presentation and content choices,
+  \[\begin{array}{l}
+  \text{tuple of } (\T{ageGroup} : \text{AgeGroupT},\
+  \T{narrationVolume} : \R,\ \T{soundVolume} : \R,\\
+  \phantom{\text{tuple of } (}\T{captions} : \B,\
+  \T{captionSize} : \text{SizeT},\ \T{cueSize} : \text{SizeT},\\
+  \phantom{\text{tuple of } (}\T{autoContinue} : \B,\
+  \T{reduceMotion} : \B).
+  \end{array}\]
+\end{itemize}
+
+Both volumes range from 0 to 1. A value of 0 is silent, and 1 uses the
+recording's full level, still subject to the device's volume and mute
+settings. $\T{soundVolume}$ is the shared control for music and sound
+effects. It is stored independently of $\T{narrationVolume}$; the sound
+module limits the actual playback level to the lower of the two.
+
+$\T{captions}$ controls whether optional written narration is normally
+shown, and $\T{captionSize}$ controls its size. $\T{cueSize}$ controls
+the pictures, icons, and demonstrations that guide the child. Captions
+supplement this guidance; turning them off does not hide visual cues or
+prevent fallback guidance when narration cannot be heard
+(\srsitemref{FR_SpokenInstructions}{FR13},
+\srsitemref{FR_VisualCues}{FR15},
+\srsitemref{FR_NarrationFallback}{FR16}).
+
+$\T{autoContinue}$ allows a narrated panel to continue after its narration
+and demonstration have finished. It does not skip a required explanation,
+answer a question, perform the child's action, or complete a level.
+$\T{reduceMotion}$ requests reduced non-essential motion; the information
+shown by an essential demonstration must remain available.
+
+\subsubsection{Exported Access Programs}
+
+\begin{accessprogs}
+init & -- & -- & AlreadyInitialized\\
+get & -- & PrefsT & --\\
+set & $p$ : PrefsT & -- & InvalidPreference\\
+isAcknowledged & -- & $\B$ & --\\
+acknowledge & -- & -- & --\\
+lastPlayer & -- & $\N$ & --\\
+setLastPlayer & $s$ : $\N$ & -- & --\\
+clear & -- & -- & --\\
+\end{accessprogs}
+
+\subsection{Semantics}
+
+Valid changes take effect in memory immediately. set, acknowledge, and
+setLastPlayer each attempt to save the complete preference record before
+returning. A failed write keeps the previous file and the new values in
+memory, so the current session can continue with the caregiver's choices.
+The next call to any of these three routines retries the complete current
+record, even when its argument or requested value is unchanged. If the
+application closes before a successful save, the next launch restores the
+previously saved values, or the defaults when no valid save exists.
+
+\subsubsection{Local Types}
+
+$\T{StoredT} = \text{tuple of } (\T{prefs} : \text{PrefsT},\
+\T{ack} : \B,\ \T{last} : \N)$: the complete record stored in the
+preferences file. The acknowledgement and last-player value are separate
+from PrefsT, so changing a display setting cannot change either of them.
+
+\subsubsection{State Variables}
+
+\begin{itemize}
+\item $\T{prefs}$ : PrefsT, the settings used in the current session.
+\item $\T{ack}$ : $\B$, whether the caregiver has acknowledged the
+  medical notice, either in this session or in a restored valid record.
+\item $\T{last}$ : $\N$, the last chosen player slot, or 0 when none has
+  been recorded.
+\item $\T{file}$ : DataFileT(StoredT), the local preferences file.
+\item $\T{ready}$ : $\B$, initially $\false$, whether initialization has
+  finished. The other state variables are set by init().
+\end{itemize}
+
+\subsubsection{Environment Variables}
+
+None. Storage is reached through DataFileT. The modules that present content
+apply the settings to the display and audio; this module does not control
+those resources directly.
+
+\subsubsection{State Invariant}
+
+When $\T{ready}$ is $\true$, $\T{inRange}(\T{prefs})$ holds,
+$\T{ack} \in \B$, and $\T{last} \in \N$. All enumerated fields have
+one of their declared values, and all Boolean fields are $\true$ or
+$\false$. No preference disables the required visual cues. The file can
+contain an earlier valid record when a write has failed; the in-memory
+record remains valid.
+
+\newpage
+\subsubsection{Assumptions}
+
+\begin{itemize}
+\item The storage services are available before init(), and init() is
+  called before any other access program. This instance is the only writer
+  of its preferences file. Calls, including their storage operations,
+  finish one at a time.
+\item The Settings Screen calls set only after the caregiver has passed
+  the parental gate. Application Control calls acknowledge only after the
+  explicit acknowledgement control is selected; opening or viewing the
+  notice is not an acknowledgement
+  (\srsitemref{FR_ParentGate}{FR41},
+  \srsitemref{FR_RecordAck}{FR2}).
+\item Player Data calls setLastPlayer after successfully choosing a valid
+  slot. This module does not depend on the slot count; Player Data checks
+  lastPlayer against its available slots when restoring a player.
+\item Application Control calls clear only as part of the confirmed
+  clear-all-data action, together with PlayerData.clearAll(). A journey
+  reset does not call clear
+  (\srsitemref{FR_ResetJourney}{FR45},
+  \srsitemref{FR_ClearAllData}{FR46}).
+\item Modules using these settings read get() when applying a confirmed
+  change and when preparing content. They refresh the active presentation
+  while settings are open, including volume, caption and cue sizes, and
+  reduced motion, rather than keeping the values read at startup
+  (\srsitemref{FR_Preferences}{FR44}).
+\end{itemize}
+
+\subsubsection{Access Routine Semantics}
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent init():
+\begin{itemize}
+\item transition: set $\T{file}$ to new DataFileT(StoredT)(``preferences'',
+  $(\T{DEFAULT\_PREFS}, \false, 0)$, $\T{valid}$). Let $t$ be
+  $\T{file}$.load(). If that load required recovery, as reported by
+  $\T{file}$.recovered(), call $\T{file}$.delete() so the unreadable or
+  invalid record cannot return on a later launch. The load and recovery
+  check refer to the same stored contents.
+
+  Set $\T{prefs}, \T{ack}, \T{last} := t.\T{prefs}, t.\T{ack},
+  t.\T{last}$ and $\T{ready} := \true$. Missing, unreadable, or invalid
+  data gives the entire default record, including an unacknowledged
+  notice. No player record is changed, and initialization does not create
+  a file when none exists (\srsitemref{FR_CorruptData}{FR30}).
+\item exception: $\exc := (\T{ready} \Rightarrow
+  \text{AlreadyInitialized})$
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent get():
+\begin{itemize}
+\item output: $\out := \T{prefs}$, as an independent value. Changing the
+  returned value does not change the settings until set is called. Reading
+  preferences does not write a file.
+\item exception: none
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent set($p$):
+\begin{itemize}
+\item transition: $\T{prefs} := p$, then call $\T{store}()$. The new
+  settings are available through get when this routine returns, without
+  restarting the application. The acknowledgement, last-player value,
+  and all player records are unchanged. A volume of 0 is allowed and does
+  not prevent play (\srsitemref{FR_Preferences}{FR44},
+  \srsitemref{FR_NarrationFallback}{FR16}).
+\item exception: $\exc := (\neg\T{inRange}(p) \Rightarrow
+  \text{InvalidPreference})$. Invalid volumes are rejected, not clamped;
+  neither memory nor the file changes, and no save is attempted.
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent isAcknowledged():
+\begin{itemize}
+\item output: $\out := \T{ack}$. Application Control uses this value
+  when deciding whether the medical notice must precede the home screen
+  (\srsitemref{FR_MedicalNotice}{FR1}).
+\item exception: none
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent acknowledge():
+\begin{itemize}
+\item transition: $\T{ack} := \true$, then call $\T{store}()$.
+  Caregiver settings, the last-player value, and player data are kept.
+  A successful save allows later launches to use the stored acknowledgement
+  (\srsitemref{FR_RecordAck}{FR2}). If saving fails, the current session
+  still records the caregiver's action; a later launch can ask again when
+  no acknowledgement was successfully saved. Repeating this call keeps
+  $\T{ack}$ true and retries saving.
+\item exception: none
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent lastPlayer():
+\begin{itemize}
+\item output: $\out := \T{last}$. The value is a slot number to try on
+  startup, not a player record or a guarantee that the slot is used. A
+  stored number outside the current slot range is handled by Player Data.
+\item exception: none
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent setLastPlayer($s$):
+\begin{itemize}
+\item transition: $\T{last} := s$, then call $\T{store}()$. Caregiver
+  settings, acknowledgement, and all player records are unchanged. This
+  routine does not choose a player or create a slot. A failed preference
+  save does not undo Player Data's successful choice; only the remembered
+  startup slot may be older after relaunch.
+\item exception: none
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\noindent\begin{minipage}{\linewidth}
+\setlength{\parskip}{0.5\baselineskip}
+\noindent clear():
+\begin{itemize}
+\item transition: call $\T{file}$.delete() and set
+  $\T{prefs}, \T{ack}, \T{last} := \T{DEFAULT\_PREFS}, \false, 0$.
+  $\T{ready}$ remains $\true$, so initialization is not repeated. No
+  default file is written. Any unsaved choices are discarded along with
+  the saved record, and later saves use only the new values. Repeating
+  clear has no further effect.
+
+  Player Data separately deletes the player records, and Application
+  Control shows the medical notice before the home screen. Packaged
+  levels and assets are kept (\srsitemref{FR_ClearAllData}{FR46}).
+\item exception: none
+\end{itemize}
+\end{minipage}
+\par\pagebreak[0]
+
+\newpage
+\subsubsection{Local Functions}
+
+\noindent $\T{inRange}$ : $\text{PrefsT} \to \B$
+
+For the input $p$,
+\[
+\out := 0 \leq p.\T{narrationVolume} \leq 1 \wedge
+0 \leq p.\T{soundVolume} \leq 1.
+\]
+Both endpoints are valid. A sound-volume preference above the narration
+preference is also valid; the audio module applies the playback limit.
+
+\noindent $\T{valid}$ : $\text{StoredT} \to \B$
+
+$\out := \true$ exactly when the input record $t$ has all required fields
+with their declared types and $\T{inRange}(t.\T{prefs})$ holds. Unknown
+age-group or size values, non-Boolean flags, negative slot numbers, and
+non-finite or out-of-range volumes are invalid. An unset age group, silent
+audio, and an unacknowledged notice are valid. The decoder rejects malformed
+or incomplete data before it can be used as a StoredT. Recovery replaces
+the whole preference record, rather than retaining selected fields from
+damaged data.
+
+\noindent $\T{store}$ : $() \to ()$
+
+Call $\T{file}$.save($(\T{prefs}, \T{ack}, \T{last})$). DataFileT
+replaces the file in one indivisible step, so a failed or interrupted write
+cannot leave a partly saved preference record. A WriteFailed exception is
+handled here: keep the previous file and the current in-memory values, and
+return normally. No deferred write retains an older record. A later call
+to store saves the values current at that time. InvalidValue cannot occur
+when the state invariant holds.
+
+\subsubsection{Considerations}
+
+Every preparation level uses the same preferences, including Vision
+Testing, Eye-Drop Preparation, and Slit-Lamp Preparation. Procedure Content
+uses the age group when selecting content, choosing the matching variant
+when one exists and the level's default otherwise. An unset age group or a
+missing variant never makes a level unavailable
+(\srsitemref{FR_AgeGroup}{FR7}). No exact age or date of birth is stored.
+
+The Settings Screen presents these choices behind its parental gate.
+Narration applies the volume, caption, size, and continuation choices;
+the sound and screen-effects modules apply their respective volume and
+motion choices. These modules must retain the visual information needed
+to follow every instruction, including when captions are off, motion is
+reduced, or narration is silent
+(\srsitemref{FR_VisualCues}{FR15},
+\srsitemref{FR_NarrationFallback}{FR16}). A volume preference never
+overrides the device's mute setting. Music and sound effects remain subject
+to the narration-level limit (\srsitemref{NFR_AudioSafety}{NFR15}).
+
+Changing players, deleting one player, or resetting a journey keeps these
+device-wide values, including the medical notice acknowledgement. Only the
+confirmed clear-all-data action calls clear. The preferences file is
+separate from the player records, so a failure to save a preference cannot
+undo a saved purchase, reward, or player selection. All storage stays on
+the device (\srsitemref{NFR_Offline}{NFR19},
+\srsitemref{NFR_DataProtection}{NFR26},
+\srsitemref{NFR_Privacy}{NFR28}).
 
 % =====================================================================
 % M14 to M26 (Jake Finlay). The Uses of each module follow the Uses

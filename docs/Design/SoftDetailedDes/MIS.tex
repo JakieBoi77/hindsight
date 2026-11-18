@@ -2838,6 +2838,7 @@ Modules:
 \begin{itemize}
 \item Scoreboard Screen Module (\misref{Scoreboard}{15})
 \item Player Data Module (\misref{PlayerData}{5})
+\item Parental Gate Module (\misref{Gate}{17})
 \item UI Widgets Module (\misref{Widgets}{26})
 \end{itemize}
 
@@ -2895,10 +2896,12 @@ current player's scoreboard, supplied by the caller.
   $k(m.\T{look})$, the coin balance, and completed levels out of
   the total. An unused slot shows ``New game''.
 
-  A used card's delete control asks UIWidgets.confirm, identifying
-  the slot and the coins and completed levels that will be lost.
-  On confirmation, call PlayerData.deletePlayer($s$) and refresh
-  the cards. Cancelling keeps the player.
+  A used card's delete control first calls ParentalGate.ask(). When it
+  returns $\false$, nothing changes. When it returns $\true$, ask
+  UIWidgets.confirm, identifying the slot and the coins and completed
+  levels that will be lost. On confirmation, call
+  PlayerData.deletePlayer($s$) and refresh the cards. Cancelling keeps
+  the player.
 
   When a card is selected, call
   $r := \text{PlayerData.choosePlayer}(s)$.
@@ -2925,11 +2928,16 @@ does not call Player Data. The returned record can be passed to the
 map and dress-up screens. The scoreboard is reached through this
 module, as in the \mg{} uses table.
 
+Deleting a player erases saved progress, so only a caregiver can do it.
+The parental gate comes before the confirmation, as it does for the
+caregiver settings (\srsitemref{FR_ParentGate}{FR41}). A child who taps the
+delete control by accident cannot pass the gate.
+
 \paragraph{Future Revisions}
 
 \begin{itemize}
 \item Character pictures supplied by $k$ and preparation of BoardT: TBD.
-\item The caregiver management view, parental gate and managePlayers: TBD.
+\item The caregiver management view and managePlayers: TBD.
 \item Back navigation, including after deleting the current player: TBD.
 \item Slot nicknames, narrated selection guidance, fixed slot markers
   and preview cleanup: TBD.

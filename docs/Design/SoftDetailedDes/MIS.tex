@@ -5,7 +5,6 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{graphicx}
-\usepackage{colortbl}
 \usepackage{xr}
 \usepackage{hyperref}
 \usepackage{longtable}
@@ -44,8 +43,23 @@ urlcolor=cyan          % color of external links
 \newcommand{\srsurl}{https://team-hindsight.github.io/ophthamology-game/SRS/SRS.pdf}
 \newcommand{\srsitemref}[2]{\href{\srsurl\#nameddest=#1}{#2}}
 
+% The Module Guide in the team repository, and \mg{} for a link labelled MG
+\newcommand{\mgurl}{https://github.com/team-hindsight/ophthamology-game/blob/main/pdfs/Design/SoftArchitecture/MG.pdf}
+\newcommand{\mg}{\href{\mgurl}{MG}}
+
 % A module of this document, linked to its specification: \misref{Reward}{14}
 \newcommand{\misref}[2]{\hyperref[mis:#1]{M#2}}
+
+% Only sections and subsections are numbered (6, M1, M2, ...): every module
+% has the same parts, so they are not numbered. Section 6 nests those parts one
+% level deeper, so the fourth level is set as a heading on its own line.
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+  {3.25ex \@plus 1ex \@minus .2ex}{1.5ex \@plus .2ex}%
+  {\normalfont\normalsize\bfseries}}
+\makeatother
 
 % Lets TeX loosen a line instead of pushing a long name past the margin
 \setlength{\emergencystretch}{3em}
@@ -148,7 +162,7 @@ improving cooperation during examinations.
 
 Complementary documents include the
 \href{\srsurl}{System Requirement Specifications}
-and \href{https://team-hindsight.github.io/ophthamology-game/Design/SoftArchitecture/MG.pdf}{Module Guide}.
+and \href{\mgurl}{Module Guide}.
 The full documentation and implementation can be found at
 \url{https://github.com/team-hindsight/ophthamology-game}.
 
@@ -200,7 +214,8 @@ repeat.\\
 set of $T$ & A set: an unordered collection of values of type $T$, with no
 repeats.\\
 tuple of $(x : T_1,\ y : T_2)$ & A tuple: a record with a field $x$ of type
-$T_1$ and a field $y$ of type $T_2$.\\
+$T_1$ and a field $y$ of type $T_2$. A value of this type is written
+$(a, b)$, with its fields in the order of the type.\\
 $A \times B$ & The type of ordered pairs $(a,b)$, where $a$ has type $A$
 and $b$ has type $B$. For a function on these pairs, $f(a,b)$ means
 $f((a,b))$.\\
@@ -209,7 +224,7 @@ $A$.\\
 $A \rightharpoonup B$ & A partial function: a function that gives a value of
 type $B$ for some, but not necessarily all, values of type $A$.\\
 $() \to T$ & A routine with no inputs and a result of type $T$.
-$() \to ()$ has no inputs or output; when registered to run on an event,
+$() \to ()$ has no inputs or output. When registered to run on an event,
 it is a callback.\\
 $T \cup \{\V{none}\}$ & The values of type $T$ and the extra value $\V{none}$,
 which means ``no value''.\\
@@ -235,6 +250,11 @@ written in capitals, such as $\T{PLAYER\_SLOTS}$.
 $x := e$ & Assignment: after the access program, $x$ has the value $e$.\\
 $x, y := e_1, e_2$ & Multiple assignment: $x$ gets $e_1$ and $y$ gets $e_2$ at
 the same time.\\
+$(x, y) := e$ & $x$ and $y$ get the first and second fields of the tuple
+$e$, at the same time.\\
+$t.f := v$ & change field $f$ of tuple $t$ to $v$, leaving its other fields
+unchanged\\
+$t[f := v]$ & the tuple $t$ with field $f$ replaced by $v$\\
 $(c_1 \Rightarrow r_1 \mid c_2 \Rightarrow r_2)$ & Conditional rule: the result
 is $r_1$ when condition $c_1$ holds, and $r_2$ when $c_2$ holds. There may be
 any number of cases.\\
@@ -248,9 +268,13 @@ $S \cup U$ & the set of the elements of $S$ and of $U$\\
 $\{\}$ & the empty set\\
 $\{x \in S \mid P(x)\}$ & the elements $x$ of $S$ for which condition
 $P(x)$ is true\\
+$\{E(x) \mid x \in S\}$ & the set of the values $E(x)$ for every element $x$
+of the set or sequence $S$\\
+$\langle E(x) \mid x \in S\rangle$ & the sequence of the values $E(x)$ for
+every element $x$ of $S$, in the order of $S$ when $S$ is a sequence\\
 $|S|$ & the number of elements in set $S$\\
-$\sum_{x \in S} f(x)$ & the sum of $f(x)$ for every element $x$ of $S$;
-the sum is 0 when $S$ is empty\\
+$\sum_{x \in S} f(x)$ & the sum of $f(x)$ for every element $x$ of $S$,
+or 0 when $S$ is empty\\
 $\{a \mapsto b,\ c \mapsto d\}$ & the function that gives $b$ for $a$ and $d$
 for $c$\\
 $f(a)$ & the value of function $f$ for $a$\\
@@ -258,7 +282,7 @@ $t.f$ & the value of field $f$ in tuple $t$\\
 $\T{dom}(f)$ & the set of inputs for which function $f$ has a value\\
 $\T{length}(a)$ & the duration of recording $a$ of type AudioT, in seconds\\
 $f(a) := b$ & change the value of $f$ at $a$ to $b$, leaving its other values
-unchanged; for a partial function, this also adds $a$ to its domain if needed\\
+unchanged. For a partial function, this also adds $a$ to its domain if needed\\
 $\min(a,b)$, $\max(a,b)$ & the smaller and larger of $a$ and $b$, respectively\\
 $\langle a, b \rangle$, $\langle\rangle$ & the sequence of $a$ then $b$, and
 the empty sequence\\
@@ -286,10 +310,14 @@ Each module specification has the following parts.
   \item \textbf{Generic Template Module}: a template module that works for
     any type $T$.
   \end{itemize}
-\item \textbf{Uses}: the direct service dependencies listed in the MG.
-  A type reference describes data passed across an interface; it does not
+\item \textbf{Uses}: a \emph{Modules} list of the direct service
+  dependencies listed in the \mg{}.
+  A type reference describes data passed across an interface. It does not
   call the module that defines that type. A supplied callback is called
-  through its interface, without naming its implementation.
+  through its interface, without naming its implementation. When the
+  specification uses types defined by modules that are not in Uses, a
+  \emph{Types} list under Uses names each such type and the module that
+  defines it.
 \item \textbf{Syntax}: the exported constants, the exported types, and a table
   of the exported access programs. Each row of the table gives the routine
   name, its inputs with their names and types (In), the type of its result
@@ -311,7 +339,11 @@ Each module specification has the following parts.
     transition. When an exception is signalled, nothing changes.
   \item \emph{Local Types}: types used only within the module's specification.
   \item \emph{Local Functions} and \emph{Local Constants}: helpers that make the
-    specification easier to read. They are not exported.
+    specification easier to read. They are not exported, and they change
+    nothing.
+  \item \emph{Local Procedures}: hidden steps, shared by several access
+    programs, that change the state or the environment. They are not
+    exported.
   \item \emph{Considerations}: extra notes, such as which requirements the
     module helps meet.
   \end{itemize}
@@ -327,14 +359,13 @@ while the program runs, and the output is the user's choice when it returns.
 Constructors and routines that report the result of their own state change,
 such as PlayerData.choosePlayer, may also have both a transition and an
 output. The result of a state change is returned only when that change
-succeeds; a routine that signals an exception has no normal output.
+succeeds. A routine that signals an exception has no normal output.
 
 \newpage
 \section{Module Decomposition}
 
 The module names, numbers, responsibilities, and Uses entries follow the
-current Module Guide \cite{MG}. Modules 1--13 retain the detail of the PoC
-design. Items that still need design work are marked TBD.
+current \mg{}. Items that still need design work are marked TBD.
 
 The medical notice belongs to Application Control. Exercise steps and level
 controls belong to Procedure Runner, with their content in Procedure Content.
@@ -383,25 +414,44 @@ Hardware-Hiding Module & \misref{HH}{1} Hardware-Hiding Module \\
 \end{table}
 
 \newpage
-\section{MIS of Hardware-Hiding Module} \label{mis:HH}
+\section{Module Interface Specifications}\label{SecMIS}
 
-\subsection{Module}
+This section gives the interface specification of each module of
+Table~\ref{TblMH}.
+
+% Heading sizes in Section 6 follow the A3 specification: the module title is
+% the largest, then Module, Uses, Syntax and Semantics, then their parts.
+\makeatletter
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+  {-3.5ex \@plus -1ex \@minus -.2ex}{2.3ex \@plus .2ex}%
+  {\normalfont\Large\bfseries}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+  {-3.25ex \@plus -1ex \@minus -.2ex}{1.5ex \@plus .2ex}%
+  {\normalfont\large\bfseries}}
+\makeatother
+
+% Number the modules M1, M2, ...
+\renewcommand{\thesubsection}{M\arabic{subsection}}
+
+\subsection{Hardware-Hiding Module} \label{mis:HH}
+
+\subsubsection{Module}
 
 HardwareHiding (\misref{HH}{1})
 
 Provided by the operating system (OS), iOS or Android, and the Unity engine.
 
-\subsection{Uses}
+\subsubsection{Uses}
+
+Modules: None.
+
+\subsubsection{Syntax}
+
+\paragraph{Exported Constants}
 
 None.
 
-\subsection{Syntax}
-
-\subsubsection{Exported Constants}
-
-None.
-
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item $\T{ChannelT} = \{\V{Voice}, \V{Effects}\}$: the two audio channels.
@@ -411,7 +461,7 @@ None.
   finger on the screen, in screen millimetres.
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 readFile & $n$ : String & String & FileMissing, ReadFailed\\
@@ -424,7 +474,7 @@ stopAudio & $\T{ch}$ : ChannelT & -- & --\\
 pauseAudio & -- & -- & --\\
 resumeAudio & -- & -- & --\\
 isMuted & -- & $\B$ & --\\
-touches & -- & set of TouchT & --\\
+touches & -- & seq of TouchT & --\\
 loadScene & $s$ : SceneT & -- & --\\
 onBackground & $f$ : () $\to$ () & -- & --\\
 onForeground & $f$ : () $\to$ () & -- & --\\
@@ -432,13 +482,13 @@ now & -- & $\R$ & --\\
 random & $n$ : $\N$ & $\N$ & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 None.
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 \begin{itemize}
 \item $\T{files}$ : String $\rightharpoonup$ String: the files in the storage that the
@@ -450,13 +500,18 @@ None.
 \item $\T{touchscreen}$: the touch sensor of the display.
 \end{itemize}
 
-\subsubsection{Assumptions}
+\paragraph{State Invariant}
 
-The device services are ready before use, and $n > 0$ for random($n$).
+None.
+
+\paragraph{Assumptions}
+
+The device services are ready before use.
 The application has no network permission, and no access program reaches a
 network (\srsitemref{NFR_Privacy}{NFR28}, \srsitemref{NFR_Offline}{NFR19}).
+Every call to random($n$) has $n > 0$, so the range $[0..n-1]$ is not empty.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
 \begin{samepage}
 \noindent readFile($n$):
@@ -497,6 +552,7 @@ network (\srsitemref{NFR_Privacy}{NFR28}, \srsitemref{NFR_Offline}{NFR19}).
 \begin{itemize}
 \item transition: $n$ is removed from $\T{dom}(\T{files})$ (no change if it
   is not there).
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -505,6 +561,7 @@ network (\srsitemref{NFR_Privacy}{NFR28}, \srsitemref{NFR_Offline}{NFR19}).
 \noindent fileExists($n$):
 \begin{itemize}
 \item output: $\out := n \in \T{dom}(\T{files})$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -514,6 +571,7 @@ network (\srsitemref{NFR_Privacy}{NFR28}, \srsitemref{NFR_Offline}{NFR19}).
 \begin{itemize}
 \item transition: $\T{speaker}$ plays $a$ on channel $\T{ch}$ at volume
   $\max(0, \min(1, v))$, replacing what was playing on $\T{ch}$.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -522,15 +580,26 @@ network (\srsitemref{NFR_Privacy}{NFR28}, \srsitemref{NFR_Offline}{NFR19}).
 \noindent stopAudio($\T{ch}$):
 \begin{itemize}
 \item transition: $\T{speaker}$ stops channel $\T{ch}$.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
 \begin{samepage}
-\noindent pauseAudio(), resumeAudio():
+\noindent pauseAudio():
 \begin{itemize}
-\item transition: $\T{speaker}$ pauses every channel, or continues every
-  paused channel from where it paused.
+\item transition: $\T{speaker}$ pauses every channel.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent resumeAudio():
+\begin{itemize}
+\item transition: $\T{speaker}$ continues every paused channel from where it
+  paused.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -540,6 +609,7 @@ network (\srsitemref{NFR_Privacy}{NFR28}, \srsitemref{NFR_Offline}{NFR19}).
 \begin{itemize}
 \item output: $\out := \true$ when the device is muted or its media volume is
   zero.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -547,7 +617,9 @@ network (\srsitemref{NFR_Privacy}{NFR28}, \srsitemref{NFR_Offline}{NFR19}).
 \begin{samepage}
 \noindent touches():
 \begin{itemize}
-\item output: $\out :=$ the fingers on $\T{touchscreen}$ in the current frame.
+\item output: $\out :=$ the fingers on $\T{touchscreen}$ in the current frame
+  (the order does not matter).
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -555,18 +627,30 @@ network (\srsitemref{NFR_Privacy}{NFR28}, \srsitemref{NFR_Offline}{NFR19}).
 \begin{samepage}
 \noindent loadScene($s$):
 \begin{itemize}
-\item transition: $\T{screen}$ shows scene $s$; the objects of the previous
+\item transition: $\T{screen}$ shows scene $s$, and the objects of the previous
   scene are removed.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
 \begin{samepage}
-\noindent onBackground($f$), onForeground($f$):
+\noindent onBackground($f$):
 \begin{itemize}
 \item transition: $f$ is called each time the application is sent to the
   background or interrupted (a call or notification takes the audio or the
-  screen), or each time it comes back.
+  screen).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent onForeground($f$):
+\begin{itemize}
+\item transition: $f$ is called each time the application comes back from
+  the background or from an interruption.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -575,6 +659,7 @@ network (\srsitemref{NFR_Privacy}{NFR28}, \srsitemref{NFR_Offline}{NFR19}).
 \noindent now():
 \begin{itemize}
 \item output: $\out :=$ seconds since the application was launched.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -583,11 +668,12 @@ network (\srsitemref{NFR_Privacy}{NFR28}, \srsitemref{NFR_Offline}{NFR19}).
 \noindent random($n$):
 \begin{itemize}
 \item output: $\out := $ a number in $[0..n-1]$, each equally likely.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
-\subsubsection{Future Revisions}
+\paragraph{Future Revisions}
 
 \begin{itemize}
 \item Background music and additional scenes: TBD.
@@ -600,42 +686,52 @@ network (\srsitemref{NFR_Privacy}{NFR28}, \srsitemref{NFR_Offline}{NFR19}).
 
 % =====================================================================
 \newpage
-\section{MIS of Application Control Module} \label{mis:Control}
+\subsection{Application Control Module} \label{mis:Control}
 
-\subsection{Module}
+\subsubsection{Module}
 
 AppControl (\misref{Control}{2})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Procedure Guide Screen Module (\misref{Guide}{19}), Procedure Runner
-Module (\misref{Runner}{10}), Dress-Up Screen Module
-(\misref{DressUp}{16}), Player Select Screen Module
-(\misref{PlayerSelect}{12}), Journey Map Screen Module
-(\misref{Map}{13}), Settings Screen Module (\misref{Settings}{18})
+Modules:
+\begin{itemize}
+\item Procedure Guide Screen Module (\misref{Guide}{19})
+\item Procedure Runner Module (\misref{Runner}{10})
+\item Dress-Up Screen Module (\misref{DressUp}{16})
+\item Player Select Screen Module (\misref{PlayerSelect}{12})
+\item Journey Map Screen Module (\misref{Map}{13})
+\item Settings Screen Module (\misref{Settings}{18})
+\end{itemize}
 
-\subsection{Syntax}
+Types:
+\begin{itemize}
+\item RecordT from Player Data Module (\misref{PlayerData}{5})
+\item BoardT from Scoreboard Screen Module (\misref{Scoreboard}{15})
+\end{itemize}
 
-\subsubsection{Exported Constants}
+\subsubsection{Syntax}
+
+\paragraph{Exported Constants}
 
 None.
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 AppContextT: the startup acknowledgement, age-group selection, scene
 loading, catalogue items, character-picture query, and operations for
 saving player changes supplied to application control. Its fields and
 bindings are TBD.
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 start & $c$ : AppContextT & -- & AlreadyStarted\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
 \item $\T{started}$ : $\B$, initially $\false$
@@ -645,26 +741,30 @@ start & $c$ : AppContextT & -- & AlreadyStarted\\
 \item $\T{choice}$ : ChoiceT, the choice returned by Journey Map
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 $\T{screenDisplay}$: the display used for the medical notice. The screen
 modules present the other screens.
 
-\subsubsection{Assumptions}
+\paragraph{State Invariant}
+
+None.
+
+\paragraph{Assumptions}
 
 The engine initializes the modules before start is called, with each
 dependency ready before its users. Scene services are initialized after
 their scene loads. The supplied context provides the startup and saved-data
-operations; their connection to the engine and persistence modules is TBD.
+operations. Their connection to the engine and persistence modules is TBD.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
 \begin{samepage}
 \noindent start($c$):
 \begin{itemize}
 \item transition: $\T{started} := \true$. Follow
   Table~\ref{TblApplicationFlow} until the application closes. A stored
-  acknowledgement starts at $\V{Players}$; otherwise start at
+  acknowledgement starts at $\V{Players}$. Otherwise it starts at
   $\V{Notice}$. Application interruptions suspend the running level with
   ProcedureRunner.suspend, and returning resumes it with
   ProcedureRunner.resume. Registering these operations is TBD.
@@ -718,28 +818,28 @@ $\V{Settings}$ & Call SettingsScreen.open with the current nickname
 and data controls enabled. The screen applies its parental gate before
 showing settings. Its result requests closing, opening the guide,
 resetting the journey, or clearing all data. Closing or resetting returns
-to $\V{Map}$; clearing all data returns to $\V{Notice}$. Applying the
+to $\V{Map}$, and clearing all data returns to $\V{Notice}$. Applying the
 returned nickname and data changes, clearing the notice acknowledgement,
 and refreshing $\T{player}$ through $c$ are TBD.\\[0.4em]
 $\V{Guide}$ & Call GuideScreen.open(). A $\V{ShowNotice}$ result
 shows the medical notice with a close control, without recording a new
-acknowledgement. Closing the notice returns to the guide; closing the
+acknowledgement. Closing the notice returns to the guide, and closing the
 guide returns to settings.\\
 \end{longtable}
 \endgroup
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
 Application Control chooses which screen comes next. Screens return a
-choice. The medical notice is part of this module in the current MG.
+choice. The medical notice is part of this module in the current \mg{}.
 Its text is at or below Grade 8 reading level and makes no claim to
 diagnose or treat (\srsitemref{NFR_Language}{NFR8},
-\srsitemref{NFR_NoClaims}{NFR32}). The PoC's studio splash screen appears
+\srsitemref{NFR_NoClaims}{NFR32}). A studio splash screen appears
 before the flow in Table~\ref{TblApplicationFlow}.
 
 \par\pagebreak[0]
 \begin{samepage}
-\subsubsection{Future Revisions}
+\paragraph{Future Revisions}
 
 \begin{itemize}
 \item AppContextT and the startup, scene-loading, player-data and
@@ -758,23 +858,26 @@ before the flow in Table~\ref{TblApplicationFlow}.
 
 % =====================================================================
 \newpage
-\section{MIS of Journey Progress Module} \label{mis:Progress}
+\subsection{Journey Progress Module} \label{mis:Progress}
 
-\subsection{Template Module}
+\subsubsection{Template Module}
 
 ProgressT (\misref{Progress}{3})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-LevelCatalogue (\misref{Levels}{7}) for LevelIdT and the reward of each level.
+Modules:
+\begin{itemize}
+\item Level Catalogue Module (\misref{Levels}{7})
+\end{itemize}
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 None.
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item $\T{StatusT} = \{\V{NotStarted}, \V{InProgress}, \V{Completed}\}$
@@ -782,7 +885,7 @@ None.
 \item ProgressT = ?
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 new ProgressT & -- & ProgressT & --\\
@@ -798,43 +901,45 @@ completedCount & -- & $\N$ & --\\
 levelCount & -- & $\N$ & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
 The state follows \srsitemref{def_Player}{D2}, and
 start, finish and reset are the operations of \srsitemref{def_Ops}{D4}. The
 operation \emph{exit} of D4 has no effect, so it is not an access program: leaving
 a level does not report completion.
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
-\item $\T{status}$ : LevelIdT $\rightharpoonup$ StatusT
+\item $\T{statuses}$ : LevelIdT $\rightharpoonup$ StatusT
 \item $\T{balance}$ : $\N$, the coin balance ($\T{coins}$ in the SRS)
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 None.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
-$\T{dom}(\T{status}) = \text{LevelCatalogue.ids}()$: every level has a
+$\T{dom}(\T{statuses}) = \{l \mid l \in \text{LevelCatalogue.ids}()\}$:
+every level has a
 status. A saved value loaded from an earlier version of the application is
 brought back to this invariant by align(). The coin balance cannot become
 negative, because $\T{balance} \in \N$ and spend signals an exception instead.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 LevelCatalogue.init() has been called.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
 \begin{samepage}
 \noindent new ProgressT():
 \begin{itemize}
-\item transition: $\T{status}, \T{balance} := \T{fresh}, 0$ (the new player
+\item transition: $\T{statuses}, \T{balance} := \T{fresh}, 0$ (the new player
   state of \srsitemref{def_Player}{D2})
 \item output: $\out := \T{self}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -842,8 +947,8 @@ LevelCatalogue.init() has been called.
 \begin{samepage}
 \noindent status($l$):
 \begin{itemize}
-\item output: $\out := \T{status}(l)$
-\item exception: $\exc := (l \notin \T{dom}(\T{status}) \Rightarrow
+\item output: $\out := \T{statuses}(l)$
+\item exception: $\exc := (l \notin \T{dom}(\T{statuses}) \Rightarrow
   \text{UnknownLevel})$
 \end{itemize}
 \end{samepage}
@@ -853,6 +958,7 @@ LevelCatalogue.init() has been called.
 \noindent coins():
 \begin{itemize}
 \item output: $\out := \T{balance}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -860,10 +966,10 @@ LevelCatalogue.init() has been called.
 \begin{samepage}
 \noindent start($l$):
 \begin{itemize}
-\item transition: $(\T{status}(l) \neq \V{Completed} \Rightarrow \T{status}(l)
-  := \V{InProgress} \mid \T{status}(l) = \V{Completed} \Rightarrow
-  \T{status}(l) := \V{Completed})$
-\item exception: $\exc := (l \notin \T{dom}(\T{status}) \Rightarrow
+\item transition: $(\T{statuses}(l) \neq \V{Completed} \Rightarrow \T{statuses}(l)
+  := \V{InProgress} \mid \T{statuses}(l) = \V{Completed} \Rightarrow
+  \T{statuses}(l) := \V{Completed})$
+\item exception: $\exc := (l \notin \T{dom}(\T{statuses}) \Rightarrow
   \text{UnknownLevel})$
 \end{itemize}
 \end{samepage}
@@ -872,11 +978,11 @@ LevelCatalogue.init() has been called.
 \begin{samepage}
 \noindent finish($l$):
 \begin{itemize}
-\item transition: $(\T{status}(l) = \V{InProgress} \Rightarrow \T{status}(l),
+\item transition: $(\T{statuses}(l) = \V{InProgress} \Rightarrow \T{statuses}(l),
   \T{balance} := \V{Completed}, \T{balance} + \T{coinReward}(l) \mid
-  \T{status}(l) \neq \V{InProgress} \Rightarrow \T{status}, \T{balance} :=
-  \T{status}, \T{balance})$
-\item exception: $\exc := (l \notin \T{dom}(\T{status}) \Rightarrow
+  \T{statuses}(l) \neq \V{InProgress} \Rightarrow \T{statuses}, \T{balance} :=
+  \T{statuses}, \T{balance})$
+\item exception: $\exc := (l \notin \T{dom}(\T{statuses}) \Rightarrow
   \text{UnknownLevel})$
 \end{itemize}
 \end{samepage}
@@ -895,7 +1001,8 @@ LevelCatalogue.init() has been called.
 \begin{samepage}
 \noindent reset():
 \begin{itemize}
-\item transition: $\T{status}, \T{balance} := \T{fresh}, 0$
+\item transition: $\T{statuses}, \T{balance} := \T{fresh}, 0$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -903,9 +1010,10 @@ LevelCatalogue.init() has been called.
 \begin{samepage}
 \noindent align():
 \begin{itemize}
-\item transition: $\T{status} := \{l \mapsto (l \in \T{dom}(\T{status})
-  \Rightarrow \T{status}(l) \mid l \notin \T{dom}(\T{status}) \Rightarrow
+\item transition: $\T{statuses} := \{l \mapsto (l \in \T{dom}(\T{statuses})
+  \Rightarrow \T{statuses}(l) \mid l \notin \T{dom}(\T{statuses}) \Rightarrow
   \V{NotStarted}) \mid l \in \text{LevelCatalogue.ids}()\}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -913,9 +1021,10 @@ LevelCatalogue.init() has been called.
 \begin{samepage}
 \noindent totalPoints():
 \begin{itemize}
-\item output: $\displaystyle \out := \sum_{l \in \{k \in \T{dom}(\T{status}) \mid
-  \T{status}(k) = \V{Completed}\}} \T{points}(l)$ (equation E2 of
+\item output: $\displaystyle \out := \sum_{l \in \{k \in \T{dom}(\T{statuses}) \mid
+  \T{statuses}(k) = \V{Completed}\}} \T{points}(l)$ (equation E2 of
   \srsitemref{def_Scoreboard}{D3})
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -923,8 +1032,9 @@ LevelCatalogue.init() has been called.
 \begin{samepage}
 \noindent completedCount():
 \begin{itemize}
-\item output: $\out := |\{l \in \T{dom}(\T{status}) \mid \T{status}(l) =
+\item output: $\out := |\{l \in \T{dom}(\T{statuses}) \mid \T{statuses}(l) =
   \V{Completed}\}|$ (equation E3 of \srsitemref{def_Scoreboard}{D3})
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -932,12 +1042,13 @@ LevelCatalogue.init() has been called.
 \begin{samepage}
 \noindent levelCount():
 \begin{itemize}
-\item output: $\out := |\T{dom}(\T{status})|$
+\item output: $\out := |\T{dom}(\T{statuses})|$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
-\subsubsection{Local Functions}
+\paragraph{Local Functions}
 
 $\T{fresh}$ : LevelIdT $\to$ StatusT\\
 $\T{fresh} \equiv \{l \mapsto \V{NotStarted} \mid l \in
@@ -949,14 +1060,14 @@ $\T{points}(l) \equiv \text{LevelCatalogue.level}(l).\T{reward}.\T{points}$
 \noindent $\T{coinReward}$ : LevelIdT $\to \N$\\
 $\T{coinReward}(l) \equiv \text{LevelCatalogue.level}(l).\T{reward}.\T{coins}$
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
 Every level can be started, and a completed level stays completed during
 replay. A level's reward is given only on its first completion
 (\srsitemref{FR_NoDuplicateReward}{FR32}). align() keeps saved progress
 in step with the available levels.
 
-\subsubsection{Future Revisions}
+\paragraph{Future Revisions}
 
 \begin{itemize}
 \item The pointsEarned query for one scoreboard row: TBD.
@@ -966,32 +1077,35 @@ in step with the available levels.
 
 % =====================================================================
 \newpage
-\section{MIS of Wardrobe Module} \label{mis:Wardrobe}
+\subsection{Wardrobe Module} \label{mis:Wardrobe}
 
-\subsection{Template Module}
+\subsubsection{Template Module}
 
 WardrobeT (\misref{Wardrobe}{4})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Accessory Catalogue Module (\misref{Accessories}{8})
+Modules:
+\begin{itemize}
+\item Accessory Catalogue Module (\misref{Accessories}{8})
+\end{itemize}
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 None.
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 WardrobeT = ?
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 new WardrobeT & -- & WardrobeT & --\\
 owns & $i$ : ItemT & $\B$ & --\\
-look & -- & set of ItemT & --\\
+look & -- & seq of ItemT & --\\
 buy & $i$ : ItemT, $c$ : $\N$ & $\N$ & AlreadyOwned, InsufficientCoins\\
 shortfall & $i$ : ItemT, $c$ : $\N$ & $\N$ & --\\
 grant & $i$ : ItemT & -- & --\\
@@ -1000,9 +1114,9 @@ remove & $c$ : CategoryT & -- & --\\
 align & -- & -- & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
 \item $\T{owned}$ : set of ItemT, the bought or rewarded items
@@ -1010,27 +1124,28 @@ align & -- & -- & --\\
   feature categories make up the selected character.
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 None.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 For every category $c$, $\T{worn}(c)$ belongs to $c$ and is owned.
 One item is worn in each category (\srsitemref{FR_Equip}{FR39}).
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 AccessoryCatalogue.init() has been called. The balance $c$ is supplied
 by the caller for the player who owns this wardrobe.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
 \begin{samepage}
 \noindent new WardrobeT():
 \begin{itemize}
 \item transition: $\T{owned}, \T{worn} := \{\}, \{c \mapsto \text{AccessoryCatalogue.default}(c) \mid c \in \text{CategoryT}\}$
 \item output: $\out := \T{self}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1039,6 +1154,7 @@ by the caller for the player who owns this wardrobe.
 \noindent owns($i$):
 \begin{itemize}
 \item output: $\out := i.\T{price} = 0 \vee i \in \T{owned}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1046,7 +1162,9 @@ by the caller for the player who owns this wardrobe.
 \begin{samepage}
 \noindent look():
 \begin{itemize}
-\item output: $\out := \{\T{worn}(c) \mid c \in \text{CategoryT}\}$
+\item output: $\out := \langle \T{worn}(c) \mid c \in \text{CategoryT}\rangle$,
+  one item per category (the order does not matter)
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1068,6 +1186,7 @@ by the caller for the player who owns this wardrobe.
 \noindent shortfall($i$, $c$):
 \begin{itemize}
 \item output: $\out := \max(0, i.\T{price} - c)$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1076,6 +1195,7 @@ by the caller for the player who owns this wardrobe.
 \noindent grant($i$):
 \begin{itemize}
 \item transition: $\T{owned} := \T{owned} \cup \{i\}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1094,6 +1214,7 @@ by the caller for the player who owns this wardrobe.
 \begin{itemize}
 \item transition: $\T{worn}(c) := \text{AccessoryCatalogue.default}(c)$. The
   item stays in $\T{owned}$ (\srsitemref{FR_Equip}{FR39}).
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1103,21 +1224,22 @@ by the caller for the player who owns this wardrobe.
 \begin{itemize}
 \item transition: keep the owned items that are still in
   AccessoryCatalogue.items(). In each category, keep the worn item
-  when it is still in that catalogue; otherwise use
+  when it is still in that catalogue. Otherwise use
   AccessoryCatalogue.default($c$).
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
-Choosing a character in the PoC means wearing items of the feature
+Choosing a character means wearing items of the feature
 categories. Coins are the only currency used for purchases
 (\srsitemref{FR_NoRealMoney}{FR40}). buy returns the cost, so this module
-does not call Journey Progress. The worn items are returned as a set for
-the Character Rig interface.
+does not call Journey Progress. The worn items are returned as a sequence,
+and the set of its elements is a LookT of the Character Rig interface.
 
-\subsubsection{Future Revisions}
+\paragraph{Future Revisions}
 
 \begin{itemize}
 \item Complete character selection and empty equipment categories: TBD.
@@ -1128,36 +1250,46 @@ the Character Rig interface.
 
 % =====================================================================
 \newpage
-\section{MIS of Player Data Module} \label{mis:PlayerData}
+\subsection{Player Data Module} \label{mis:PlayerData}
 
-\subsection{Module}
+\subsubsection{Module}
 
 PlayerData (\misref{PlayerData}{5})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Save Slots Module (\misref{Slots}{21}), Data File Module
-(\misref{DataFile}{20}), Accessory Catalogue Module
-(\misref{Accessories}{8})
+Modules:
+\begin{itemize}
+\item Save Slots Module (\misref{Slots}{21})
+\item Data File Module (\misref{DataFile}{20})
+\item Accessory Catalogue Module (\misref{Accessories}{8})
+\end{itemize}
 
-\subsection{Syntax}
+Types:
+\begin{itemize}
+\item ProgressT, StatusT from Journey Progress Module (\misref{Progress}{3})
+\item WardrobeT from Wardrobe Module (\misref{Wardrobe}{4})
+\item LevelIdT, RewardT from Level Catalogue Module (\misref{Levels}{7})
+\end{itemize}
 
-\subsubsection{Exported Constants}
+\subsubsection{Syntax}
+
+\paragraph{Exported Constants}
 
 $\T{NICKNAME\_MAX\_CHARS} = 20$
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item $\T{RecordT} = \text{tuple of } (\T{progress} : \text{ProgressT},
   \T{wardrobe} : \text{WardrobeT}, \T{nickname} : \text{String})$:
   everything saved for one player. Progress and wardrobe values are
-  supplied to this module; it does not call their access programs.
+  supplied to this module, which does not call their access programs.
   The record contains only the attributes allowed by the SRS data
   dictionary (\srsitemref{NFR_Minimization}{NFR29}).
 \item $\T{SummaryT}$: the values shown for one slot,
   \[\begin{array}{l}
-  \text{tuple of } (\T{used} : \B,\ \T{look} : \text{set of ItemT},\
+  \text{tuple of } (\T{used} : \B,\ \T{look} : \text{seq of ItemT},\
   \T{coins} : \N,\\
   \phantom{\text{tuple of } (}\T{completed} : \N,\ \T{total} : \N).
   \end{array}\]
@@ -1167,11 +1299,11 @@ $\T{NICKNAME\_MAX\_CHARS} = 20$
 \item PlayerOpsT: the supplied progress and wardrobe operations. Each
   operation has the name and inputs of its access program below, with
   RecordT as its first input. A query returns the listed output. A
-  change returns the updated RecordT; finishLevel also returns GivenT.
+  change returns the updated RecordT, and finishLevel also returns GivenT.
   These operations do not save files. Their bindings are TBD.
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begingroup
 \small
@@ -1205,7 +1337,7 @@ completedCount & -- & $\N$ & --\\
 levelCount & -- & $\N$ & --\\
 startLevel & $l$ : LevelIdT & -- & UnknownLevel\\
 finishLevel & $l$ : LevelIdT & GivenT & UnknownLevel\\
-look & -- & set of ItemT & --\\
+look & -- & seq of ItemT & --\\
 owns & $i$ : ItemT & $\B$ & --\\
 shortfall & $i$ : ItemT & $\N$ & --\\
 buy & $i$ : ItemT & -- & AlreadyOwned, InsufficientCoins\\
@@ -1218,9 +1350,9 @@ clearAll & -- & -- & --\\
 \end{longtable}
 \endgroup
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
 \item $\T{slots}$ : SaveSlotsT(RecordT)
@@ -1234,16 +1366,16 @@ clearAll & -- & -- & --\\
 \item $\T{chosen}$ : $\B$, whether a player has been chosen since launch
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 None.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 $\T{slot} \in [0..\T{PLAYER\_SLOTS}-1]$ and
 $|\T{rec}.\T{nickname}| \leq \T{NICKNAME\_MAX\_CHARS}$.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 init is called before any other access program. Its record $f$ is a valid
 new player, $g$ checks a record, $q$ describes one without changing it,
@@ -1253,21 +1385,22 @@ and the wardrobe invariant.
 Copies of a new-player record are independent.
 
 The supplied operations follow the Journey Progress and Wardrobe rules.
-Player Data calls them through PlayerOpsT and saves the returned record;
-it does not call those modules directly. A query does not change the
+Player Data calls them through PlayerOpsT and saves the returned record.
+It does not call those modules directly. A query does not change the
 record. A refused change leaves it unchanged. Construction, alignment and
 the callback bindings are TBD.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
 \begin{samepage}
 \noindent init($f$, $g$, $q$, $o$, $s$):
 \begin{itemize}
-\item transition: $\T{fresh}, \T{valid}, \T{describe}, \T{ops} := f, g, q, o$;
-  $\T{slots} := \text{new SaveSlotsT(RecordT)}(\text{``player''}, f, g)$.
+\item transition: $\T{fresh}, \T{valid}, \T{describe}, \T{ops} := f, g, q, o$,
+  then $\T{slots} := \text{new SaveSlotsT(RecordT)}(\text{``player''}, f, g)$.
   Set $\T{slot} := (s < \T{PLAYER\_SLOTS} \Rightarrow s \mid
   \true \Rightarrow 0)$, $\T{rec} := \T{slots}.\text{load}(\T{slot})$,
   and $\T{chosen} := \false$.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1276,7 +1409,7 @@ the callback bindings are TBD.
 \noindent choosePlayer($s$):
 \begin{itemize}
 \item transition: $\T{slot}, \T{rec}, \T{chosen} := s,
-  \T{slots}.\text{load}(s), \true$; $\T{store}()$. An unused slot gives
+  \T{slots}.\text{load}(s), \true$, then $\T{store}()$. An unused slot gives
   a new player.
 \item output: $\out := \T{rec}$
 \item exception: $\exc := (s \notin [0..\T{PLAYER\_SLOTS}-1]
@@ -1286,10 +1419,28 @@ the callback bindings are TBD.
 \par\pagebreak[0]
 
 \begin{samepage}
-\noindent currentPlayer(), current(), slotCount():
+\noindent currentPlayer():
 \begin{itemize}
-\item output: $\out := \T{slot}$, $\T{rec}$, or
-  $\T{PLAYER\_SLOTS}$, respectively.
+\item output: $\out := \T{slot}$
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent current():
+\begin{itemize}
+\item output: $\out := \T{rec}$
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent slotCount():
+\begin{itemize}
+\item output: $\out := \T{PLAYER\_SLOTS}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1297,8 +1448,8 @@ the callback bindings are TBD.
 \begin{samepage}
 \noindent summary($s$):
 \begin{itemize}
-\item output: let $m := \T{describe}(\T{slots}.\text{load}(s))$.
-  Return $m$ with $\T{used} := \T{slots}.\text{isUsed}(s)$.
+\item output: $\out := m[\T{used} := \T{slots}.\text{isUsed}(s)]$, where
+  $m = \T{describe}(\T{slots}.\text{load}(s))$.
 \item exception: $\exc := (s \notin [0..\T{PLAYER\_SLOTS}-1]
   \Rightarrow \text{InvalidSlot})$
 \end{itemize}
@@ -1320,7 +1471,7 @@ the callback bindings are TBD.
 \begin{samepage}
 \noindent save($r$):
 \begin{itemize}
-\item transition: $\T{rec} := r$; $\T{store}()$.
+\item transition: $\T{rec} := r$, then $\T{store}()$.
 \item exception: $\exc := (\neg\T{valid}(r) \Rightarrow
   \text{InvalidValue})$
 \end{itemize}
@@ -1328,12 +1479,52 @@ the callback bindings are TBD.
 \par\pagebreak[0]
 
 \begin{samepage}
-\noindent status($l$), coins(), totalPoints(), completedCount(), levelCount():
+\noindent status($l$):
 \begin{itemize}
-\item output: call the matching query in $\T{ops}$ with $\T{rec}$
-  and the listed inputs. It returns the current player's status,
-  balance, journey points, completed levels or level count.
-\item exception: status passes on UnknownLevel.
+\item output: $\out := \T{ops}.\text{status}(\T{rec}, l)$, the current
+  player's status of level $l$
+\item exception: $\exc := (\T{ops}.\text{status}(\T{rec}, l) \text{ signals
+  UnknownLevel} \Rightarrow \text{UnknownLevel})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent coins():
+\begin{itemize}
+\item output: $\out := \T{ops}.\text{coins}(\T{rec})$, the current player's
+  coin balance
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent totalPoints():
+\begin{itemize}
+\item output: $\out := \T{ops}.\text{totalPoints}(\T{rec})$, the current
+  player's journey points
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent completedCount():
+\begin{itemize}
+\item output: $\out := \T{ops}.\text{completedCount}(\T{rec})$, the number of
+  levels the current player has completed
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent levelCount():
+\begin{itemize}
+\item output: $\out := \T{ops}.\text{levelCount}(\T{rec})$, the number of
+  levels
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1341,11 +1532,12 @@ the callback bindings are TBD.
 \begin{samepage}
 \noindent startLevel($l$):
 \begin{itemize}
-\item transition: $\T{rec} := \T{ops}.\text{startLevel}(\T{rec},l)$;
-  $\T{store}()$. The supplied change applies the Journey Progress
+\item transition: $\T{rec} := \T{ops}.\text{startLevel}(\T{rec},l)$,
+  then $\T{store}()$. The supplied change applies the Journey Progress
   start rule: an unfinished level becomes $\V{InProgress}$ and a
   completed level stays completed.
-\item exception: UnknownLevel from the supplied operation.
+\item exception: $\exc := (\T{ops}.\text{startLevel}(\T{rec}, l)
+  \text{ signals UnknownLevel} \Rightarrow \text{UnknownLevel})$
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1353,39 +1545,83 @@ the callback bindings are TBD.
 \begin{samepage}
 \noindent finishLevel($l$):
 \begin{itemize}
-\item transition: $(\T{rec},g) :=
-  \T{ops}.\text{finishLevel}(\T{rec},l)$; $\T{store}()$.
+\item transition: $(\T{rec}, \T{given}) :=
+  \T{ops}.\text{finishLevel}(\T{rec}, l)$, then $\T{store}()$.
   The supplied change applies the Journey Progress finish rule.
   When the previous status was $\V{InProgress}$, it also grants
   the level's accessory, if any, to the wardrobe.
-\item output: $\out := g$. A first completion returns
-  $(\true,r)$, where $r$ is the level's reward; otherwise it returns
+\item output: $\out := \T{given}$. A first completion returns
+  $(\true,r)$, where $r$ is the level's reward. Otherwise it returns
   $(\false,(0,0,\V{none}))$
   (\srsitemref{FR_FirstReward}{FR31},
   \srsitemref{FR_NoDuplicateReward}{FR32}).
-\item exception: UnknownLevel from the supplied operation.
+\item exception: $\exc := (\T{ops}.\text{finishLevel}(\T{rec}, l)
+  \text{ signals UnknownLevel} \Rightarrow \text{UnknownLevel})$
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
 \begin{samepage}
-\noindent look(), owns($i$), shortfall($i$):
+\noindent look():
 \begin{itemize}
-\item output: the matching query in $\T{ops}$ returns the worn items,
-  whether the item is owned, or the additional coins needed to buy it.
+\item output: $\out := \T{ops}.\text{look}(\T{rec})$, the worn items, one
+  per category (the order does not matter)
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
 \begin{samepage}
-\noindent buy($i$), wear($i$), remove($c$):
+\noindent owns($i$):
 \begin{itemize}
-\item transition: replace $\T{rec}$ with the result of the matching
-  operation in $\T{ops}$, then $\T{store}()$. buy adds the item
-  and deducts its price once. wear and remove change the worn item
-  as specified by Wardrobe, without changing the coin balance.
-\item exception: buy passes on AlreadyOwned or InsufficientCoins;
-  wear passes on NotOwned. A refused change is not saved.
+\item output: $\out := \T{ops}.\text{owns}(\T{rec}, i)$
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent shortfall($i$):
+\begin{itemize}
+\item output: $\out := \T{ops}.\text{shortfall}(\T{rec}, i)$, the
+  additional coins needed to buy $i$
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent buy($i$):
+\begin{itemize}
+\item transition: $\T{rec} := \T{ops}.\text{buy}(\T{rec}, i)$,
+  then $\T{store}()$. The item is added and its price is deducted once.
+\item exception: $\exc := (\T{ops}.\text{buy}(\T{rec}, i) \text{ signals
+  AlreadyOwned} \Rightarrow \text{AlreadyOwned}$\\
+  $\phantom{\exc := (}\mid \T{ops}.\text{buy}(\T{rec}, i) \text{ signals
+  InsufficientCoins} \Rightarrow \text{InsufficientCoins})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent wear($i$):
+\begin{itemize}
+\item transition: $\T{rec} := \T{ops}.\text{wear}(\T{rec}, i)$,
+  then $\T{store}()$. The worn item changes as specified by Wardrobe, and the
+  coin balance does not change.
+\item exception: $\exc := (\T{ops}.\text{wear}(\T{rec}, i) \text{ signals
+  NotOwned} \Rightarrow \text{NotOwned})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent remove($c$):
+\begin{itemize}
+\item transition: $\T{rec} := \T{ops}.\text{remove}(\T{rec}, c)$,
+  then $\T{store}()$. The worn item changes as specified by Wardrobe, and the
+  coin balance does not change.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1394,6 +1630,7 @@ the callback bindings are TBD.
 \noindent nickname():
 \begin{itemize}
 \item output: $\out := \T{rec}.\T{nickname}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1401,7 +1638,7 @@ the callback bindings are TBD.
 \begin{samepage}
 \noindent setNickname($n$):
 \begin{itemize}
-\item transition: $\T{rec}.\T{nickname} := n$; $\T{store}()$.
+\item transition: $\T{rec}.\T{nickname} := n$, then $\T{store}()$.
   The empty string clears it (\srsitemref{FR_Nickname}{FR43}).
 \item exception: $\exc := (|n| > \T{NICKNAME\_MAX\_CHARS}
   \Rightarrow \text{NicknameTooLong})$
@@ -1412,10 +1649,11 @@ the callback bindings are TBD.
 \begin{samepage}
 \noindent resetJourney():
 \begin{itemize}
-\item transition: replace $\T{rec}$ with a copy of $\T{fresh}$;
-  $\T{store}()$. This restores a new player's progress, wardrobe and
+\item transition: replace $\T{rec}$ with a copy of $\T{fresh}$,
+  then $\T{store}()$. This restores a new player's progress, wardrobe and
   nickname. Device preferences and the notice acknowledgement are kept
   (\srsitemref{FR_ResetJourney}{FR45}).
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1423,14 +1661,15 @@ the callback bindings are TBD.
 \begin{samepage}
 \noindent clearAll():
 \begin{itemize}
-\item transition: $\T{slots}$.deleteAll(); $\T{slot} := 0$,
+\item transition: $\T{slots}$.deleteAll(), then $\T{slot} := 0$,
   $\T{rec} :=$ a copy of $\T{fresh}$, and $\T{chosen} := \false$
   (\srsitemref{FR_ClearAllData}{FR46}).
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
-\subsubsection{Local Functions}
+\paragraph{Local Procedures}
 
 $\T{store}$ : $() \to ()$
 
@@ -1439,18 +1678,18 @@ call $\T{slots}$.save($\T{slot}$, $\T{rec}$). A WriteFailed
 exception is not passed on: the previous save is kept and play continues.
 The current record remains in memory.
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
 Each change to a chosen player calls store before returning
 (\srsitemref{FR_PersistState}{FR28}). Reading the slot summaries before
 selection does not create an empty save. Player files are separate from
 the device preferences.
 
-\subsubsection{Future Revisions}
+\paragraph{Future Revisions}
 
 \begin{itemize}
 \item Construction, validation and alignment of supplied player records,
-  including accessory checks through M8 and recovery through M20: TBD.
+  including accessory checks through \misref{Accessories}{8} and recovery through \misref{DataFile}{20}: TBD.
 \item Binding PlayerOpsT and the summary query to the current player: TBD.
 \item The pointsEarned query for one scoreboard row: TBD.
 \item Saving changes made through the Dress-Up Screen interface: TBD.
@@ -1462,26 +1701,29 @@ the device preferences.
 
 % =====================================================================
 \newpage
-\section{MIS of Preferences Module} \label{mis:Prefs}
+\subsection{Preferences Module} \label{mis:Prefs}
 
-\subsection{Module}
+\subsubsection{Module}
 
 Preferences (\misref{Prefs}{6})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Data File Module (\misref{DataFile}{20})
+Modules:
+\begin{itemize}
+\item Data File Module (\misref{DataFile}{20})
+\end{itemize}
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 $\T{DEFAULT\_PREFS} : \text{PrefsT} = (\V{Unset}, 1.0, 1.0, \true,
 \V{Standard}, \false, \false)$, that is: age group not set, full narration and
 sound volume, captions on, standard visual cues, no auto-continue, full
 motion.
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item $\T{AgeGroupT} = \{\V{Unset}, \V{Ages3to4}, \V{Ages5to7}\}$
@@ -1493,7 +1735,7 @@ motion.
   \B)$
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 init & -- & -- & --\\
@@ -1506,9 +1748,9 @@ setLastPlayer & $s$ : $\N$ & -- & --\\
 clear & -- & -- & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
 \item $\T{prefs}$ : PrefsT
@@ -1517,19 +1759,19 @@ clear & -- & -- & --\\
 \item $\T{file}$ : DataFileT(StoredT)
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 None.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 $\T{inRange}(\T{prefs})$
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 init() is called before any other access program.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
 \begin{samepage}
 \noindent init():
@@ -1537,8 +1779,10 @@ init() is called before any other access program.
 \item transition:
   \[\T{file} := \text{new DataFileT(StoredT)}(\text{``preferences''},\
   (\T{DEFAULT\_PREFS}, \false, 0),\ \T{valid})\]
-  then $(\T{prefs}, \T{ack}, \T{last}) := \T{file}.\text{load}()$. Damaged data gives the defaults
+  then $\T{prefs}, \T{ack}, \T{last} := t.\T{prefs}, t.\T{ack}, t.\T{last}$,
+  where $t = \T{file}.\text{load}()$. Damaged data gives the defaults
   (\srsitemref{FR_CorruptData}{FR30}).
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1547,6 +1791,7 @@ init() is called before any other access program.
 \noindent get():
 \begin{itemize}
 \item output: $\out := \T{prefs}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1554,7 +1799,7 @@ init() is called before any other access program.
 \begin{samepage}
 \noindent set($p$):
 \begin{itemize}
-\item transition: $\T{prefs} := p$; $\T{store}()$ (\srsitemref{FR_Preferences}{FR44})
+\item transition: $\T{prefs} := p$, then $\T{store}()$ (\srsitemref{FR_Preferences}{FR44})
 \item exception: $\exc := (\neg\T{inRange}(p) \Rightarrow \text{InvalidPreference})$
 \end{itemize}
 \end{samepage}
@@ -1564,6 +1809,7 @@ init() is called before any other access program.
 \noindent isAcknowledged():
 \begin{itemize}
 \item output: $\out := \T{ack}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1571,7 +1817,8 @@ init() is called before any other access program.
 \begin{samepage}
 \noindent acknowledge():
 \begin{itemize}
-\item transition: $\T{ack} := \true$; $\T{store}()$ (\srsitemref{FR_RecordAck}{FR2})
+\item transition: $\T{ack} := \true$, then $\T{store}()$ (\srsitemref{FR_RecordAck}{FR2})
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1580,6 +1827,7 @@ init() is called before any other access program.
 \noindent lastPlayer():
 \begin{itemize}
 \item output: $\out := \T{last}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1587,7 +1835,8 @@ init() is called before any other access program.
 \begin{samepage}
 \noindent setLastPlayer($s$):
 \begin{itemize}
-\item transition: $\T{last} := s$; $\T{store}()$
+\item transition: $\T{last} := s$, then $\T{store}()$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1595,18 +1844,19 @@ init() is called before any other access program.
 \begin{samepage}
 \noindent clear():
 \begin{itemize}
-\item transition: $\T{prefs}, \T{ack}, \T{last} := \T{DEFAULT\_PREFS}, \false, 0$;
-  $\T{file}$.delete() (\srsitemref{FR_ClearAllData}{FR46})
+\item transition: $\T{prefs}, \T{ack}, \T{last} := \T{DEFAULT\_PREFS}, \false, 0$,
+  then $\T{file}$.delete() (\srsitemref{FR_ClearAllData}{FR46})
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
-\subsubsection{Local Types}
+\paragraph{Local Types}
 
 $\T{StoredT} = \text{tuple of } (\T{prefs} : \text{PrefsT}, \T{ack} : \B,
 \T{last} : \N)$
 
-\subsubsection{Local Functions}
+\paragraph{Local Functions}
 
 $\T{inRange}$ : PrefsT $\to \B$\\
 $\T{inRange}(p) \equiv 0 \leq p.\T{narrationVolume} \leq 1 \wedge 0 \leq
@@ -1615,19 +1865,22 @@ p.\T{soundVolume} \leq 1$
 \noindent $\T{valid}$ : StoredT $\to \B$\\
 $\T{valid}(t) \equiv \T{inRange}(t.\T{prefs})$
 
-\noindent $\T{store}$ : $() \to$ ()\\
-$\T{store}() \equiv \T{file}.\text{save}((\T{prefs}, \T{ack}, \T{last}))$; a
-WriteFailed exception is not passed on and the previous file is kept.
+\paragraph{Local Procedures}
 
-\subsubsection{Considerations}
+$\T{store}$ : $() \to ()$
+
+Call $\T{file}$.save($(\T{prefs}, \T{ack}, \T{last})$). A WriteFailed
+exception is not passed on, and the previous file is kept.
+
+\paragraph{Considerations}
 
 The preferences belong to the device and are shared by every player. Modules
 that present output read get() each time they present it, so a change takes
 effect while the settings are still open (\srsitemref{FR_Preferences}{FR44}).
-There is no preference that turns the visual cues off; only their size can be
+There is no preference that turns the visual cues off. Only their size can be
 changed (\srsitemref{FR_VisualCues}{FR15}).
 
-\subsubsection{Future Revisions}
+\paragraph{Future Revisions}
 
 \begin{itemize}
 \item Caption-size preference and its default: TBD.
@@ -1638,23 +1891,28 @@ changed (\srsitemref{FR_VisualCues}{FR15}).
 
 % =====================================================================
 \newpage
-\section{MIS of Level Catalogue Module} \label{mis:Levels}
+\subsection{Level Catalogue Module} \label{mis:Levels}
 
-\subsection{Module}
+\subsubsection{Module}
 
 LevelCatalogue (\misref{Levels}{7})
 
-\subsection{Uses}
+\subsubsection{Uses}
+
+Modules: None.
+
+Types:
+\begin{itemize}
+\item ItemT from Accessory Catalogue Module (\misref{Accessories}{8})
+\end{itemize}
+
+\subsubsection{Syntax}
+
+\paragraph{Exported Constants}
 
 None.
 
-\subsection{Syntax}
-
-\subsubsection{Exported Constants}
-
-None.
-
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item $\T{LevelIdT}$: the identifiers of the levels, a finite set of names
@@ -1666,40 +1924,41 @@ None.
   \text{String}, \T{picture} : \text{ImageT}, \T{reward} : \text{RewardT})$
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 init & -- & -- & --\\
 levels & -- & seq of LevelT & --\\
 level & $l$ : LevelIdT & LevelT & UnknownLevel\\
-ids & -- & set of LevelIdT & --\\
+ids & -- & seq of LevelIdT & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 $\T{catalogue}$ : seq of LevelT, the levels in journey order
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 None.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 $|\T{catalogue}| \geq 1$, and no two levels have the same $\T{id}$.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 init() is called before any other access program.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
 \begin{samepage}
 \noindent init():
 \begin{itemize}
 \item transition: $\T{catalogue} :=$ the levels built into the application, in
   order of level number.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1708,6 +1967,7 @@ init() is called before any other access program.
 \noindent levels():
 \begin{itemize}
 \item output: $\out := \T{catalogue}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1724,19 +1984,19 @@ init() is called before any other access program.
 \begin{samepage}
 \noindent ids():
 \begin{itemize}
-\item output: $\out := \{\T{catalogue}[i].\T{id} \mid i \in
-  [0..|\T{catalogue}|-1]\}$
+\item output: $\out := \langle \T{catalogue}[i].\T{id} \mid i \in
+  [0..|\T{catalogue}|-1]\rangle$, in journey order
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
 There is no field that locks a level: every level can be started at any time
-(\srsitemref{FR_StartLevel}{FR4}). The PoC's \texttt{unlockedByDefault} and
-\texttt{unlocksOnComplete} fields are removed.
+(\srsitemref{FR_StartLevel}{FR4}).
 
-\subsubsection{Future Revisions}
+\paragraph{Future Revisions}
 
 \begin{itemize}
 \item The final Vision Testing, Eye-Drop Preparation, and Slit-Lamp Preparation catalogue, order, and rewards: TBD.
@@ -1746,19 +2006,19 @@ There is no field that locks a level: every level can be started at any time
 
 % =====================================================================
 \newpage
-\section{MIS of Accessory Catalogue Module} \label{mis:Accessories}
+\subsection{Accessory Catalogue Module} \label{mis:Accessories}
 
-\subsection{Module}
+\subsubsection{Module}
 
 AccessoryCatalogue (\misref{Accessories}{8})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-None.
+Modules: None.
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 \begin{itemize}
 \item $\T{FEATURES} = \{\V{Skin}, \V{Eyes}, \V{Mouth}, \V{Brows}, \V{Aid}\}$:
@@ -1768,7 +2028,7 @@ None.
   shop.
 \end{itemize}
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item $\T{CategoryT} = \T{FEATURES} \cup \T{ACCESSORIES}$
@@ -1777,48 +2037,49 @@ None.
   \T{price} : \N)$
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 init & -- & -- & --\\
-items & -- & set of ItemT & --\\
+items & -- & seq of ItemT & --\\
 inCategory & $c$ : CategoryT & seq of ItemT & --\\
 shopItems & -- & seq of ItemT & --\\
 default & $c$ : CategoryT & ItemT & --\\
-defaultLook & -- & set of ItemT & --\\
+defaultLook & -- & seq of ItemT & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
 \item $\T{all}$ : seq of ItemT
 \item $\T{defaults}$ : CategoryT $\to$ ItemT
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 None.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
-Every item whose category is in $\T{FEATURES}$ has price 0;
-for every $c$, $\T{defaults}(c)$ is an item of category $c$
-with price 0 (for $\V{Hat}$ and $\V{Aid}$ it is the item ``none''); and no two
+Every item whose category is in $\T{FEATURES}$ has price 0.
+For every $c$, $\T{defaults}(c)$ is an item of category $c$
+with price 0 (for $\V{Hat}$ and $\V{Aid}$ it is the item ``none''). No two
 items have the same category and id.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 init() is called before any other access program.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
 \begin{samepage}
 \noindent init():
 \begin{itemize}
 \item transition: $\T{all}, \T{defaults} :=$ the items and the default
   character built into the application.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1826,7 +2087,8 @@ init() is called before any other access program.
 \begin{samepage}
 \noindent items():
 \begin{itemize}
-\item output: $\out := \{\T{all}[k] \mid k \in [0..|\T{all}|-1]\}$
+\item output: $\out := \T{all}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1836,6 +2098,7 @@ init() is called before any other access program.
 \begin{itemize}
 \item output: $\out :=$ the items of $\T{all}$ with category $c$, in the order
   of $\T{all}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1845,6 +2108,7 @@ init() is called before any other access program.
 \begin{itemize}
 \item output: $\out :=$ the items of $\T{all}$ with $\T{price} > 0$, in the
   order of $\T{all}$ (\srsitemref{FR_Shop}{FR36})
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1853,6 +2117,7 @@ init() is called before any other access program.
 \noindent default($c$):
 \begin{itemize}
 \item output: $\out := \T{defaults}(c)$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -1860,20 +2125,22 @@ init() is called before any other access program.
 \begin{samepage}
 \noindent defaultLook():
 \begin{itemize}
-\item output: $\out := \{\T{defaults}(c) \mid c \in \text{CategoryT}\}$, the
-  items of the default character
+\item output: $\out := \langle \T{defaults}(c) \mid c \in
+  \text{CategoryT}\rangle$, the items of the default character, one per
+  category (the order does not matter)
   (\srsitemref{FR_ChooseCharacter}{FR34})
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
-The PoC catalogue has the categories Skin, Eyes, Mouth, Brows, Hat and Outfit.
-$\V{Aid}$ is added to meet \srsitemref{FR_DiverseCharacters}{FR35}; its items are
-free because they describe the child, not a reward.
+The catalogue has the categories Skin, Eyes, Mouth, Brows, Hat, Outfit and
+Aid. $\V{Aid}$ meets \srsitemref{FR_DiverseCharacters}{FR35}, and its items
+are free because they describe the child, not a reward.
 
-\subsubsection{Future Revisions}
+\paragraph{Future Revisions}
 
 \begin{itemize}
 \item Complete character entries and the final inclusive character and accessory collection: TBD.
@@ -1883,23 +2150,31 @@ free because they describe the child, not a reward.
 
 % =====================================================================
 \newpage
-\section{MIS of Procedure Content Module} \label{mis:Content}
+\subsection{Procedure Content Module} \label{mis:Content}
 
-\subsection{Module}
+\subsubsection{Module}
 
 ProcedureContent (\misref{Content}{9})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-None.
+Modules: None.
 
-\subsection{Syntax}
+Types:
+\begin{itemize}
+\item AgeGroupT from Preferences Module (\misref{Prefs}{6})
+\item LevelIdT from Level Catalogue Module (\misref{Levels}{7})
+\item LineT from Narration Module (\misref{Narration}{11})
+\item BeatT from Scene Staging Module (\misref{Staging}{22})
+\end{itemize}
 
-\subsubsection{Exported Constants}
+\subsubsection{Syntax}
+
+\paragraph{Exported Constants}
 
 $\T{SENTENCE\_MAX\_WORDS} = 10$ (\srsitemref{NFR_Language}{NFR8})
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item $\T{GuideT} = \text{tuple of } (\T{experience} : \text{seq of String},
@@ -1913,11 +2188,11 @@ $\T{SENTENCE\_MAX\_WORDS} = 10$ (\srsitemref{NFR_Language}{NFR8})
 \item StepT: one of the step records in Table~\ref{TblStepContent}.
   The record's name identifies its kind. LineT comes from Narration,
   BeatT from Scene Staging, AgeGroupT from Preferences, and LevelIdT
-  from Level Catalogue. These are data types; this module does not call
+  from Level Catalogue. These are data types, and this module does not call
   those modules.
 \end{itemize}
 
-The records keep the content of the PoC step templates. Procedure Runner
+The records hold the content of each step. Procedure Runner
 performs the steps. An empty shot or object name means ``none'', and a
 line may be empty when there is no line to say.
 
@@ -1959,7 +2234,7 @@ $\T{tapLine}$ : LineT\\
 \end{longtable}
 \endgroup
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 init & -- & -- & --\\
@@ -1967,9 +2242,9 @@ stepsFor & $l$ : LevelIdT, $a$ : AgeGroupT & seq of StepT & UnknownLevel\\
 guide & $l$ : LevelIdT & GuideT & UnknownLevel\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
 \item $\T{content}$ : $(\text{LevelIdT} \times \text{AgeGroupT})
@@ -1979,11 +2254,11 @@ guide & $l$ : LevelIdT & GuideT & UnknownLevel\\
   with one entry for each included level
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 None.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 For every stored sequence of steps:
 \begin{itemize}
@@ -2002,18 +2277,19 @@ For every stored sequence of steps:
   (\srsitemref{FR_ValidQuestions}{FR18}).
 \end{itemize}
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 init is called before any query. Packaged content is checked against the
 invariant. Every included level has default content and a guide entry.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
 \begin{samepage}
 \noindent init():
 \begin{itemize}
 \item transition: $\T{content}, \T{entries} :=$ the content and guide
   entries built into the application.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -2041,29 +2317,28 @@ invariant. Every included level has default content and a guide entry.
 \end{samepage}
 \par\pagebreak[0]
 
-\subsubsection{Local Functions}
+\paragraph{Local Functions}
 
 $\T{lines}$ : StepT $\to$ seq of LineT
 
 Returns every non-empty line a step can say, in content order, for the
 content checks and the narration script.
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
 Clinical wording is kept here for review by a paediatric ophthalmologist
-(\srsitemref{NFR_ClinicalAccuracy}{NFR22}). In the PoC,
-\texttt{PocBuilder} builds the step assets. QuestionStepT is part of the
-design added to the PoC. The current MG puts step content in this module
+(\srsitemref{NFR_ClinicalAccuracy}{NFR22}). The current \mg{} puts step
+content in this module
 and step execution in Procedure Runner.
 
-\subsubsection{Future Revisions}
+\paragraph{Future Revisions}
 
 \begin{itemize}
 \item The final content and age-group variants for Vision Testing,
   Eye-Drop Preparation and Slit-Lamp Preparation: TBD.
 \item The guides query, guide names and level identifiers for the
   Procedure Guide Screen: TBD.
-\item ADULT\_TEXT\_MAX\_GRADE and the complete guide text: TBD.
+\item $\T{ADULT\_TEXT\_MAX\_GRADE}$ and the complete guide text: TBD.
 \item The general activity format, required panels beyond sensation
   descriptions, and new exercise handlers: TBD.
 \item Packaged-content validation, repeated initialization, and the
@@ -2074,22 +2349,34 @@ and step execution in Procedure Runner.
 
 % =====================================================================
 \newpage
-\section{MIS of Procedure Runner Module} \label{mis:Runner}
+\subsection{Procedure Runner Module} \label{mis:Runner}
 
-\subsection{Module}
+\subsubsection{Module}
 
 ProcedureRunner (\misref{Runner}{10})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Procedure Content Module (\misref{Content}{9}), Narration Module
-(\misref{Narration}{11}), Sound Effects Module (\misref{Sound}{25}),
-Screen Effects Module (\misref{Effects}{24}), Reward Screen Module
-(\misref{Reward}{14}), Scene Staging Module (\misref{Staging}{22})
+Modules:
+\begin{itemize}
+\item Procedure Content Module (\misref{Content}{9})
+\item Narration Module (\misref{Narration}{11})
+\item Sound Effects Module (\misref{Sound}{25})
+\item Screen Effects Module (\misref{Effects}{24})
+\item Reward Screen Module (\misref{Reward}{14})
+\item Scene Staging Module (\misref{Staging}{22})
+\end{itemize}
 
-\subsection{Syntax}
+Types:
+\begin{itemize}
+\item GivenT from Player Data Module (\misref{PlayerData}{5})
+\item AgeGroupT from Preferences Module (\misref{Prefs}{6})
+\item LevelIdT, LevelT from Level Catalogue Module (\misref{Levels}{7})
+\end{itemize}
 
-\subsubsection{Exported Constants}
+\subsubsection{Syntax}
+
+\paragraph{Exported Constants}
 
 \begin{itemize}
 \item $\T{SKIP\_HOLD\_MIN\_S} = 1$, in seconds
@@ -2098,7 +2385,7 @@ Screen Effects Module (\misref{Effects}{24}), Reward Screen Module
   (\srsitemref{NFR_Responsiveness}{NFR12})
 \end{itemize}
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item $\T{OutcomeT} = \{\V{ToMap}, \V{PlayAgain}\}$
@@ -2115,7 +2402,7 @@ Screen Effects Module (\misref{Effects}{24}), Reward Screen Module
   are TBD.
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 init & -- & -- & --\\
@@ -2125,13 +2412,9 @@ suspend & -- & -- & --\\
 resume & -- & -- & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{Local Types}
-
-$\T{ControlRequestT} = \{\V{Home}, \V{Restart}, \V{Skip}, \V{Settings}\}$
-
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
 \item $\T{level}$ : LevelIdT $\cup \{\V{none}\}$
@@ -2140,7 +2423,7 @@ $\T{ControlRequestT} = \{\V{Home}, \V{Restart}, \V{Skip}, \V{Settings}\}$
 \item $\T{paused}$ : $\B$
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 \begin{itemize}
 \item $\T{bar}$: the level controls and the step indicators
@@ -2148,11 +2431,11 @@ $\T{ControlRequestT} = \{\V{Home}, \V{Restart}, \V{Skip}, \V{Settings}\}$
   running interaction
 \end{itemize}
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 $\T{level} \neq \V{none} \Rightarrow i \leq |\T{steps}|$.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 init is called before the other access programs. The exam-room scene and
 the presentation modules are ready before play. The caller supplies the
@@ -2160,13 +2443,14 @@ level definition, age group and callbacks. The callbacks retain the
 current player, and finish returns the result of the same change that
 grants the reward.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
 \begin{samepage}
 \noindent init():
 \begin{itemize}
 \item transition: $\T{level}, \T{steps}, i, \T{paused} := \V{none},
   \langle\rangle, 0, \false$. The controls are hidden.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -2183,7 +2467,7 @@ grants the reward.
   Run $\T{present}(\T{steps}[i])$ in order, updating the current
   indicator and marking the earlier steps done. Handle control requests through
   $\T{handle}$. A skip requires a continuous hold of
-  $\T{SKIP\_HOLD\_MIN\_S}$; a shorter touch does nothing.
+  $\T{SKIP\_HOLD\_MIN\_S}$, and a shorter touch does nothing.
 
   At the end, set $g := h.\T{finish}(l.\T{id})$ and call
   RewardScreen.show($l.\T{name}$, $g.\T{first}$, $p$). Here $p$ is a
@@ -2193,26 +2477,39 @@ grants the reward.
 \item output: $\out := \V{PlayAgain}$ when play-again is chosen at
   the ending, and $\V{ToMap}$ when home is chosen during play or at
   the ending.
-\item exception: AlreadyPlaying when $\T{level} \neq \V{none}$,
-  checked before starting. Otherwise, UnknownLevel is passed on from
-  stepsFor before changing the runner's state.
+\item exception: $\exc := (\T{level} \neq \V{none} \Rightarrow
+  \text{AlreadyPlaying}$\\
+  $\phantom{\exc := (}\mid \text{ProcedureContent.stepsFor}(l.\T{id}, a)
+  \text{ signals UnknownLevel} \Rightarrow \text{UnknownLevel})$
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
 \begin{samepage}
-\noindent suspend(), resume():
+\noindent suspend():
 \begin{itemize}
-\item transition: while a level is active, set $\T{paused}$ to
-  $\true$ or $\false$, and pause or resume Narration, Sound Effects,
-  Screen Effects and Scene Staging. The current interaction and its
-  timing stop or continue from where they stopped
+\item transition: when $\T{level} \neq \V{none}$: $\T{paused} := \true$,
+  then Narration.pause(), SoundEffects.pause(), ScreenEffects.pause() and
+  SceneStaging.pause(). The current interaction and its timing stop
   (\srsitemref{FR_Suspend}{FR27}).
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
-\subsubsection{Local Functions}
+\begin{samepage}
+\noindent resume():
+\begin{itemize}
+\item transition: when $\T{level} \neq \V{none}$: $\T{paused} := \false$,
+  then Narration.resume(), SoundEffects.resume(), ScreenEffects.resume() and
+  SceneStaging.resume(). The current interaction and its timing continue
+  from where they stopped (\srsitemref{FR_Suspend}{FR27}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\paragraph{Local Procedures}
 
 $\T{present}$ : StepT $\to ()$
 
@@ -2225,12 +2522,12 @@ and returns its equipment to its starting place.
 \begin{itemize}
 \item PanelStepT: play the stage action, say line and followUp, and
   wait for Next or the hold button, as given by endOn. The discovery
-  object glows while the panel runs; tapping it says discoverLine as an aside.
+  object glows while the panel runs, and tapping it says discoverLine as an aside.
 \item TapTargetStepT: say line and wait for the target. A missed tap
   says hint and permits another attempt. A correct tap plays the
   stage action, says reaction and changes the framing to afterShot.
 \item HoldStillStepT: say coming and hold the bottle over the selected eye. Holding
-  the control advances the drop for the specified duration; letting
+  the control advances the drop for the specified duration, and letting
   go pauses it and says reminder. When it lands, show the soft flash
   and blur and say landed. There is no failure.
 \item BlinkStepT: say line. Each blink tap plays ScreenEffects.blink
@@ -2247,7 +2544,7 @@ and returns its equipment to its starting place.
   tapLine and makes the pupil grow.
 \end{itemize}
 
-These are the step behaviours described by the PoC design. The camera-shot
+These are the behaviours of the step types. The camera-shot
 and equipment-control interfaces needed within Scene Staging are TBD.
 
 While a character speaks, pass Narration.speaker and loudness to
@@ -2277,17 +2574,21 @@ An incorrect action never stops the level or removes a reward
 Cancel the active step, remove its controls and call Narration.stop,
 SoundEffects.stopAll, ScreenEffects.clear and SceneStaging.stopAll.
 
-\subsubsection{Considerations}
+\paragraph{Local Types}
 
-The current MG includes exercise steps and level controls in this module.
+$\T{ControlRequestT} = \{\V{Home}, \V{Restart}, \V{Skip}, \V{Settings}\}$
+
+\paragraph{Considerations}
+
+The current \mg{} includes exercise steps and level controls in this module.
 A level starts at its first step after it is left or the application
 closes. Completion belongs to the whole level, and skipping does not
-reduce its reward. The PoC RewardStep is replaced by the completion
-callback after the last step.
+reduce its reward. There is no reward step. The completion callback runs
+after the last step.
 
 \par\pagebreak[0]
 \begin{samepage}
-\subsubsection{Future Revisions}
+\paragraph{Future Revisions}
 
 \begin{itemize}
 \item Binding RunHooksT to progress, player-data saving and settings: TBD.
@@ -2296,7 +2597,7 @@ callback after the last step.
 \item Pending callbacks, cancellation generations, repeated input and
   interruption handling during the ending: TBD.
 \item Changing age-group content during a level and applyPreferences: TBD.
-\item AV\_SYNC\_MAX\_MS and detailed audio-visual timing: TBD.
+\item $\T{AV\_SYNC\_MAX\_MS}$ and detailed audio-visual timing: TBD.
 \item Touch-response timing and usability checks for the level controls: TBD.
 \item Additional procedure activities and their Scene Staging controls: TBD.
 \end{itemize}
@@ -2305,19 +2606,28 @@ callback after the last step.
 
 % =====================================================================
 \newpage
-\section{MIS of Narration Module} \label{mis:Narration}
+\subsection{Narration Module} \label{mis:Narration}
 
-\subsection{Module}
+\subsubsection{Module}
 
 Narration (\misref{Narration}{11})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Hardware-Hiding Module (\misref{HH}{1})
+Modules:
+\begin{itemize}
+\item Hardware-Hiding Module (\misref{HH}{1})
+\end{itemize}
 
-\subsection{Syntax}
+Types:
+\begin{itemize}
+\item PrefsT from Preferences Module (\misref{Prefs}{6})
+\item MoodT from Character Rig Module (\misref{Rig}{23})
+\end{itemize}
 
-\subsubsection{Exported Constants}
+\subsubsection{Syntax}
+
+\paragraph{Exported Constants}
 
 \begin{itemize}
 \item $\T{CAPTION\_MAX\_WORDS} = 8$
@@ -2326,7 +2636,7 @@ Hardware-Hiding Module (\misref{HH}{1})
 \item $\T{MIN\_LINE\_S} = 1.5$ (seconds)
 \end{itemize}
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item $\T{SpeakerT} = \{\V{Doctor}, \V{Peer}, \V{Narrator}\}$
@@ -2337,7 +2647,7 @@ Hardware-Hiding Module (\misref{HH}{1})
   that shows the instruction, and the recorded voice
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 init & $p$ : $() \to \text{PrefsT}$ & -- & --\\
@@ -2351,9 +2661,9 @@ speaker & -- & SpeakerT $\cup \{\V{none}\}$ & --\\
 loudness & -- & $\R$ & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
 \item $\T{preferences}$ : $() \to \text{PrefsT}$, supplied by the caller
@@ -2362,34 +2672,35 @@ loudness & -- & $\R$ & --\\
 \item $\T{paused}$ : $\B$
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 \begin{itemize}
-\item $\T{speaker}$: the voice channel of the device's audio output
+\item $\T{voice}$: the voice channel of the device's audio output
 \item $\T{bubble}$: the part of $\T{screen}$ at the bottom that shows the
   speaker's portrait, the visual cue, the caption, the replay control, the
   Next control and the sound-off prompt
 \end{itemize}
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 $\T{speaking} \Rightarrow \T{current} \neq \V{none}$
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 init is called before any other access program. $p$ returns the current
 caregiver preferences without changing them. The content tests check
 that the caption of every line has at most $\T{CAPTION\_MAX\_WORDS}$
 words.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
 \begin{samepage}
 \noindent init($p$):
 \begin{itemize}
-\item transition: $\T{preferences} := p$;
+\item transition: $\T{preferences} := p$ and
   $\T{current}, \T{speaking}, \T{paused} := \V{none}, \false,
-  \false$; $\T{bubble}$ is hidden.
+  \false$, and $\T{bubble}$ is hidden.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -2402,12 +2713,12 @@ words.
   (\srsitemref{FR_VisualCues}{FR15}), and $x.\T{caption}$ when
   $\T{preferences}().\T{captions} \vee \T{inaudible}()$. When
   $\T{inaudible}()$, $\T{bubble}$ also shows a prompt that tells the caregiver
-  how to turn the sound on; the prompt does not stop play
-  (\srsitemref{FR_NarrationFallback}{FR16}). $\T{speaker}$ plays $x.\T{recording}$
+  how to turn the sound on, and the prompt does not stop play
+  (\srsitemref{FR_NarrationFallback}{FR16}). $\T{voice}$ plays $x.\T{recording}$
   at $\T{preferences}().\T{narrationVolume}$, or nothing if there is no
   recording, for $\T{duration}(x)$. Then $\T{speaking} := \false$. If
   $\T{wait}$, the Next control appears and say returns when it is tapped, or at
-  once when $\T{preferences}().\T{autoContinue}$; otherwise say returns. Taps
+  once when $\T{preferences}().\T{autoContinue}$. Otherwise say returns. Taps
   outside the Next, replay, home and restart controls do not shorten a line
   (\srsitemref{FR_IgnoreRepeatedTouches}{FR20}).
 \item exception: $\exc := (x.\T{words} = \text{``''} \wedge x.\T{caption} =
@@ -2421,7 +2732,8 @@ words.
 \begin{itemize}
 \item transition: as say($x$, $\false$), and afterwards $\T{bubble}$ shows the
   line that was current before again.
-\item exception: as say.
+\item exception: $\exc := (x.\T{words} = \text{``''} \wedge x.\T{caption} =
+  \text{``''} \Rightarrow \text{EmptyLine})$
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -2429,17 +2741,28 @@ words.
 \begin{samepage}
 \noindent stop():
 \begin{itemize}
-\item transition: $\T{current}, \T{speaking} := \V{none}, \false$;
-  HardwareHiding.stopAudio($\V{Voice}$); $\T{bubble}$ is hidden.
+\item transition: $\T{current}, \T{speaking} := \V{none}, \false$,
+  then HardwareHiding.stopAudio($\V{Voice}$), and $\T{bubble}$ is hidden.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
 \begin{samepage}
-\noindent pause(), resume():
+\noindent pause():
 \begin{itemize}
-\item transition: $\T{paused} := \true$ or $\false$; the line and its timing
-  stop, or continue from where they stopped.
+\item transition: $\T{paused} := \true$, and the line and its timing stop.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent resume():
+\begin{itemize}
+\item transition: $\T{paused} := \false$, and the line and its timing continue
+  from where they stopped.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -2448,6 +2771,7 @@ words.
 \noindent isSpeaking():
 \begin{itemize}
 \item output: $\out := \T{speaking}$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -2457,6 +2781,7 @@ words.
 \begin{itemize}
 \item output: $\out := (\T{speaking} \Rightarrow \T{current}.\T{speaker} \mid
   \true \Rightarrow \V{none})$
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -2465,13 +2790,14 @@ words.
 \noindent loudness():
 \begin{itemize}
 \item output: $\out :=$ how loud the recording is at this moment, from 0 to 1,
-  relative to its loudest part; 0 when not speaking. Used to open the speaker's
+  relative to its loudest part, or 0 when not speaking. Used to open the speaker's
   mouth (\srsitemref{NFR_AVSync}{NFR14}).
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
-\subsubsection{Local Functions}
+\paragraph{Local Functions}
 
 $\T{duration}$ : LineT $\to \R$\\
 \[\T{duration}(x) \equiv \left(\begin{array}{l}
@@ -2487,7 +2813,7 @@ $\T{inaudible}() \equiv \text{HardwareHiding.isMuted}() \vee
 
 \noindent $\T{wordCount}$ : String $\to \N$, the number of words.
 
-\subsubsection{Future Revisions}
+\paragraph{Future Revisions}
 
 \begin{itemize}
 \item Repeated initialization and overlapping presentation requests: TBD.
@@ -2500,52 +2826,65 @@ $\T{inaudible}() \equiv \text{HardwareHiding.isMuted}() \vee
 
 % =====================================================================
 \newpage
-\section{MIS of Player Select Screen Module} \label{mis:PlayerSelect}
+\subsection{Player Select Screen Module} \label{mis:PlayerSelect}
 
-\subsection{Module}
+\subsubsection{Module}
 
 PlayerSelectScreen (\misref{PlayerSelect}{12})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Scoreboard Screen Module (\misref{Scoreboard}{15}), Player Data Module
-(\misref{PlayerData}{5}), UI Widgets Module (\misref{Widgets}{26})
+Modules:
+\begin{itemize}
+\item Scoreboard Screen Module (\misref{Scoreboard}{15})
+\item Player Data Module (\misref{PlayerData}{5})
+\item UI Widgets Module (\misref{Widgets}{26})
+\end{itemize}
 
-\subsection{Syntax}
+Types:
+\begin{itemize}
+\item ItemT from Accessory Catalogue Module (\misref{Accessories}{8})
+\end{itemize}
 
-\subsubsection{Exported Constants}
+\subsubsection{Syntax}
+
+\paragraph{Exported Constants}
 
 None.
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 $\T{SelectionT} = \text{tuple of } (\T{slot} : \N,\
 \T{player} : \text{RecordT})$: the chosen slot and its player record.
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
-open & $k$ : $(\text{set of ItemT}) \to \text{ImageT}$ & SelectionT & --\\
+open & $k$ : $(\text{seq of ItemT}) \to \text{ImageT}$ & SelectionT & --\\
 showScoreboard & $b$ : BoardT & -- & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 None.
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 $\T{screen}$: the display and touch input, through UI Widgets.
 
-\subsubsection{Assumptions}
+\paragraph{State Invariant}
+
+None.
+
+\paragraph{Assumptions}
 
 Player Data is initialized. $k$ supplies a picture of a character from
-the items it wears; it does not change the saved look. BoardT is the
+the items it wears, without changing the saved look. BoardT is the
 current player's scoreboard, supplied by the caller.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
 \begin{samepage}
 \noindent open($k$):
@@ -2564,6 +2903,7 @@ current player's scoreboard, supplied by the caller.
   When a card is selected, call
   $r := \text{PlayerData.choosePlayer}(s)$.
 \item output: $\out := (s,r)$ for the selected slot.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
@@ -2573,18 +2913,19 @@ current player's scoreboard, supplied by the caller.
 \begin{itemize}
 \item transition: call ScoreboardScreen.show($b$) and return when
   that screen closes.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
 Player selection is passed through this screen so Application Control
 does not call Player Data. The returned record can be passed to the
 map and dress-up screens. The scoreboard is reached through this
-module, as in the MG uses table.
+module, as in the \mg{} uses table.
 
-\subsubsection{Future Revisions}
+\paragraph{Future Revisions}
 
 \begin{itemize}
 \item Character pictures supplied by $k$ and preparation of BoardT: TBD.
@@ -2598,24 +2939,28 @@ module, as in the MG uses table.
 
 % =====================================================================
 \newpage
-\section{MIS of Journey Map Screen Module} \label{mis:Map}
+\subsection{Journey Map Screen Module} \label{mis:Map}
 
-\subsection{Module}
+\subsubsection{Module}
 
 JourneyMapScreen (\misref{Map}{13})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Journey Progress Module (\misref{Progress}{3}), Level Catalogue Module
-(\misref{Levels}{7}), UI Widgets Module (\misref{Widgets}{26})
+Modules:
+\begin{itemize}
+\item Journey Progress Module (\misref{Progress}{3})
+\item Level Catalogue Module (\misref{Levels}{7})
+\item UI Widgets Module (\misref{Widgets}{26})
+\end{itemize}
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 None.
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 $\T{ChoiceT}$: the navigation choice and the values passed to the caller,
 \[\begin{array}{l}
@@ -2628,28 +2973,32 @@ $\T{level} \neq \V{none}$ exactly when $\T{kind} = \V{Level}$.
 The complete level definition lets Application Control pass its name
 and identifier to the runner without querying the catalogue itself.
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 open & $p$ : ProgressT & ChoiceT & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 None.
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 $\T{screen}$: the display and touch input, through UI Widgets.
 
-\subsubsection{Assumptions}
+\paragraph{State Invariant}
+
+None.
+
+\paragraph{Assumptions}
 
 The catalogue is initialized. $p$ is the chosen player's progress and
 has been aligned with the catalogue.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
 \begin{samepage}
 \noindent open($p$):
@@ -2663,16 +3012,17 @@ has been aligned with the catalogue.
 \item output: $\out := (k,l,p.\text{coins}())$, where $k$ is the
   chosen destination and $l$ is its catalogue entry for a level
   choice, or $\V{none}$ otherwise.
+\item exception: none
 \end{itemize}
 \end{samepage}
 \par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
 The screen reads the supplied progress. It does not start a level or
 give a reward. Application Control handles the returned choice.
 
-\subsubsection{Future Revisions}
+\paragraph{Future Revisions}
 
 \begin{itemize}
 \item Level introductions, Play confirmation and the introduce helper: TBD.
@@ -2691,23 +3041,23 @@ give a reward. Application Control handles the returned choice.
 % the services that the MG gives them.
 % =====================================================================
 \newpage
-\section{MIS of Reward Screen Module} \label{mis:Reward}
+\subsection{Reward Screen Module} \label{mis:Reward}
 
-\subsection{Module}
+\subsubsection{Module}
 
 RewardScreen (\misref{Reward}{14})
 
-\subsection{Uses}
+\subsubsection{Uses}
+
+Modules: None.
+
+\subsubsection{Syntax}
+
+\paragraph{Exported Constants}
 
 None.
 
-\subsection{Syntax}
-
-\subsubsection{Exported Constants}
-
-None.
-
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item $\T{EndChoiceT} = \{\V{Home}, \V{PlayAgain}\}$: what the child chooses
@@ -2717,34 +3067,35 @@ None.
   finished. The accessory is given as its picture.
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 show & $\T{name}$ : String, $\T{first}$ : $\B$, $p$ : PrizeT & EndChoiceT & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 None.
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 $\T{screen}$: the display and touch screen of the device.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 None.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
-The Procedure Runner Module (M10), which calls this module, has already
-reported the finished level to the Journey Progress Module (M3). $\T{first}$ is
+The Procedure Runner Module (\misref{Runner}{10}), which calls this module, has already
+reported the finished level to the Journey Progress Module (\misref{Progress}{3}). $\T{first}$ is
 $\true$ only when that report gave the level's reward.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
+\begin{samepage}
 \noindent show($\T{name}$, $\T{first}$, $p$):
 \begin{itemize}
 \item transition: $\T{screen}$ celebrates the end of level $\T{name}$
@@ -2765,33 +3116,43 @@ $\true$ only when that report gave the level's reward.
   \V{PlayAgain})$
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
 This screen only shows a reward. It never gives one, because only the Journey
-Progress Module (M3) changes points, coins and reward status. The screen has no
+Progress Module (\misref{Progress}{3}) changes points, coins and reward status. The screen has no
 timer, no offer that expires and no random reward
 (\srsitemref{NFR_NoPressure}{NFR7}).
 
+\paragraph{Future Revisions}
+
+\begin{itemize}
+\item Narrated celebration, captions and reduced-motion presentation of the reward: TBD.
+\item Final reward artwork, animation timing and accessory preview: TBD.
+\item Repeated input and interruptions during the celebration: TBD.
+\end{itemize}
+
 % =====================================================================
 \newpage
-\section{MIS of Scoreboard Screen Module} \label{mis:Scoreboard}
+\subsection{Scoreboard Screen Module} \label{mis:Scoreboard}
 
-\subsection{Module}
+\subsubsection{Module}
 
 ScoreboardScreen (\misref{Scoreboard}{15})
 
-\subsection{Uses}
+\subsubsection{Uses}
+
+Modules: None.
+
+\subsubsection{Syntax}
+
+\paragraph{Exported Constants}
 
 None.
 
-\subsection{Syntax}
-
-\subsubsection{Exported Constants}
-
-None.
-
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item $\T{LevelStatusT} = \{\V{NotStarted}, \V{InProgress}, \V{Completed}\}$:
@@ -2809,35 +3170,36 @@ None.
   \end{array}\]
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 show & $b$ : BoardT & -- & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 None.
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 $\T{screen}$: the display and touch screen of the device.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 None.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
-The values of $b$ come from the Journey Progress Module (M3), which calculates
+The values of $b$ come from the Journey Progress Module (\misref{Progress}{3}), which calculates
 the scoreboard values of one player (\srsitemref{def_Scoreboard}{D3}). There is
 one row for each level, in journey order. $\T{character}$ is a picture of the
 player's character.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
+\begin{samepage}
 \noindent show($b$):
 \begin{itemize}
 \item transition: $\T{screen}$ shows the personal scoreboard
@@ -2855,61 +3217,85 @@ player's character.
   The screen then waits until the child taps the back control.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
 The scoreboard shows only the child's own progress. It has no ranking and no
 comparison with another player (\srsitemref{NFR_NoPressure}{NFR7}).
 
+\paragraph{Future Revisions}
+
+\begin{itemize}
+\item Preparation of BoardT, including the pointsEarned query for one row: TBD.
+\item Layout for long level lists and long nicknames, and narrated guidance: TBD.
+\item Shared control placement and touch-target sizes for the back control: TBD.
+\end{itemize}
+
 % =====================================================================
 \newpage
-\section{MIS of Dress-Up Screen Module} \label{mis:DressUp}
+\subsection{Dress-Up Screen Module} \label{mis:DressUp}
 
-\subsection{Module}
+\subsubsection{Module}
 
 DressUpScreen (\misref{DressUp}{16})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Wardrobe Module (M4), Character Rig Module (\misref{Rig}{23}), UI Widgets
-Module (\misref{Widgets}{26})
+Modules:
+\begin{itemize}
+\item Wardrobe Module (\misref{Wardrobe}{4})
+\item Character Rig Module (\misref{Rig}{23})
+\item UI Widgets Module (\misref{Widgets}{26})
+\end{itemize}
 
-\subsection{Syntax}
+Types:
+\begin{itemize}
+\item ItemT from Accessory Catalogue Module (\misref{Accessories}{8})
+\end{itemize}
 
-\subsubsection{Exported Constants}
+\subsubsection{Syntax}
+
+\paragraph{Exported Constants}
 
 None.
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Types}
+
+None.
+
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 open & $w$ : WardrobeT, $\T{shop}$ : seq of ItemT, $\T{coins}$ : $\N$ & $\N$ & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 None.
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 $\T{screen}$: the display and touch screen of the device.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 None.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
-$w$ is the wardrobe of the current player, held by the Player Data Module (M5).
-WardrobeT is the abstract data type of the Wardrobe Module (M4).
+$w$ is the wardrobe of the current player, held by the Player Data Module (\misref{PlayerData}{5}).
+WardrobeT is the abstract data type of the Wardrobe Module (\misref{Wardrobe}{4}).
 $\T{shop}$ is every character and accessory of the Accessory Catalogue Module
-(M8), and ItemT is the item type of that module. $\T{coins}$ is the player's
+(\misref{Accessories}{8}), and ItemT is the item type of that module. $\T{coins}$ is the player's
 coin balance.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
+\begin{samepage}
 \noindent open($w$, $\T{shop}$, $\T{coins}$):
 \begin{itemize}
 \item transition: $\T{screen}$ shows the player's character in the look worn
@@ -2940,66 +3326,82 @@ coin balance.
     so an item that was tried on but not bought is not kept.
   \end{itemize}
 \item output: $\out :=$ the number of coins spent on purchases during this
-  visit. The caller passes it to the Journey Progress Module (M3), which spends
+  visit. The caller passes it to the Journey Progress Module (\misref{Progress}{3}), which spends
   the coins.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
 Coins earned in the game are the only currency. No control leads to a
 real-money purchase, an advertisement or a link out of the game
 (\srsitemref{FR_NoRealMoney}{FR40}, \srsitemref{NFR_StoreCompliance}{NFR34}).
-The Player Data Module (M5) saves each change to the wardrobe
+The Player Data Module (\misref{PlayerData}{5}) saves each change to the wardrobe
 (\srsitemref{FR_PersistState}{FR28}).
+
+\paragraph{Future Revisions}
+
+\begin{itemize}
+\item Saving purchases and wardrobe changes through Player Data, and applying the
+  returned spending: TBD.
+\item Reward-only items, items not for sale, and the final inclusive collection: TBD.
+\item Preview cleanup, repeated input and interruptions during a purchase: TBD.
+\end{itemize}
 
 % =====================================================================
 \newpage
-\section{MIS of Parental Gate Module} \label{mis:Gate}
+\subsection{Parental Gate Module} \label{mis:Gate}
 
-\subsection{Module}
+\subsubsection{Module}
 
 ParentalGate (\misref{Gate}{17})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-None.
+Modules: None.
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 \begin{itemize}
 \item $\T{GATE\_OPERAND\_MIN} = 2$
 \item $\T{GATE\_OPERAND\_MAX} = 9$
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Types}
+
+None.
+
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 ask & -- & $\B$ & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 None.
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 $\T{screen}$: the display and touch screen of the device.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 None.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 None.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
+\begin{samepage}
 \noindent ask():
 \begin{itemize}
 \item transition: two numbers $x$ and $y$ are chosen at random, each between
@@ -3008,7 +3410,7 @@ None.
   words, such as ``What is seven plus four?''. The question has no narration
   and no picture of the numbers (\srsitemref{FR_ParentGate}{FR41}). Below it,
   the screen shows a keypad of the digits 0 to 9, a delete key, a done key and
-  a cancel key. Every key is at least the SRS constant \texttt{TOUCH\_TARGET\_MIN} wide and high
+  a cancel key. Every key is at least $\T{TOUCH\_TARGET\_MIN}$ wide and high
   (\srsitemref{NFR_TouchTarget}{NFR3}). The screen waits until done or cancel
   is tapped.
 \item output: $\out := (\text{done is tapped} \wedge \T{typed} = x + y)$,
@@ -3016,34 +3418,47 @@ None.
   cancel gives $\false$.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
 Because the question is shown only in words, it cannot be passed by tapping
 pictures or by following the narration. Most children aged 3 to 7 cannot read
 it, while a caregiver can (\srsitemref{FR_ParentGate}{FR41},
 \srsitemref{NFR_StoreCompliance}{NFR34}).
 
+\paragraph{Future Revisions}
+
+\begin{itemize}
+\item An accessible alternative for caregivers who cannot use the written question: TBD.
+\item Limits on repeated attempts and support for additional languages: TBD.
+\end{itemize}
+
 % =====================================================================
 \newpage
-\section{MIS of Settings Screen Module} \label{mis:Settings}
+\subsection{Settings Screen Module} \label{mis:Settings}
 
-\subsection{Module}
+\subsubsection{Module}
 
 SettingsScreen (\misref{Settings}{18})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Parental Gate Module (\misref{Gate}{17}), Preferences Module (M6), UI Widgets
-Module (\misref{Widgets}{26})
+Modules:
+\begin{itemize}
+\item Parental Gate Module (\misref{Gate}{17})
+\item Preferences Module (\misref{Prefs}{6})
+\item UI Widgets Module (\misref{Widgets}{26})
+\end{itemize}
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 None.
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item $\T{RequestT} = \{\V{Closed}, \V{OpenGuide}, \V{ResetJourney},
@@ -3052,32 +3467,33 @@ None.
   \text{String})$
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 open & $\T{nickname}$ : String, $\T{dataControls}$ : $\B$ & SettingsResultT & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 None.
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 $\T{screen}$: the display, touch screen and on-screen keyboard of the device.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 None.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 $\T{nickname}$ is the current player's nickname, or empty when none is set.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
+\begin{samepage}
 \noindent open($\T{nickname}$, $\T{dataControls}$):
 \begin{itemize}
 \item transition: the Parental Gate Module asks its question first. If the
@@ -3108,15 +3524,17 @@ $\T{nickname}$ is the current player's nickname, or empty when none is set.
   \V{ResetJourney}\\
   \phantom{r = (}\mid \text{a clear is confirmed} \Rightarrow
   \V{ClearAllData}\\
-  \phantom{r = (}\mid \text{otherwise} \Rightarrow \V{Closed})
+  \phantom{r = (}\mid \true \Rightarrow \V{Closed})
   \end{array}\]
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
-The Application Control Module (M2) acts on the result. It saves the nickname
-through the Player Data Module (M5). It opens the Procedure Guide Screen Module
+The Application Control Module (\misref{Control}{2}) acts on the result. It saves the nickname
+through the Player Data Module (\misref{PlayerData}{5}). It opens the Procedure Guide Screen Module
 (\misref{Guide}{19}) for $\V{OpenGuide}$. For $\V{ResetJourney}$ and
 $\V{ClearAllData}$, the Player Data Module and the Preferences Module erase the
 data, and the screen that the SRS requires is shown next. When the settings are
@@ -3124,54 +3542,67 @@ opened from inside a level, $\T{dataControls}$ is $\false$, so a level is never
 left with its player erased. No setting is offered outside this screen
 (\srsitemref{FR_ParentGate}{FR41}).
 
+\paragraph{Future Revisions}
+
+\begin{itemize}
+\item Caption-size preference and its control: TBD.
+\item Opening the settings during a level and returning to that level: TBD.
+\item Applying the returned nickname and data requests through Application
+  Control: TBD.
+\end{itemize}
+
 % =====================================================================
 \newpage
-\section{MIS of Procedure Guide Screen Module} \label{mis:Guide}
+\subsection{Procedure Guide Screen Module} \label{mis:Guide}
 
-\subsection{Module}
+\subsubsection{Module}
 
 GuideScreen (\misref{Guide}{19})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Procedure Content Module (M9)
+Modules:
+\begin{itemize}
+\item Procedure Content Module (\misref{Content}{9})
+\end{itemize}
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 None.
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 $\T{GuideResultT} = \{\V{Closed}, \V{ShowNotice}\}$
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 open & -- & GuideResultT & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 None.
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 $\T{screen}$: the display and touch screen of the device.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 None.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 None.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
+\begin{samepage}
 \noindent open():
 \begin{itemize}
 \item transition: $\T{screen}$ lists the procedures that have a guide entry
@@ -3186,38 +3617,51 @@ None.
   \Rightarrow \V{Closed})$
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
 The guide shows the same clinician-approved content as the levels, and does
 not change it (\srsitemref{NFR_ClinicalAccuracy}{NFR22}). The Application
-Control Module (M2) shows the medical notice for $\V{ShowNotice}$
+Control Module (\misref{Control}{2}) shows the medical notice for $\V{ShowNotice}$
 (\srsitemref{FR_MedicalNotice}{FR1}), which keeps the limits of the game's
 medical purpose in view (\srsitemref{NFR_NoClaims}{NFR32}).
 
+\paragraph{Future Revisions}
+
+\begin{itemize}
+\item The guides query, guide names and level identifiers from Procedure Content: TBD.
+\item Final caregiver guide text and $\T{ADULT\_TEXT\_MAX\_GRADE}$: TBD.
+\item Opening the guide directly from the home screen: TBD.
+\end{itemize}
+
 % =====================================================================
 \newpage
-\section{MIS of Data File Module} \label{mis:DataFile}
+\subsection{Data File Module} \label{mis:DataFile}
 
-\subsection{Generic Template Module}
+\subsubsection{Generic Template Module}
 
 DataFileT($T$) (\misref{DataFile}{20})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Hardware-Hiding Module (M1)
+Modules:
+\begin{itemize}
+\item Hardware-Hiding Module (\misref{HH}{1})
+\end{itemize}
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 None.
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 DataFileT($T$) = ?
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 new DataFileT & $n$ : String, $f$ : $T$, $g$ : $T \to \B$ & DataFileT($T$) &
@@ -3229,9 +3673,9 @@ save & $v$ : $T$ & -- & InvalidValue, WriteFailed\\
 delete & -- & -- & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
 \item $\T{name}$ : String, the name of the file
@@ -3239,22 +3683,23 @@ delete & -- & -- & --\\
 \item $\T{valid}$ : $T \to \B$, which values may be saved and loaded
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 $\T{files}$: the files that the device keeps private to the application,
 reached through the Hardware-Hiding Module
 (\srsitemref{NFR_DataProtection}{NFR26}).
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 $\T{valid}(\T{fresh})$
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 Only this instance writes the file $\T{name}$.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
+\begin{samepage}
 \noindent new DataFileT($n$, $f$, $g$):
 \begin{itemize}
 \item transition: $\T{name}, \T{fresh}, \T{valid} := n, f, g$
@@ -3262,7 +3707,10 @@ Only this instance writes the file $\T{name}$.
 \item exception: $\exc := (n = \text{``''} \Rightarrow \text{EmptyName} \mid
   \neg g(f) \Rightarrow \text{InvalidValue})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent load():
 \begin{itemize}
 \item output: $\out :=$ the value saved in file $\T{name}$ when the file
@@ -3271,20 +3719,29 @@ Only this instance writes the file $\T{name}$.
   (\srsitemref{FR_CorruptData}{FR30}).
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent recovered():
 \begin{itemize}
 \item output: $\out := \true$ when file $\T{name}$ exists but load() gives
   $\T{fresh}$ because the file cannot be read or is not valid.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent exists():
 \begin{itemize}
 \item output: $\out := \true$ when file $\T{name}$ exists.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent save($v$):
 \begin{itemize}
 \item transition: file $\T{name}$ holds $v$. The file is replaced in one
@@ -3295,45 +3752,61 @@ Only this instance writes the file $\T{name}$.
   After either exception the file still holds the value saved before
   (\srsitemref{FR_PersistState}{FR28}).
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent delete():
 \begin{itemize}
 \item transition: file $\T{name}$ no longer exists. Nothing changes when it
   did not exist.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
 How a value is written to a file, and how a save is made indivisible, are the
-secrets of this module (AC11 of the MG). A file holds only values of $T$, so
+secrets of this module (AC11 of the \mg{}). A file holds only values of $T$, so
 the module stores no data beyond what its users give it
 (\srsitemref{NFR_Minimization}{NFR29}). Nothing is sent over a network
 (\srsitemref{NFR_Privacy}{NFR28}).
 
+\paragraph{Future Revisions}
+
+\begin{itemize}
+\item File format, versioning and migration of saved values: TBD.
+\item Retrying a failed write and removing a corrupt file: TBD.
+\item Storage size limits for saved data: TBD.
+\end{itemize}
+
 % =====================================================================
 \newpage
-\section{MIS of Save Slots Module} \label{mis:Slots}
+\subsection{Save Slots Module} \label{mis:Slots}
 
-\subsection{Generic Template Module}
+\subsubsection{Generic Template Module}
 
 SaveSlotsT($T$) (\misref{Slots}{21})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Data File Module (\misref{DataFile}{20})
+Modules:
+\begin{itemize}
+\item Data File Module (\misref{DataFile}{20})
+\end{itemize}
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 $\T{PLAYER\_SLOTS} = 3$, the number of players that can be saved on a device.
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 SaveSlotsT($T$) = ?
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 new SaveSlotsT & $p$ : String, $f$ : $T$, $g$ : $T \to \B$ & SaveSlotsT($T$) &
@@ -3345,9 +3818,9 @@ delete & $s$ : $\N$ & -- & InvalidSlot\\
 deleteAll & -- & -- & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
 \item $\T{slots}$ : seq of DataFileT($T$), one data file for each slot,
@@ -3355,20 +3828,21 @@ deleteAll & -- & -- & --\\
 \item $\T{valid}$ : $T \to \B$, which values may be saved
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 None. Storage is reached through the Data File Module.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 None.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 None.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
+\begin{samepage}
 \noindent new SaveSlotsT($p$, $f$, $g$):
 \begin{itemize}
 \item transition: $\T{valid} := g$ and $\T{slots} := \langle d_0, \ldots,
@@ -3378,14 +3852,20 @@ None.
 \item exception: $\exc := (p = \text{``''} \Rightarrow \text{EmptyName} \mid
   \neg g(f) \Rightarrow \text{InvalidValue})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent load($s$):
 \begin{itemize}
 \item output: $\out := \T{slots}[s]$.load()
 \item exception: $\exc := (s \geq \T{PLAYER\_SLOTS} \Rightarrow
   \text{InvalidSlot})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent isUsed($s$):
 \begin{itemize}
 \item output: $\out := \T{slots}[s]$.exists() $\wedge\ \neg\T{slots}[s]$.recovered().
@@ -3394,7 +3874,10 @@ None.
 \item exception: $\exc := (s \geq \T{PLAYER\_SLOTS} \Rightarrow
   \text{InvalidSlot})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent save($s$, $v$):
 \begin{itemize}
 \item transition: $\T{slots}[s]$.save($v$)
@@ -3403,45 +3886,64 @@ None.
   \text{InvalidSlot} \mid \neg\T{valid}(v) \Rightarrow \text{InvalidValue}
   \mid \text{the storage cannot be written} \Rightarrow \text{WriteFailed})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent delete($s$):
 \begin{itemize}
 \item transition: $\T{slots}[s]$.delete()
 \item exception: $\exc := (s \geq \T{PLAYER\_SLOTS} \Rightarrow
   \text{InvalidSlot})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent deleteAll():
 \begin{itemize}
 \item transition: $\T{slots}[s]$.delete() for every slot $s$
   (\srsitemref{FR_ClearAllData}{FR46})
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\subsubsection{Local Functions}
+\paragraph{Local Functions}
 
 \noindent $\T{str}$ : $\N \to$ String, the decimal digits of a number, such as
 ``2'' for 2.
 
+\paragraph{Future Revisions}
+
+\begin{itemize}
+\item Changing $\T{PLAYER\_SLOTS}$ between releases and migrating existing slots: TBD.
+\item Rollback of a failed save and recovery of damaged slots: TBD.
+\end{itemize}
+
 % =====================================================================
 \newpage
-\section{MIS of Scene Staging Module} \label{mis:Staging}
+\subsection{Scene Staging Module} \label{mis:Staging}
 
-\subsection{Module}
+\subsubsection{Module}
 
 SceneStaging (\misref{Staging}{22})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Character Rig Module (\misref{Rig}{23}), Hardware-Hiding Module (M1)
+Modules:
+\begin{itemize}
+\item Character Rig Module (\misref{Rig}{23})
+\item Hardware-Hiding Module (\misref{HH}{1})
+\end{itemize}
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 None.
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item $\T{CastT} = \{\V{Doctor}, \V{Peer}, \V{Player}\}$: the characters in
@@ -3457,16 +3959,16 @@ None.
   \phantom{\{}\V{PeerWalkToChair}, \V{PeerStandUp}, \V{PeerDance},
   \V{PeerLeave}, \V{PlayerAppear}, \V{PlayerHide}\}
   \end{array}\]
-  Each new level adds the actions it needs (AC12 of the MG).
+  Each new level adds the actions it needs (AC12 of the \mg{}).
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 init & $k$ : LookT & -- & --\\
 actor & $c$ : CastT & ActorT & --\\
 place & $n$ : String & PlaceT & UnknownPlace\\
-listen & $\T{ts}$ : set of String & -- & UnknownTarget\\
+listen & $\T{ts}$ : seq of String & -- & UnknownTarget\\
 tapped & $t$ : String & $\B$ & UnknownTarget\\
 missed & -- & $\B$ & --\\
 play & $b$ : BeatT & -- & --\\
@@ -3476,9 +3978,9 @@ pause & -- & -- & --\\
 resume & -- & -- & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
 \item $\T{cast}$ : CastT $\to$ ActorT, the character for each role
@@ -3493,23 +3995,24 @@ resume & -- & -- & --\\
 \item $\T{paused}$ : $\B$
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 $\T{room}$: the 3D exam room with its characters and clinical equipment, drawn
 on the screen and touched through the Hardware-Hiding Module.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 Every tapped target is listening, and every listening target is a target of
 the room: $\T{hits} \subseteq \T{listening} \subseteq \T{targets}$.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 init() is called after the exam room is loaded and before any other access
 program.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
+\begin{samepage}
 \noindent init($k$):
 \begin{itemize}
 \item transition:
@@ -3529,43 +4032,61 @@ program.
   hidden until $\V{PlayerAppear}$.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent actor($c$):
 \begin{itemize}
 \item output: $\out := \T{cast}(c)$
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent place($n$):
 \begin{itemize}
 \item output: $\out :=$ the position in $\T{room}$ of the place named $n$.
 \item exception: $\exc := (n \notin \T{places} \Rightarrow
   \text{UnknownPlace})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent listen($\T{ts}$):
 \begin{itemize}
-\item transition: $\T{listening}, \T{hits}, \T{miss} := \T{ts}, \{\},
-  \false$. From then on, a tap on a listening target is added to $\T{hits}$,
+\item transition: $\T{listening}, \T{hits}, \T{miss} := \{t \mid t \in
+  \T{ts}\}, \{\}, \false$. From then on, a tap on a listening target is added to $\T{hits}$,
   and a tap anywhere else sets $\T{miss}$ to $\true$.
-\item exception: $\exc := (\T{ts} \not\subseteq \T{targets} \Rightarrow
+\item exception: $\exc := (\{t \mid t \in \T{ts}\} \not\subseteq \T{targets} \Rightarrow
   \text{UnknownTarget})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent tapped($t$):
 \begin{itemize}
 \item output: $\out := t \in \T{hits}$
 \item exception: $\exc := (t \notin \T{targets} \Rightarrow
   \text{UnknownTarget})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent missed():
 \begin{itemize}
-\item output: $\out := \T{miss}$. The Procedure Runner Module (M10) uses it to
+\item output: $\out := \T{miss}$. The Procedure Runner Module (\misref{Runner}{10}) uses it to
   give a hint (\srsitemref{FR_HintOnMiss}{FR14}).
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent play($b$):
 \begin{itemize}
 \item transition: the characters and the equipment of $\T{room}$ perform
@@ -3574,14 +4095,20 @@ program.
   drop fall. While $\T{paused}$ is $\true$, the action waits.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent speaking($c$, $v$):
 \begin{itemize}
 \item transition: the mouth of character $c$ opens by $v$, and the mouths of
   the other characters close. When $c$ is $\V{none}$, every mouth closes.
 \item exception: $\exc := (v < 0 \vee v > 1 \Rightarrow \text{OutOfRange})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent stopAll():
 \begin{itemize}
 \item transition: every running action stops, every character returns to its
@@ -3590,16 +4117,30 @@ program.
   (\srsitemref{FR_StopOnExit}{FR23}).
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\noindent pause(), resume():
+\begin{samepage}
+\noindent pause():
 \begin{itemize}
-\item transition: $\T{paused} := \true$ and every animation in $\T{room}$
-  stops, or $\T{paused} := \false$ and they continue
-  (\srsitemref{FR_Suspend}{FR27}).
+\item transition: $\T{paused} := \true$, and every animation in $\T{room}$
+  stops (\srsitemref{FR_Suspend}{FR27}).
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\subsubsection{Local Constants}
+\begin{samepage}
+\noindent resume():
+\begin{itemize}
+\item transition: $\T{paused} := \false$, and every animation in $\T{room}$
+  continues from where it stopped (\srsitemref{FR_Suspend}{FR27}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\paragraph{Local Constants}
 
 \begin{itemize}
 \item $\T{DOCTOR\_LOOK}$ : LookT, the look of the doctor
@@ -3607,35 +4148,46 @@ program.
   concept)
 \end{itemize}
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
-While a narrated line plays, the Procedure Runner Module (M10) calls speaking
+While a narrated line plays, the Procedure Runner Module (\misref{Runner}{10}) calls speaking
 with the speaker and the loudness of the line, so the voice and the mouth start
 together (\srsitemref{NFR_AVSync}{NFR14}). The layout of the room and how each
 action is animated are the secrets of this module, and they are reviewed with
 the clinicians (\srsitemref{NFR_ClinicalAccuracy}{NFR22}). No action, such as
-the examination light, flashes more than \texttt{FLASH\_MAX\_PER\_S} times in
+the examination light, flashes more than $\T{FLASH\_MAX\_PER\_S}$ times in
 one second (\srsitemref{NFR_Flashing}{NFR16}).
+
+\paragraph{Future Revisions}
+
+\begin{itemize}
+\item The camera-shot and equipment-control interfaces used by Procedure Runner: TBD.
+\item Stage actions for the Vision Testing and Slit-Lamp Preparation levels: TBD.
+\item Scene-load errors and repeated initialization: TBD.
+\end{itemize}
 
 % =====================================================================
 \newpage
-\section{MIS of Character Rig Module} \label{mis:Rig}
+\subsection{Character Rig Module} \label{mis:Rig}
 
-\subsection{Template Module}
+\subsubsection{Template Module}
 
 ActorT (\misref{Rig}{23})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Accessory Catalogue Module (M8)
+Modules:
+\begin{itemize}
+\item Accessory Catalogue Module (\misref{Accessories}{8})
+\end{itemize}
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 None.
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item ActorT = ?
@@ -3650,7 +4202,7 @@ None.
 \item $\T{PlaceT}$: a position and a facing direction in a 3D scene
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 new ActorT & $k$ : LookT, $r$ : RoleT & ActorT & InvalidLook\\
@@ -3664,9 +4216,9 @@ talk & $v$ : $\R$ & -- & OutOfRange\\
 dance & $t$ : $\R$ & -- & OutOfRange\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
 \item $\T{look}$ : LookT
@@ -3678,21 +4230,22 @@ dance & $t$ : $\R$ & -- & OutOfRange\\
 \item $\T{visible}$ : $\B$
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 $\T{model}$: the 3D model of this character in the current scene.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 $\T{look}$ has at most one item of each category, and $0 \leq \T{mouth} \leq
 1$.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 None.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
+\begin{samepage}
 \noindent new ActorT($k$, $r$):
 \begin{itemize}
 \item transition: $\T{look}, \T{role}, \T{posed}, \T{mood}, \T{mouth},
@@ -3704,7 +4257,10 @@ None.
 \item exception: $\exc := (k \text{ has two items of one category}
   \Rightarrow \text{InvalidLook})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent dress($k$):
 \begin{itemize}
 \item transition: $\T{look} := k$, and $\T{model}$ shows the new look
@@ -3712,67 +4268,115 @@ None.
 \item exception: $\exc := (k \text{ has two items of one category}
   \Rightarrow \text{InvalidLook})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent show($b$):
 \begin{itemize}
 \item transition: $\T{visible} := b$
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\noindent placeAt($p$), walkTo($p$):
+\begin{samepage}
+\noindent placeAt($p$):
 \begin{itemize}
-\item transition: $\T{at} := p$. placeAt moves $\T{model}$ to $p$ at once.
-  walkTo walks it there and returns when it arrives.
+\item transition: $\T{at} := p$, and $\T{model}$ moves to $p$ at once.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\noindent pose($p$), setMood($m$):
+\begin{samepage}
+\noindent walkTo($p$):
 \begin{itemize}
-\item transition: $\T{posed} := p$ and the body plays the pose, or $\T{mood}
-  := m$ and the face shows the mood.
+\item transition: $\T{at} := p$, and $\T{model}$ walks to $p$. The routine
+  returns when it arrives.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
+\noindent pose($p$):
+\begin{itemize}
+\item transition: $\T{posed} := p$, and the body of $\T{model}$ plays the pose.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent setMood($m$):
+\begin{itemize}
+\item transition: $\T{mood} := m$, and the face of $\T{model}$ shows the mood.
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
 \noindent talk($v$):
 \begin{itemize}
 \item transition: $\T{mouth} := v$
 \item exception: $\exc := (v < 0 \vee v > 1 \Rightarrow \text{OutOfRange})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent dance($t$):
 \begin{itemize}
 \item transition: $\T{model}$ dances for $t$ seconds, and then $\T{posed} :=
   \V{Idle}$.
 \item exception: $\exc := (t < 0 \Rightarrow \text{OutOfRange})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
-The models and animations are the secret of this module (AC13 of the MG). Each
+The models and animations are the secret of this module (AC13 of the \mg{}). Each
 one is approved as not frightening (\srsitemref{NFR_ChildSafe}{NFR2}), and the
 characters vary as the SRS requires (\srsitemref{FR_DiverseCharacters}{FR35},
 \srsitemref{NFR_Inclusivity}{NFR31}).
 
+\paragraph{Future Revisions}
+
+\begin{itemize}
+\item Final inclusive character models, aids and accessories: TBD.
+\item Lip-sync detail beyond mouth opening, and reduced-motion animation: TBD.
+\end{itemize}
+
 % =====================================================================
 \newpage
-\section{MIS of Screen Effects Module} \label{mis:Effects}
+\subsection{Screen Effects Module} \label{mis:Effects}
 
-\subsection{Module}
+\subsubsection{Module}
 
 ScreenEffects (\misref{Effects}{24})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Hardware-Hiding Module (M1)
+Modules:
+\begin{itemize}
+\item Hardware-Hiding Module (\misref{HH}{1})
+\end{itemize}
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 $\T{FLASH\_MAX\_PER\_S} = 3$, the most flashes allowed in any one second, from
 the SRS (\srsitemref{NFR_Flashing}{NFR16}).
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Types}
+
+None.
+
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 init & $r$ : $\B$ & -- & --\\
@@ -3786,9 +4390,9 @@ pause & -- & -- & --\\
 resume & -- & -- & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
 \item $\T{dark}$ : $\R$, how dark the screen is made, from 0 (not at all) to 1
@@ -3799,7 +4403,7 @@ resume & -- & -- & --\\
 \item $\T{paused}$ : $\B$
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 \begin{itemize}
 \item $\T{overlay}$: a full-screen layer drawn over the screen through the
@@ -3807,31 +4411,38 @@ resume & -- & -- & --\\
 \item $\T{clock}$ : $\R$, the seconds since the application was launched.
 \end{itemize}
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 $\T{dark}$ and $\T{blur}$ are between 0 and 1, and at most
 $\T{FLASH\_MAX\_PER\_S}$ of the times in $\T{flashes}$ fall in the last second.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 init() is called before any other access program. The caller gives init and
-setReducedMotion the reduced-motion preference of the Preferences Module (M6).
+setReducedMotion the reduced-motion preference of the Preferences Module (\misref{Prefs}{6}).
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
+\begin{samepage}
 \noindent init($r$):
 \begin{itemize}
 \item transition: $\T{dark}, \T{blur}, \T{flashes}, \T{reduced}, \T{paused}
   := 0, 0, \langle\rangle, r, \false$, and $\T{overlay}$ is empty.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent setReducedMotion($r$):
 \begin{itemize}
 \item transition: $\T{reduced} := r$ (\srsitemref{FR_Preferences}{FR44})
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent fade($k$):
 \begin{itemize}
 \item transition: $\T{dark} := k$, and $\T{overlay}$ darkens the screen to
@@ -3839,13 +4450,19 @@ setReducedMotion the reduced-motion preference of the Preferences Module (M6).
   change fades to 1 and back to 0.
 \item exception: $\exc := (k < 0 \vee k > 1 \Rightarrow \text{OutOfRange})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent setBlur($k$):
 \begin{itemize}
 \item transition: $\T{blur} := k$, and $\T{overlay}$ blurs the screen by $k$.
 \item exception: $\exc := (k < 0 \vee k > 1 \Rightarrow \text{OutOfRange})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent blink():
 \begin{itemize}
 \item transition: $\T{overlay}$ closes and opens like eyelids. When
@@ -3853,7 +4470,10 @@ setReducedMotion the reduced-motion preference of the Preferences Module (M6).
   instead.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent flash():
 \begin{itemize}
 \item transition: when fewer than $\T{FLASH\_MAX\_PER\_S}$ flashes were shown
@@ -3862,56 +4482,84 @@ setReducedMotion the reduced-motion preference of the Preferences Module (M6).
   (\srsitemref{NFR_Flashing}{NFR16}).
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent clear():
 \begin{itemize}
 \item transition: every running effect stops, $\T{dark}, \T{blur} := 0, 0$,
   and $\T{overlay}$ is empty (\srsitemref{FR_StopOnExit}{FR23}).
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\noindent pause(), resume():
+\begin{samepage}
+\noindent pause():
 \begin{itemize}
-\item transition: $\T{paused} := \true$ and every running effect stops where
-  it is, or $\T{paused} := \false$ and they continue
+\item transition: $\T{paused} := \true$, and every running effect stops where
+  it is (\srsitemref{FR_Suspend}{FR27}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
+\noindent resume():
+\begin{itemize}
+\item transition: $\T{paused} := \false$, and every paused effect continues
   (\srsitemref{FR_Suspend}{FR27}).
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
 Because flash() adds a flash only below the limit, the state invariant holds
 after every call. The effects stay within the WCAG 2.2 limits on flashing and
 motion (\srsitemref{NFR_Accessibility}{NFR9}).
 
+\paragraph{Future Revisions}
+
+\begin{itemize}
+\item Effect durations and a reduced-motion alternative for every effect: TBD.
+\item Limits on the brightness and area of a flash, in addition to its rate: TBD.
+\item Applying a changed reduced-motion preference to an effect in progress: TBD.
+\end{itemize}
+
 % =====================================================================
 \newpage
-\section{MIS of Sound Effects Module} \label{mis:Sound}
+\subsection{Sound Effects Module} \label{mis:Sound}
 
-\subsection{Module}
+\subsubsection{Module}
 
 SoundEffects (\misref{Sound}{25})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Hardware-Hiding Module (M1)
+Modules:
+\begin{itemize}
+\item Hardware-Hiding Module (\misref{HH}{1})
+\end{itemize}
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 None.
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
-$\T{SoundT}$: the sound effects of the proof of concept,
+$\T{SoundT}$: the sound effects of the application,
 \[\begin{array}{l}
 \{\V{Tap}, \V{Coin}, \V{Cheer}, \V{Blink}, \V{Shiver}, \V{Correct},\\
 \phantom{\{}\V{TryAgain}, \V{Reward}, \V{Purchase}, \V{DropFall}, \V{Pop},
 \V{Sparkle}\}
 \end{array}\]
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 init & $s$ : $\R$, $n$ : $\R$ & -- & OutOfRange\\
@@ -3922,9 +4570,9 @@ pause & -- & -- & --\\
 resume & -- & -- & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 \begin{itemize}
 \item $\T{soundVolume}$ : $\R$, the music and sound-effect volume, from 0 to 1
@@ -3932,31 +4580,46 @@ resume & -- & -- & --\\
 \item $\T{paused}$ : $\B$
 \end{itemize}
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 $\T{speaker}$: the audio output of the device, reached through the
 Hardware-Hiding Module.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 Both volumes are between 0 and 1.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 init() is called before any other access program. The caller gives init and
-setVolume the two volumes of the Preferences Module (M6). Every sound effect is
+setVolume the two volumes of the Preferences Module (\misref{Prefs}{6}). Every sound effect is
 recorded with a peak no higher than the peak of the narration recordings.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
-\noindent init($s$, $n$), setVolume($s$, $n$):
+\begin{samepage}
+\noindent init($s$, $n$):
 \begin{itemize}
-\item transition: $\T{soundVolume}, \T{narrationVolume} := s, n$. init also
-  sets $\T{paused} := \false$ (\srsitemref{FR_Preferences}{FR44}).
-\item exception: $\exc := (s \text{ or } n \text{ is not between 0 and 1}
+\item transition: $\T{soundVolume}, \T{narrationVolume}, \T{paused} := s, n,
+  \false$
+\item exception: $\exc := (s < 0 \vee s > 1 \vee n < 0 \vee n > 1
   \Rightarrow \text{OutOfRange})$
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
+\noindent setVolume($s$, $n$):
+\begin{itemize}
+\item transition: $\T{soundVolume}, \T{narrationVolume} := s, n$
+  (\srsitemref{FR_Preferences}{FR44})
+\item exception: $\exc := (s < 0 \vee s > 1 \vee n < 0 \vee n > 1
+  \Rightarrow \text{OutOfRange})$
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\begin{samepage}
 \noindent play($e$):
 \begin{itemize}
 \item transition: when $\T{paused}$ is $\false$, $\T{speaker}$ plays sound
@@ -3964,45 +4627,72 @@ recorded with a peak no higher than the peak of the narration recordings.
   $\T{paused}$ is $\true$, nothing changes.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent stopAll():
 \begin{itemize}
 \item transition: $\T{speaker}$ stops every sound effect
   (\srsitemref{FR_StopOnExit}{FR23}).
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\noindent pause(), resume():
+\begin{samepage}
+\noindent pause():
 \begin{itemize}
-\item transition: $\T{paused} := \true$ and $\T{speaker}$ pauses the sound
-  effects, or $\T{paused} := \false$ and they continue
-  (\srsitemref{FR_Suspend}{FR27}).
+\item transition: $\T{paused} := \true$, and $\T{speaker}$ pauses the sound
+  effects (\srsitemref{FR_Suspend}{FR27}).
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\subsubsection{Considerations}
+\begin{samepage}
+\noindent resume():
+\begin{itemize}
+\item transition: $\T{paused} := \false$, and the paused sound effects
+  continue (\srsitemref{FR_Suspend}{FR27}).
+\item exception: none
+\end{itemize}
+\end{samepage}
+\par\pagebreak[0]
+
+\paragraph{Considerations}
 
 Playing at the lower of the two volumes, with the recording assumption, means
 no sound effect is louder than the narration
 (\srsitemref{NFR_AudioSafety}{NFR15}). The recordings are the secret of this
-module (AC15 of the MG). Background music, if it is added, is played the same
+module (AC15 of the \mg{}). Background music, if it is added, is played the same
 way.
+
+\paragraph{Future Revisions}
+
+\begin{itemize}
+\item Background music and its volume: TBD.
+\item Final recordings, loudness review and lowering effects during narration: TBD.
+\end{itemize}
 
 % =====================================================================
 \newpage
-\section{MIS of UI Widgets Module} \label{mis:Widgets}
+\subsection{UI Widgets Module} \label{mis:Widgets}
 
-\subsection{Module}
+\subsubsection{Module}
 
 UIWidgets (\misref{Widgets}{26})
 
-\subsection{Uses}
+\subsubsection{Uses}
 
-Hardware-Hiding Module (M1)
+Modules:
+\begin{itemize}
+\item Hardware-Hiding Module (\misref{HH}{1})
+\end{itemize}
 
-\subsection{Syntax}
+\subsubsection{Syntax}
 
-\subsubsection{Exported Constants}
+\paragraph{Exported Constants}
 
 \begin{itemize}
 \item $\T{TOUCH\_TARGET\_MIN} = 15$, in millimetres, from the SRS
@@ -4011,7 +4701,7 @@ Hardware-Hiding Module (M1)
   (\srsitemref{NFR_Responsiveness}{NFR12})
 \end{itemize}
 
-\subsubsection{Exported Types}
+\paragraph{Exported Types}
 
 \begin{itemize}
 \item $\T{RegionT} = \text{tuple of } (x : \R,\ y : \R,\ w : \R,\ h : \R)$: a rectangle on the
@@ -4030,7 +4720,7 @@ Hardware-Hiding Module (M1)
   chosen, and 0 for a tap.
 \end{itemize}
 
-\subsubsection{Exported Access Programs}
+\paragraph{Exported Access Programs}
 
 \begin{accessprogs}
 spot & $s$ : SpotT & RegionT & --\\
@@ -4042,34 +4732,38 @@ banner & $m$ : String & -- & --\\
 clearCues & -- & -- & --\\
 \end{accessprogs}
 
-\subsection{Semantics}
+\subsubsection{Semantics}
 
-\subsubsection{State Variables}
+\paragraph{State Variables}
 
 None.
 
-\subsubsection{Environment Variables}
+\paragraph{Environment Variables}
 
 $\T{screen}$: the display and touch screen of the device, reached through the
 Hardware-Hiding Module.
 
-\subsubsection{State Invariant}
+\paragraph{State Invariant}
 
 None.
 
-\subsubsection{Assumptions}
+\paragraph{Assumptions}
 
 None.
 
-\subsubsection{Access Routine Semantics}
+\paragraph{Access Routine Semantics}
 
+\begin{samepage}
 \noindent spot($s$):
 \begin{itemize}
 \item output: $\out :=$ the region of control $s$. It is the same place on
   every screen (\srsitemref{NFR_Layout}{NFR1}).
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent choose($\T{cs}$):
 \begin{itemize}
 \item transition: $\T{screen}$ shows every control of $\T{cs}$ with its icon,
@@ -4094,7 +4788,10 @@ None.
   \text{BadHold})
   \end{array}\]
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent confirm($q$, $d$):
 \begin{itemize}
 \item transition: $\T{screen}$ dims and shows the question $q$, the detail
@@ -4103,7 +4800,10 @@ None.
   \text{``No'' is chosen} \Rightarrow \false)$
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent coinCounter($n$):
 \begin{itemize}
 \item transition: $\T{screen}$ shows a coin and the number $n$ at
@@ -4111,14 +4811,20 @@ None.
   counts up to it.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent cue($i$, $g$):
 \begin{itemize}
 \item transition: $\T{screen}$ shows the visual cue $i$ pointing at region
   $g$, such as a hand over the object to tap (\srsitemref{FR_VisualCues}{FR15}).
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent banner($m$):
 \begin{itemize}
 \item transition: $\T{screen}$ shows the text $m$ in a banner, such as a
@@ -4126,19 +4832,43 @@ None.
   (\srsitemref{FR_NarrationFallback}{FR16}).
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
+\begin{samepage}
 \noindent clearCues():
 \begin{itemize}
 \item transition: every cue and banner is removed from $\T{screen}$.
 \item exception: none
 \end{itemize}
+\end{samepage}
+\par\pagebreak[0]
 
-\subsubsection{Considerations}
+\paragraph{Considerations}
 
-The look of the controls is the secret of this module (AC16 of the MG).
+The look of the controls is the secret of this module (AC16 of the \mg{}).
 Because choose acts on one choice per call, a screen that changes after a
 navigation control is chosen cannot act on a second touch before the next
 screen is shown.
+
+\paragraph{Future Revisions}
+
+\begin{itemize}
+\item Control regions for each supported device and screen size: TBD.
+\item Applying the caption-size and cue-size preferences to widgets: TBD.
+\item Usability and accessibility checks of the shared controls: TBD.
+\end{itemize}
+
+% Restore the usual heading sizes and numbering for the appendices
+\makeatletter
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+  {-3.25ex \@plus -1ex \@minus -.2ex}{1.5ex \@plus .2ex}%
+  {\normalfont\large\bfseries}}
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+  {-3.25ex \@plus -1ex \@minus -.2ex}{1.5ex \@plus .2ex}%
+  {\normalfont\normalsize\bfseries}}
+\makeatother
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
 
 \newpage{}
 
@@ -4160,14 +4890,14 @@ screen is shown.
     repository.
 
     \item In the specifications of M1 to M13, GPT-6.1 Sol was used to help draft each module
-    one at a time using the team's earlier MIS draft and the current MG,
+    one at a time using the team's earlier MIS draft and the current \mg{},
     with the SRS providing further context. The initial drafts
     focused on the game more generally than the Eye Drop portion of the PoC.
     The author then directed revisions to keep the detail supported by the
     earlier draft and relevant to the current PoC, while leaving future
     functionality included but marked as TBD. The interfaces were revised to
-    match the Uses Relation table of the MG, and the content was checked again
-    against both the MG and the earlier draft. Symbols, abbreviations, and
+    match the Uses Relation table of the \mg{}, and the content was checked again
+    against both the \mg{} and the earlier draft. Symbols, abbreviations, and
     notation were updated as needed, and entries that were no longer used
     after revision were removed.
 
@@ -4182,13 +4912,13 @@ screen is shown.
     \hyperref[mis:Reward]{\misref{Reward}{14}} to
     \hyperref[mis:Widgets]{\misref{Widgets}{26}}, Claude Opus 5.5 drafted the
     syntax and semantics of each module from the secrets, services, module
-    types and Uses Relation table of the MG. It adapted the author's earlier
+    types and Uses Relation table of the \mg{}. It adapted the author's earlier
     draft to the current module numbering, and took the exported constants
     from the SRS. The author then directed three rounds of revision:
     \begin{itemize}
         \item The Uses of each module were changed to match the Uses Relation
-        table of the MG exactly. Other modules are referred to only through
-        the services the MG gives them, instead of through access programs
+        table of the \mg{} exactly. Other modules are referred to only through
+        the services the \mg{} gives them, instead of through access programs
         that had not been defined.
         \item Most of the formal notation in the semantics was replaced with
         plain sentences, keeping formal notation for the types and where it
@@ -4210,8 +4940,8 @@ screen is shown.
 \subsection{Verification of AI-Generated Content}
 
 The Uses of each module in M1 to M26 were compared with the Uses Relation
-table of the MG, and the type of each module was compared with its type in the
-MG module decomposition. Every requirement number was checked against the
+table of the \mg{}, and the type of each module was compared with its type in the
+\mg{} module decomposition. Every requirement number was checked against the
 current SRS, and every exported constant was checked against the SRS table of
 constants. Each module
 was reviewed against the course MIS checklist. This included checking that
@@ -4273,7 +5003,7 @@ under each respective team member's name.
     requiring direct interaction with children.
 
     Other technical decisions, particularly the module
-    decomposition and interfaces documented in the MG and MIS,
+    decomposition and interfaces documented in the \mg{} and MIS,
     were made based on the existing Unity PoC, the SRS,
     the Hazard Analysis, and software engineering principles.
     These decisions focused on separating responsibilities,
@@ -4312,7 +5042,7 @@ under each respective team member's name.
 
     Overall, these revisions provided a clearer understanding
     of the system and a stronger foundation for defining
-    module responsibilities and interfaces in the MIS and MG.
+    module responsibilities and interfaces in the MIS and \mg{}.
 
     \item \textbf{What are the limitations of your solution? Put another way,
     given unlimited resources, what could you do to make the project better?}
@@ -4460,9 +5190,9 @@ interests and strengths. Unlike previous deliverables, where
 everyone worked on different sections of the same document,
 we decided to divide responsibilities across the deliverables.
 One member focused on the Custom Document, two worked on
-the PoC, and we assigned pairs to the MIS and MG. Since we
+the PoC, and we assigned pairs to the MIS and \mg{}. Since we
 only have five team members, those working on the PoC also
-contributed to sections of the MIS and MG.
+contributed to sections of the MIS and \mg{}.
 
 I believe this approach helped us work more efficiently
 and allowed everyone to focus on areas they were most
@@ -4476,7 +5206,7 @@ and how did you resolve them?}
 
 One of the biggest challenges was the limited time available
 to complete the Design Document. Given the amount of detail
-required for the MIS and MG, I felt that the timeline was
+required for the MIS and \mg{}, I felt that the timeline was
 quite demanding and made it difficult to spend as much time
 refining the design as I would have liked.
 
@@ -4582,14 +5312,14 @@ design in the context of game development.
     need the extension to finish my parts.
 
     Another challenge was keeping my modules consistent with what my
-    teammates wrote in the MG. Since the MG and the MIS were written at the
-    same time on separate branches, the MG was still changing while I was
+    teammates wrote in the \mg{}. Since the \mg{} and the MIS were written at the
+    same time on separate branches, the \mg{} was still changing while I was
     writing my module specifications. I had to keep a second VS Code
     window open on that branch to see what was written there. I then
-    compared each of my modules against the MG to make sure the names,
+    compared each of my modules against the \mg{} to make sure the names,
     responsibilities, and uses relationships matched. This took quite a
     while, and whenever something did not line up, I updated my modules to
-    match the MG. In the end, this careful checking kept the two documents
+    match the \mg{}. In the end, this careful checking kept the two documents
     consistent with each other.
 
 \end{enumerate}
